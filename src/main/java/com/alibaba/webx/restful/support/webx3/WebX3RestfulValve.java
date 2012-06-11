@@ -1,4 +1,4 @@
-package com.alibaba.webx.restfull.support.webx3;
+package com.alibaba.webx.restful.support.webx3;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,7 +13,7 @@ import com.alibaba.citrus.service.pipeline.Valve;
 
 public class WebX3RestfulValve implements Valve, InitializingBean, ApplicationContextAware {
 
-    @Autowired
+    @Autowired(required = true)
     private HttpServletRequest request;
 
     private ApplicationContext applicationContext;
