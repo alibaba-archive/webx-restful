@@ -1,7 +1,7 @@
 package com.alibaba.webx.restful.server;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,33 +14,54 @@ import javax.ws.rs.core.Application;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.alibaba.webx.restful.message.internal.LocalizationMessages;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.server.internal.scanning.AnnotationAcceptingListener;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
 import com.alibaba.webx.restful.util.ReflectionUtils;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class ApplicationConfig extends Application {
 
-    private final static Log          LOG         = LogFactory.getLog(ApplicationConfig.class);
-
-    private ClassLoader               classLoader = null;
+    private static final Log          LOG                  = LogFactory.getLog(ApplicationConfig.class);
+    //
+    private transient Set<Class<?>>   cachedClasses        = null;
+    private transient Set<Class<?>>   cachedClassesView    = null;
+    private transient Set<Object>     cachedSingletons     = null;
+    private transient Set<Object>     cachedSingletonsView = null;
+    //
     private final Set<Class<?>>       classes;
-    private final Set<Resource>       resources;
+    private final Set<Object>         singletons;
     private final Set<ResourceFinder> resourceFinders;
+    //
+    private final Set<Resource>       resources;
+    private final Set<Resource>       resourcesView;
     private final Map<String, Object> properties;
+    private final Map<String, Object> propertiesView;
+    //
+    //
+    private ClassLoader               classLoader          = null;
+    //
+    private InternalState             internalState        = new Mutable();
 
     public ApplicationConfig(){
         this.classLoader = ReflectionUtils.getContextClassLoader();
 
-        this.classes = new HashSet<Class<?>>();
-        this.resources = new HashSet<Resource>();
-        this.resourceFinders = new HashSet<ResourceFinder>();
-        this.properties = new HashMap<String, Object>();
+        this.classes = Sets.newHashSet();
+        this.singletons = Sets.newHashSet();
+        this.resources = Sets.newHashSet();
+        this.resourcesView = Collections.unmodifiableSet(this.resources);
+
+        this.properties = Maps.newHashMap();
+        this.propertiesView = Collections.unmodifiableMap(this.properties);
+
+        this.resourceFinders = Sets.newHashSet();
     }
-    
+
     void lock() {
-        
+
     }
 
     public ClassLoader getClassLoader() {
@@ -49,6 +70,10 @@ public class ApplicationConfig extends Application {
 
     public Set<Class<?>> getClasses() {
         return classes;
+    }
+
+    public final Set<Resource> getResources() {
+        return resourcesView;
     }
 
     public Set<ResourceFinder> getResourceFinders() {
@@ -190,4 +215,122 @@ public class ApplicationConfig extends Application {
         return (ApplicationConfig) application;
     }
 
+    private interface InternalState {
+
+        ApplicationConfig addClasses(Set<Class<?>> classes);
+
+        ApplicationConfig addResources(Set<Resource> resources);
+
+        ApplicationConfig addFinder(ResourceFinder resourceFinder);
+
+        ApplicationConfig addProperties(Map<String, Object> properties);
+
+        ApplicationConfig addSingletons(Set<Object> singletons);
+
+        ApplicationConfig setClassLoader(ClassLoader classLoader);
+
+        ApplicationConfig setProperty(String name, Object value);
+
+        ApplicationConfig setApplication(Application application);
+    }
+
+    private class Immutable implements InternalState {
+
+        @Override
+        public ApplicationConfig addClasses(Set<Class<?>> classes) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig addResources(Set<Resource> resources) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig addFinder(ResourceFinder resourceFinder) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig addProperties(Map<String, Object> properties) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig addSingletons(Set<Object> singletons) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig setClassLoader(ClassLoader classLoader) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig setProperty(String name, Object value) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+
+        @Override
+        public ApplicationConfig setApplication(Application application) {
+            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
+        }
+    }
+
+    private class Mutable implements InternalState {
+
+        @Override
+        public ApplicationConfig addClasses(Set<Class<?>> classes) {
+            invalidateCache();
+            ApplicationConfig.this.classes.addAll(classes);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig addResources(Set<Resource> resources) {
+            ApplicationConfig.this.resources.addAll(resources);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig addFinder(ResourceFinder resourceFinder) {
+            invalidateCache();
+            ApplicationConfig.this.resourceFinders.add(resourceFinder);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig addProperties(Map<String, Object> properties) {
+            invalidateCache();
+            ApplicationConfig.this.properties.putAll(properties);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig addSingletons(Set<Object> singletons) {
+            invalidateCache();
+            ApplicationConfig.this.singletons.addAll(singletons);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig setClassLoader(ClassLoader classLoader) {
+            invalidateCache();
+            ApplicationConfig.this.classLoader = classLoader;
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig setProperty(String name, Object value) {
+            invalidateCache();
+            ApplicationConfig.this.properties.put(name, value);
+            return ApplicationConfig.this;
+        }
+
+        @Override
+        public ApplicationConfig setApplication(Application application) {
+            invalidateCache();
+            return ApplicationConfig.this._setApplication(application);
+        }
+    }
 }
