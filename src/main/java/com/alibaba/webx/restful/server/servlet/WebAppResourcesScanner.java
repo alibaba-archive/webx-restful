@@ -66,7 +66,7 @@ public class WebAppResourcesScanner implements ResourceFinder {
      * 
      * @param sc {@link ServletContext}.
      */
-    WebAppResourcesScanner(final ServletContext sc){
+    public WebAppResourcesScanner(final ServletContext sc){
         this.sc = sc;
 
         processPaths(paths);

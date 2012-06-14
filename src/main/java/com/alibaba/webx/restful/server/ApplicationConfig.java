@@ -69,7 +69,11 @@ public class ApplicationConfig extends Application {
     }
 
     public Set<Class<?>> getClasses() {
-        return classes;
+        if (cachedClassesView == null) {
+            cachedClasses = _getClasses();
+            cachedClassesView = Collections.unmodifiableSet(cachedClasses);
+        }
+        return cachedClassesView;
     }
 
     public final Set<Resource> getResources() {
@@ -86,6 +90,46 @@ public class ApplicationConfig extends Application {
 
     Application _getApplication() {
         return this;
+    }
+
+    /**
+     * Add a {@link ResourceFinder} to {@code ResourceConfig}.
+     * 
+     * @param resourceFinder {@link ResourceFinder}
+     * @return updated resource configuration instance.
+     */
+    public final ApplicationConfig addFinder(ResourceFinder resourceFinder) {
+        return internalState.addFinder(resourceFinder);
+    }
+    
+    /**
+     * Add properties to {@code ResourceConfig}.
+     *
+     * If any of the added properties exists already, he values of the existing
+     * properties will be replaced with new values.
+     *
+     * @param properties properties to add.
+     * @return updated resource configuration instance.
+     */
+    public final ApplicationConfig addProperties(Map<String, Object> properties) {
+        return internalState.addProperties(properties);
+    }
+    
+    public final Object getProperty(String name) {
+        return properties.get(name);
+    }
+
+    public final boolean isProperty(String name) {
+        if (properties.containsKey(name)) {
+            Object value = properties.get(name);
+            if (value instanceof Boolean) {
+                return Boolean.class.cast(value);
+            } else {
+                return Boolean.parseBoolean(value.toString());
+            }
+        }
+
+        return false;
     }
 
     private void invalidateCache() {

@@ -13,6 +13,10 @@ public class HelloWorldResource {
 
     @Autowired(required=true)
     private HelloWorldService service;
+    
+    public HelloWorldResource() {
+        
+    }
 
     @GET
     @Produces("text/plain")
