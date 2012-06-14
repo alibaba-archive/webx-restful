@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,7 +72,7 @@ public class ApplicationConfig extends Application {
 
     public Set<Class<?>> getClasses() {
         if (cachedClassesView == null) {
-            cachedClasses = _getClasses();
+            cachedClasses = getClassesInternal();
             cachedClassesView = Collections.unmodifiableSet(cachedClasses);
         }
         return cachedClassesView;
@@ -139,7 +141,7 @@ public class ApplicationConfig extends Application {
         // this.cachedSingletonsView = null;
     }
 
-    Set<Class<?>> _getClasses() {
+    Set<Class<?>> getClassesInternal() {
         Set<Class<?>> result = new HashSet<Class<?>>();
 
         Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
@@ -166,14 +168,14 @@ public class ApplicationConfig extends Application {
             rfs.add(new FilesScanner(classPathElements));
         }
 
-        ResourceProcessorImpl afl = ResourceProcessorImpl.newJaxrsResourceAndProviderListener(classLoader);
+        ResourceProcessorImpl resourceProcessor = new ResourceProcessorImpl(classLoader, Path.class, Provider.class);
         for (ResourceFinder resourceFinder : rfs) {
             while (resourceFinder.hasNext()) {
                 final String next = resourceFinder.next();
 
-                if (afl.accept(next)) {
+                if (resourceProcessor.accept(next)) {
                     try {
-                        afl.process(next, resourceFinder.open());
+                        resourceProcessor.process(next, resourceFinder.open());
                     } catch (IOException e) {
                         // TODO L10N
                         LOG.warn("Unable to process {" + next + "}", e);
@@ -182,7 +184,7 @@ public class ApplicationConfig extends Application {
             }
         }
 
-        result.addAll(afl.getAnnotatedClasses());
+        result.addAll(resourceProcessor.getAnnotatedClasses());
         result.addAll(classes);
         return result;
     }

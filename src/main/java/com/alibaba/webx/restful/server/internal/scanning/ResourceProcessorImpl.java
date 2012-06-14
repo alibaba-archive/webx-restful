@@ -7,9 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.ws.rs.Path;
-import javax.ws.rs.ext.Provider;
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassReader;
@@ -30,48 +27,6 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
 
     private final AnnotatedClassVisitor classVisitor;
 
-    /**
-     * Create a scanning listener to check for Java classes in Java class files annotated with {@link javax.ws.rs.Path}
-     * or {@link javax.ws.rs.ext.Provider}.
-     * 
-     * @return new instance of {@link ResourceProcessorImpl} which looks for {@link javax.ws.rs.Path} or
-     * {@link javax.ws.rs.ext.Provider} annotated classes.
-     */
-    @SuppressWarnings({ "unchecked" })
-    public static ResourceProcessorImpl newJaxrsResourceAndProviderListener() {
-        return new ResourceProcessorImpl(Path.class, Provider.class);
-    }
-
-    /**
-     * Create a scanning listener to check for Java classes in Java class files annotated with {@link Path} or
-     * {@link Provider}.
-     * 
-     * @param classLoader the class loader to use to load Java classes that are annotated with any one of the
-     * annotations.
-     * @return new instance of {@link ResourceProcessorImpl} which looks for {@link javax.ws.rs.Path} or
-     * {@link javax.ws.rs.ext.Provider} annotated classes.
-     */
-    @SuppressWarnings({ "unchecked" })
-    public static ResourceProcessorImpl newJaxrsResourceAndProviderListener(ClassLoader classLoader) {
-        return new ResourceProcessorImpl(classLoader, Path.class, Provider.class);
-    }
-
-    /**
-     * Create a scanner listener to check for annotated Java classes in Java class files.
-     * 
-     * @param annotations the set of annotation classes to check on Java class files.
-     */
-    public ResourceProcessorImpl(Class<? extends Annotation>... annotations){
-        this(ReflectionUtils.getContextClassLoader(), annotations);
-    }
-
-    /**
-     * Create a scanner listener to check for annotated Java classes in Java class files.
-     * 
-     * @param classloader the class loader to use to load Java classes that are annotated with any one of the
-     * annotations.
-     * @param annotations the set of annotation classes to check on Java class files.
-     */
     public ResourceProcessorImpl(ClassLoader classloader, Class<? extends Annotation>... annotations){
         this.classloader = classloader;
         this.classes = new LinkedHashSet<Class<?>>();
@@ -90,7 +45,7 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
 
     private Set<String> getAnnotationSet(Class<? extends Annotation>... annotations) {
         Set<String> a = new HashSet<String>();
-        for (Class c : annotations) {
+        for (Class<?> c : annotations) {
             a.add("L" + c.getName().replaceAll("\\.", "/") + ";");
         }
         return a;
@@ -106,10 +61,9 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
     }
 
     public void process(String name, InputStream in) throws IOException {
-        new ClassReader(in).accept(classVisitor, 0);
+        ClassReader classReader = new ClassReader(in);
+        classReader.accept(classVisitor, 0);
     }
-
-    //
 
     private final class AnnotatedClassVisitor implements ClassVisitor {
 
@@ -159,28 +113,23 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
         }
 
         public void visitOuterClass(String string, String string0, String string1) {
-            // Do nothing
         }
 
         public FieldVisitor visitField(int i, String string, String string0, String string1, Object object) {
-            // Do nothing
             return null;
         }
 
         public void visitSource(String string, String string0) {
-            // Do nothing
         }
 
         public void visitAttribute(Attribute attribute) {
-            // Do nothing
         }
 
         public MethodVisitor visitMethod(int i, String string, String string0, String string1, String[] string2) {
-            // Do nothing
             return null;
         }
 
-        private Class getClassForName(String className) {
+        private Class<?> getClassForName(String className) {
             try {
                 return ReflectionUtils.classForNameWithException(className, classloader);
             } catch (ClassNotFoundException ex) {
