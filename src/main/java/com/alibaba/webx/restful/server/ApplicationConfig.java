@@ -16,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
 import com.alibaba.webx.restful.model.Resource;
-import com.alibaba.webx.restful.server.internal.scanning.AnnotationAcceptingListener;
+import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
 import com.alibaba.webx.restful.util.ReflectionUtils;
@@ -166,7 +166,7 @@ public class ApplicationConfig extends Application {
             rfs.add(new FilesScanner(classPathElements));
         }
 
-        AnnotationAcceptingListener afl = AnnotationAcceptingListener.newJaxrsResourceAndProviderListener(classLoader);
+        ResourceProcessorImpl afl = ResourceProcessorImpl.newJaxrsResourceAndProviderListener(classLoader);
         for (ResourceFinder resourceFinder : rfs) {
             while (resourceFinder.hasNext()) {
                 final String next = resourceFinder.next();

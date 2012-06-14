@@ -62,7 +62,7 @@ public final class ServerProperties {
      */
     // TODO add support for ':' and any (number of consecutive) whitespace(s).
     // TODO implement generic support
-    public static final String PROVIDER_PACKAGES = "jersey.config.server.provider.packages";
+    public static final String PROVIDER_PACKAGES = "webx.restful.provider.packages";
 
     /**
      * Defines class-path that contains application-specific resources and
