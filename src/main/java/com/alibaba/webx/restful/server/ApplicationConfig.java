@@ -18,9 +18,9 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
 import com.alibaba.webx.restful.model.Resource;
-import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
+import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -30,7 +30,6 @@ public class ApplicationConfig extends Application {
     private static final Log          LOG                  = LogFactory.getLog(ApplicationConfig.class);
     //
     private transient Set<Class<?>>   cachedClasses        = null;
-    private transient Set<Class<?>>   cachedClassesView    = null;
     private transient Set<Object>     cachedSingletons     = null;
     private transient Set<Object>     cachedSingletonsView = null;
     //
@@ -71,11 +70,7 @@ public class ApplicationConfig extends Application {
     }
 
     public Set<Class<?>> getClasses() {
-        if (cachedClassesView == null) {
-            cachedClasses = getClassesInternal();
-            cachedClassesView = Collections.unmodifiableSet(cachedClasses);
-        }
-        return cachedClassesView;
+        return cachedClasses;
     }
 
     public final Set<Resource> getResources() {
@@ -103,20 +98,18 @@ public class ApplicationConfig extends Application {
     public final ApplicationConfig addFinder(ResourceFinder resourceFinder) {
         return internalState.addFinder(resourceFinder);
     }
-    
+
     /**
-     * Add properties to {@code ResourceConfig}.
-     *
-     * If any of the added properties exists already, he values of the existing
-     * properties will be replaced with new values.
-     *
+     * Add properties to {@code ResourceConfig}. If any of the added properties exists already, he values of the
+     * existing properties will be replaced with new values.
+     * 
      * @param properties properties to add.
      * @return updated resource configuration instance.
      */
     public final ApplicationConfig addProperties(Map<String, Object> properties) {
         return internalState.addProperties(properties);
     }
-    
+
     public final Object getProperty(String name) {
         return properties.get(name);
     }
@@ -135,13 +128,14 @@ public class ApplicationConfig extends Application {
     }
 
     private void invalidateCache() {
-        // this.cachedClasses = null;
-        // this.cachedClassesView = null;
-        // this.cachedSingletons = null;
-        // this.cachedSingletonsView = null;
+
     }
 
-    Set<Class<?>> getClassesInternal() {
+    public void init() {
+        cachedClasses = loadClasses();
+    }
+
+    private Set<Class<?>> loadClasses() {
         Set<Class<?>> result = new HashSet<Class<?>>();
 
         Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
@@ -255,10 +249,6 @@ public class ApplicationConfig extends Application {
             es[i] = es[i].trim();
         }
         return es;
-    }
-
-    public static ApplicationConfig forApplication(Application application) {
-        return (ApplicationConfig) application;
     }
 
     private interface InternalState {

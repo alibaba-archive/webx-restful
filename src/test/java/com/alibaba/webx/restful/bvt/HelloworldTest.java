@@ -1,5 +1,7 @@
 package com.alibaba.webx.restful.bvt;
 
+import java.net.URLEncoder;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 

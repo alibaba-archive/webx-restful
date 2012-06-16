@@ -47,6 +47,9 @@ public class WebxRestfulServletFilter implements Filter {
         if (webapp != null && !"false".equals(webapp)) {
             applicationConfig.addFinder(new WebAppResourcesScanner(filterConfig.getServletContext()));
         }
+
+        applicationConfig.init();
+
         return applicationConfig;
     }
 

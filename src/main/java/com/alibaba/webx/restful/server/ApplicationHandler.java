@@ -1,6 +1,8 @@
 package com.alibaba.webx.restful.server;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +14,15 @@ import javax.ws.rs.core.Application;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.message.MessageBodyWorkers;
+import com.alibaba.webx.restful.internal.inject.ServiceProviders;
+import com.alibaba.webx.restful.message.internal.MessageBodyFactory;
+import com.alibaba.webx.restful.model.BasicValidator;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceModelIssue;
-import com.alibaba.webx.restful.spi.ContextResolvers;
-import com.alibaba.webx.restful.spi.ExceptionMappers;
+import com.alibaba.webx.restful.model.ResourceModelValidator;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
-import com.alibaba.webx.restful.util.Ref;
 
 public class ApplicationHandler {
 
@@ -31,12 +32,10 @@ public class ApplicationHandler {
 
     private ApplicationContext      applicationContext;
 
-    private References              refs;
-
     public ApplicationHandler(Application application, ApplicationContext applicationContext){
         ApplicationContextUtils.setApplicationContext(applicationContext);
 
-        this.config = ApplicationConfig.forApplication(application);
+        this.config = (ApplicationConfig) application;
         this.applicationContext = applicationContext;
 
         initialize();
@@ -75,22 +74,36 @@ public class ApplicationHandler {
             }
         }
 
-        this.refs = (References) applicationContext.getAutowireCapableBeanFactory().createBean(References.class);
+        ServiceProviders providers = null;
+
+        {
+            Map map = applicationContext.getBeansOfType(ServiceProviders.class);
+            Iterator iter = map.values().iterator();
+            if (iter.hasNext()) {
+                providers = (ServiceProviders) iter.next();
+            }
+        }
+
+        final MessageBodyFactory workers = new MessageBodyFactory(providers);
+
+        final List<Resource> result = new ArrayList<Resource>(resourcesBuilders.size());
+        ResourceModelValidator validator = new BasicValidator(resourceModelIssues, workers);
+
+        for (Resource.Builder rb : resourcesBuilders) {
+            final Resource r = rb.build();
+            result.add(r);
+            validator.validate(r);
+        }
+        processIssues(validator);
+
+    }
+
+    private void processIssues(ResourceModelValidator validator) {
+        // TODO
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) {
         String uri = request.getRequestURI();
-        
-        
-    }
 
-    private static class References {
-
-        @Autowired
-        private Ref<ExceptionMappers>   mappers;
-        @Autowired
-        private Ref<MessageBodyWorkers> workers;
-        @Autowired
-        private Ref<ContextResolvers>   resolvers;
     }
 }
