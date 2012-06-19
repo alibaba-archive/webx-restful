@@ -3,6 +3,7 @@ package com.alibaba.webx.restful.server.process;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,8 +29,6 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
     private final HttpServletRequest  httpRequest;
     private final HttpServletResponse httpResponse;
 
-    private transient String          path;
-
     private Resource                  resource;
     private ResourceMethod            resourceMethod;
 
@@ -39,12 +38,26 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
     private Exception                 exception;
     private Object                    returnObject;
 
-    private HttpHeaders               httpHeaders = null;
+    private HttpHeaders               httpHeaders     = null;
+
+    private WebxRestfulRequest        request         = null;
+    private SecurityContext           securityContext = null;
+
+    private Date                      date;
+
+    private UriInfo                   uriInfo;
+
+    private String                    method;
+
+    private Map<String, Object>       properties      = null;
 
     public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response){
         super();
         this.httpRequest = request;
         this.httpResponse = response;
+        this.date = new Date();
+
+        this.uriInfo = new WebxRestfulUriInfo(request);
     }
 
     public HttpHeaders getHttpHeaders() {
@@ -68,21 +81,6 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     public void setException(Exception exception) {
         this.exception = exception;
-    }
-
-    public String getPath() {
-        if (path == null) {
-            String servletPath = httpRequest.getServletPath();
-            if (servletPath.length() == 0) {
-                servletPath = "/";
-            }
-            String contextPath = httpRequest.getContextPath();
-            String requestURI = httpRequest.getRequestURI();
-
-            path = requestURI.substring(servletPath.length() + contextPath.length());
-        }
-
-        return path;
     }
 
     public Resource getResource() {
@@ -127,14 +125,15 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+        return properties;
     }
 
     @Override
     public UriInfo getUriInfo() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.uriInfo;
     }
 
     @Override
@@ -149,62 +148,56 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     @Override
     public String getMethod() {
-        // TODO Auto-generated method stub
-        return null;
+        if (this.method == null) {
+            return this.httpRequest.getMethod();
+        }
+
+        return method;
     }
 
     @Override
     public void setMethod(String method) throws IllegalStateException {
-        // TODO Auto-generated method stub
-
+        this.method = method;
     }
 
     @Override
     public MultivaluedMap<String, String> getHeaders() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getRequestHeaders();
     }
 
     @Override
     public Date getDate() {
-        // TODO Auto-generated method stub
-        return null;
+        return date;
     }
 
     @Override
     public Locale getLanguage() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getLanguage();
     }
 
     @Override
     public int getLength() {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.getHttpHeaders().getLength();
     }
 
     @Override
     public MediaType getMediaType() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getMediaType();
     }
 
     @Override
     public List<MediaType> getAcceptableMediaTypes() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getAcceptableMediaTypes();
     }
 
     @Override
     public List<Locale> getAcceptableLanguages() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getAcceptableLanguages();
     }
 
     @Override
     public Map<String, Cookie> getCookies() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.getHttpHeaders().getCookies();
     }
 
     @Override
@@ -227,14 +220,12 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     @Override
     public SecurityContext getSecurityContext() {
-        // TODO Auto-generated method stub
-        return null;
+        return securityContext;
     }
 
     @Override
     public void setSecurityContext(SecurityContext context) {
-        // TODO Auto-generated method stub
-
+        this.securityContext = context;
     }
 
     @Override
@@ -245,8 +236,10 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     @Override
     public Request getRequest() {
-        // TODO Auto-generated method stub
-        return null;
+        if (request == null) {
+            request = new WebxRestfulRequest(httpRequest);
+        }
+        return request;
     }
 
 }

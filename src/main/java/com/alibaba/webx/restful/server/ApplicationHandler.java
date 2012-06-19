@@ -153,7 +153,7 @@ public class ApplicationHandler {
         }
     }
 
-    public Object[] getArguments(WebxRestfulRequestContext requestContext) {
+    public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
         Invocable invocable = resourceMethod.getInvocable();
         Method method = invocable.getHandlingMethod();
@@ -211,7 +211,7 @@ public class ApplicationHandler {
     }
 
     private void match(WebxRestfulRequestContext requestContext) {
-        String path = requestContext.getPath();
+        String path = requestContext.getUriInfo().getPath();
 
         List<Resource> matchedResources = new ArrayList<Resource>();
         List<MatchResult> matchedResults = new ArrayList<MatchResult>();
