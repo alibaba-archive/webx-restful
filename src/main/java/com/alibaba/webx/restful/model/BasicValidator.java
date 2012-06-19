@@ -177,7 +177,7 @@ public class BasicValidator extends ResourceModelValidator {
             }
 
             // ensure GET does not consume an entity parameter, if not inflector-based
-            if (invocable.requiresEntity() && !invocable.isInflector()) {
+            if (invocable.requiresEntity()) {
                 addMinorIssue(method, LocalizationMessages.GET_CONSUMES_ENTITY(invocable.getHandlingMethod()));
             }
             // ensure GET does not consume any @FormParam annotated parameter

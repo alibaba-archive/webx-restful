@@ -77,6 +77,10 @@ public class ApplicationConfig extends Application {
         return resourcesView;
     }
 
+    public void addResources(List<Resource> resources) {
+        this.resources.addAll(resources);
+    }
+
     public Set<ResourceFinder> getResourceFinders() {
         return resourceFinders;
     }

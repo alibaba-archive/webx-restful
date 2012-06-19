@@ -1,7 +1,5 @@
 package com.alibaba.webx.restful.bvt;
 
-import java.net.URLEncoder;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -41,7 +39,9 @@ public class HelloworldTest extends TestCase {
         MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
         MockHttpServletResponse response = new MockHttpServletResponse();
         
-        request.setRequestURI("/jersey-study/rest/helloworld");
+        request.setServletPath("/rest");
+        request.setContextPath("/jersey-study");
+        request.setRequestURI("/jersey-study/rest/helloworld/now");
         request.setServerPort(8080);
         request.setServerName("localhost");
         

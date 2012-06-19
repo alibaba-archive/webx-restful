@@ -45,65 +45,27 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Request;
 
-import com.alibaba.webx.restful.process.Inflector;
 import com.alibaba.webx.restful.util.ClassTypePair;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 
 /**
- * A common interface for invocable resource components. This includes resource
- * methods, sub-resource methods and sub-resource locators bound to a concrete
- * handler class and a Java method (either directly or indirectly) declared &
+ * A common interface for invocable resource components. This includes resource methods, sub-resource methods and
+ * sub-resource locators bound to a concrete handler class and a Java method (either directly or indirectly) declared &
  * implemented by the handler class.
  * <p/>
- * Invocable component information is used at runtime by a Java method dispatcher
- * when processing requests.
- *
+ * Invocable component information is used at runtime by a Java method dispatcher when processing requests.
+ * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  * @see ResourceMethod
  * @see ResourceMethodDispatcher
  */
 public final class Invocable implements Parameterized, ResourceModelComponent {
-    /**
-     * Method instance representing the {@link Inflector#apply(Object)} method.
-     */
-    static final Method APPLY_INFLECTOR_METHOD = initApplyMethod();
-
-    private static Method initApplyMethod() {
-        try {
-            return Inflector.class.getMethod("apply", Object.class);
-        } catch (NoSuchMethodException e) {
-            IncompatibleClassChangeError error = new IncompatibleClassChangeError("Inflector.apply(Object) method not found");
-            error.initCause(e);
-            throw error;
-        }
-    }
 
     /**
-     * Create a new resource method invocable model backed by an inflector instance.
-     *
-     * @param inflector inflector processing the request method.
-     */
-    public static <T> Invocable create(Inflector<Request, T> inflector) {
-        return new Invocable(MethodHandler.create(inflector), APPLY_INFLECTOR_METHOD, false);
-    }
-
-    /**
-     * Create a new resource method invocable model backed by an inflector class.
-     *
-     * @param inflectorClass inflector syb-type processing the request method.
-     */
-    @SuppressWarnings("rawtypes")
-    public static Invocable create(Class<? extends Inflector> inflectorClass) {
-        return new Invocable(MethodHandler.create(inflectorClass), APPLY_INFLECTOR_METHOD, false);
-    }
-
-    /**
-     * Create a new resource method invocable model. Parameter values will be
-     * automatically decoded.
-     *
-     * @param handler        resource method handler.
+     * Create a new resource method invocable model. Parameter values will be automatically decoded.
+     * 
+     * @param handler resource method handler.
      * @param handlingMethod handling Java method.
      */
     public static Invocable create(MethodHandler handler, Method handlingMethod) {
@@ -112,41 +74,40 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
 
     /**
      * Create a new resource method invocable model.
-     *
-     * @param handler           resource method handler.
-     * @param handlingMethod    handling Java method.
-     * @param encodedParameters {@code true} if the automatic parameter decoding
-     *                          should be disabled, false otherwise.
+     * 
+     * @param handler resource method handler.
+     * @param handlingMethod handling Java method.
+     * @param encodedParameters {@code true} if the automatic parameter decoding should be disabled, false otherwise.
      */
     public static Invocable create(MethodHandler handler, Method handlingMethod, boolean encodedParameters) {
         return new Invocable(handler, handlingMethod, encodedParameters);
     }
 
-    private final MethodHandler handler;
-    private final Method handlingMethod;
+    private final MethodHandler   handler;
+    private final Method          handlingMethod;
     private final List<Parameter> parameters;
-    private final GenericType<?> responseType;
+    private final GenericType<?>  responseType;
 
-    private Invocable(MethodHandler handler, Method handlingMethod, boolean encodedParameters) {
+    private Invocable(MethodHandler handler, Method handlingMethod, boolean encodedParameters){
         this.handler = handler;
         this.handlingMethod = handlingMethod;
 
         final Class<?> handlerClass = handler.getHandlerClass();
-        final ClassTypePair ctPair = ReflectionUtils.resolveGenericType(
-                handlerClass,
-                handlingMethod.getDeclaringClass(),
-                handlingMethod.getReturnType(),
-                handlingMethod.getGenericReturnType());
+        final ClassTypePair ctPair = ReflectionUtils.resolveGenericType(handlerClass,
+                                                                        handlingMethod.getDeclaringClass(),
+                                                                        handlingMethod.getReturnType(),
+                                                                        handlingMethod.getGenericReturnType());
         this.responseType = GenericType.of(ctPair.rawClass(), ctPair.type());
 
-        this.parameters = Collections.unmodifiableList(Parameter.create(
-                handlerClass, handlingMethod.getDeclaringClass(), handlingMethod, encodedParameters));
+        this.parameters = Collections.unmodifiableList(Parameter.create(handlerClass,
+                                                                        handlingMethod.getDeclaringClass(),
+                                                                        handlingMethod, encodedParameters));
     }
 
     /**
-     * Get the model of the resource method handler that will be used to invoke
-     * the {@link #getHandlingMethod() handling resource method} on.
-     *
+     * Get the model of the resource method handler that will be used to invoke the {@link #getHandlingMethod() handling
+     * resource method} on.
+     * 
      * @return resource method handler model.
      */
     public MethodHandler getHandler() {
@@ -155,7 +116,7 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
 
     /**
      * Getter for the Java method
-     *
+     * 
      * @return corresponding Java method
      */
     public Method getHandlingMethod() {
@@ -165,26 +126,13 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
     /**
      * Get the resource method response type.
      * <p/>
-     * The returned value provides information about the raw Java class as well
-     * as the Type information that contains additional generic declaration
-     * information for generic Java class types.
-     *
+     * The returned value provides information about the raw Java class as well as the Type information that contains
+     * additional generic declaration information for generic Java class types.
+     * 
      * @return resource method response type information.
      */
     public GenericType<?> getResponseType() {
         return responseType;
-    }
-
-    /**
-     * Check if the invocable represents an {@link Inflector#apply(Object) inflector
-     * processing method}.
-     *
-     * @return {@code true}, if this invocable represents an inflector invocation,
-     *         {@code false} otherwise.
-     */
-    public boolean isInflector() {
-        // Method.equals(...) does not perform the identity check (in Java SE 6)
-        return APPLY_INFLECTOR_METHOD == handlingMethod || APPLY_INFLECTOR_METHOD.equals(handlingMethod);
     }
 
     @Override
@@ -214,10 +162,7 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
 
     @Override
     public String toString() {
-        return "Invocable{" +
-                "handler=" + handler +
-                ", handlingMethod=" + handlingMethod +
-                ", parameters=" + parameters +
-                ", responseType=" + responseType + '}';
+        return "Invocable{" + "handler=" + handler + ", handlingMethod=" + handlingMethod + ", parameters="
+               + parameters + ", responseType=" + responseType + '}';
     }
 }

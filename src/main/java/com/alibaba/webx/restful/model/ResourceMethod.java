@@ -49,10 +49,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.Suspend;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
 
 import com.alibaba.webx.restful.message.internal.MediaTypes;
-import com.alibaba.webx.restful.process.Inflector;
 import com.alibaba.webx.restful.uri.PathPattern;
 import com.alibaba.webx.restful.util.Sets;
 import com.google.common.collect.Lists;
@@ -339,27 +337,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
             this.handlingMethod = method;
 
             return this;
-        }
-
-        /**
-         * Define an inflector-based resource method handler binding.
-         * 
-         * @param inflector inflector handling the resource method.
-         * @return updated builder object.
-         */
-        public Builder handledBy(Inflector<Request, ?> inflector) {
-            return handledBy(inflector, Invocable.APPLY_INFLECTOR_METHOD);
-        }
-
-        /**
-         * Define an inflector-based resource method handler binding.
-         * 
-         * @param inflectorClass class of the inflector handling the resource method.
-         * @return updated builder object.
-         */
-        @SuppressWarnings("rawtypes")
-        public Builder handledBy(Class<? extends Inflector> inflectorClass) {
-            return handledBy(inflectorClass, Invocable.APPLY_INFLECTOR_METHOD);
         }
 
         /**

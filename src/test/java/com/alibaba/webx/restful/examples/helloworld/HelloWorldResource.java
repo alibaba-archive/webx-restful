@@ -11,11 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Path("helloworld")
 public class HelloWorldResource {
 
-    @Autowired(required=true)
+    @Autowired(required = true)
     private HelloWorldService service;
-    
-    public HelloWorldResource() {
-        
+
+    public HelloWorldResource(){
+
+    }
+
+    public HelloWorldService getService() {
+        return service;
+    }
+
+    public void setService(HelloWorldService service) {
+        this.service = service;
     }
 
     @GET
@@ -23,7 +31,10 @@ public class HelloWorldResource {
     public String getHello() {
         return "Hello World!";
     }
-    
+
+    @Path("now")
+    @GET
+    @Produces("text/plain")
     public Date now() {
         return service.now();
     }
