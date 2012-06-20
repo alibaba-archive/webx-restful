@@ -28,7 +28,6 @@ import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.MethodHandler;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.model.ResourceModelValidator;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 import com.alibaba.webx.restful.uri.PathPattern;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
@@ -69,10 +68,6 @@ public class ApplicationHandler {
 
         final MessageBodyFactory workers = new MessageBodyFactory(providers);
 
-    }
-
-    private void processIssues(ResourceModelValidator validator) {
-        // TODO
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response) {
