@@ -47,13 +47,12 @@ import java.util.List;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 
-
 /**
  * Resource method handler model.
  * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public abstract class MethodHandler implements ResourceModelComponent {
+public abstract class MethodHandler {
 
     /**
      * Create a class-based method handler from a class.
@@ -122,18 +121,8 @@ public abstract class MethodHandler implements ResourceModelComponent {
      * @return injected resource method handler instance.
      */
     // public abstract Object getInstance(final Injector injector);
-    
+
     public abstract Object getInstance(ApplicationContext applicationContext);
-
-    @Override
-    public List<? extends ResourceModelComponent> getComponents() {
-        return null;
-    }
-
-    @Override
-    public void accept(final ResourceModelVisitor visitor) {
-        visitor.visitMethodHandler(this);
-    }
 
     public static class ClassBasedMethodHandler extends MethodHandler {
 
@@ -168,13 +157,10 @@ public abstract class MethodHandler implements ResourceModelComponent {
 
         @Override
         public Object getInstance(ApplicationContext applicationContext) {
-            Object instance = applicationContext.getAutowireCapableBeanFactory().autowire(this.handlerClass, AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT, true);
+            Object instance = applicationContext.getAutowireCapableBeanFactory().autowire(this.handlerClass,
+                                                                                          AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
+                                                                                          true);
             return instance;
-        }
-
-        @Override
-        public List<? extends ResourceModelComponent> getComponents() {
-            return handlerConstructors;
         }
 
         @Override
@@ -208,12 +194,12 @@ public abstract class MethodHandler implements ResourceModelComponent {
         public Object getInstance(ApplicationContext applicationContext) {
             throw new UnsupportedOperationException();
         }
-        
-//        @Override
-//        public Object getInstance(final Injector injector) {
-//            // TODO: should we do the injection only once? Or not at all?
-//            injector.inject(handler);
-//            return handler;
-//        }
+
+        // @Override
+        // public Object getInstance(final Injector injector) {
+        // // TODO: should we do the injection only once? Or not at all?
+        // injector.inject(handler);
+        // return handler;
+        // }
     }
 }

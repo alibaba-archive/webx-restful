@@ -60,7 +60,7 @@ import com.alibaba.webx.restful.util.ReflectionUtils;
  * @see ResourceMethod
  * @see ResourceMethodDispatcher
  */
-public final class Invocable implements Parameterized, ResourceModelComponent {
+public final class Invocable implements Parameterized {
 
     /**
      * Create a new resource method invocable model. Parameter values will be automatically decoded.
@@ -148,16 +148,6 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
     @Override
     public List<Parameter> getParameters() {
         return parameters;
-    }
-
-    @Override
-    public void accept(ResourceModelVisitor visitor) {
-        visitor.visitInvocable(this);
-    }
-
-    @Override
-    public List<? extends ResourceModelComponent> getComponents() {
-        return Arrays.asList(handler);
     }
 
     @Override

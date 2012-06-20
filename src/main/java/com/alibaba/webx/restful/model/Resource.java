@@ -1,18 +1,9 @@
 package com.alibaba.webx.restful.model;
 
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-
-import javax.ws.rs.Path;
-
-import org.springframework.util.Assert;
 
 import com.alibaba.webx.restful.uri.PathPattern;
-import com.alibaba.webx.restful.util.IdentityHashSet;
-import com.google.common.collect.Lists;
 
 /**
  * Model of a single resource component.
@@ -89,7 +80,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public final class Resource implements Routed, ResourceModelComponent {
+public final class Resource implements Routed {
 
     /**
      * Check if the class is acceptable as a JAX-RS provider or resource.
@@ -196,25 +187,9 @@ public final class Resource implements Routed, ResourceModelComponent {
     }
 
     @Override
-    public void accept(ResourceModelVisitor visitor) {
-        visitor.visitResourceClass(this);
-    }
-
-    @Override
     public String toString() {
         return "Resource {" + ((path == null) ? "[unbound], " : "\"" + path + "\", ") + resourceMethods.size()
                + " resource methods, " + subResourceMethods.size() + " sub-resource methods, " + subResourceLocators
                + " sub-resource locators" + '}';
-    }
-
-    @Override
-    public List<? extends ResourceModelComponent> getComponents() {
-        List<ResourceMethod> components = new LinkedList<ResourceMethod>();
-
-        components.addAll(getResourceMethods());
-        components.addAll(getSubResourceMethods());
-        components.addAll(getSubResourceLocators());
-
-        return components;
     }
 }

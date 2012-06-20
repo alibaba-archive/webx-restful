@@ -48,7 +48,7 @@ import java.util.List;
  * @author Jakub Podlesak (jakub.podlesak at oracle.com)
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public final class HandlerConstructor implements Parameterized, ResourceModelComponent {
+public final class HandlerConstructor implements Parameterized {
 
     private final Constructor<?> constructor;
     private final List<Parameter> parameters;
@@ -86,15 +86,5 @@ public final class HandlerConstructor implements Parameterized, ResourceModelCom
             }
         }
         return false;
-    }
-
-    @Override
-    public void accept(ResourceModelVisitor visitor) {
-        visitor.visitResourceHandlerConstructor(this);
-    }
-
-    @Override
-    public List<ResourceModelComponent> getComponents() {
-        return null;
     }
 }

@@ -39,18 +39,13 @@
  */
 package com.alibaba.webx.restful.model;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.core.MediaType;
 
-import com.alibaba.webx.restful.message.internal.MediaTypes;
 import com.alibaba.webx.restful.uri.PathPattern;
-import com.alibaba.webx.restful.util.Sets;
 import com.google.common.collect.Lists;
 
 /**
@@ -58,7 +53,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public class ResourceMethod implements ResourceModelComponent, Routed, Producing, Consuming {
+public class ResourceMethod implements Routed, Producing, Consuming {
 
     /**
      * Resource method classification based on the recognized JAX-RS resource method types.
@@ -219,17 +214,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
     @Override
     public List<MediaType> getProducedTypes() {
         return producedTypes;
-    }
-
-    // ResourceModelComponent
-    @Override
-    public List<? extends ResourceModelComponent> getComponents() {
-        return Arrays.asList(invocable);
-    }
-
-    @Override
-    public void accept(ResourceModelVisitor visitor) {
-        visitor.visitResourceMethod(this);
     }
 
     @Override
