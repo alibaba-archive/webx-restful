@@ -99,6 +99,10 @@ public class ApplicationConfig extends Application {
     public void addResources(List<Resource> resources) {
         this.resources.addAll(resources);
     }
+    
+    public void addResource(Resource resource) {
+        this.resources.add(resource);
+    }
 
     public Set<ResourceFinder> getResourceFinders() {
         return resourceFinders;
@@ -177,7 +181,8 @@ public class ApplicationConfig extends Application {
         cachedClasses = result;
 
         for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
-            buildResource(applicationContxt, entry.getKey(), entry.getValue());
+            Resource resource = buildResource(applicationContxt, entry.getKey(), entry.getValue());
+            this.addResource(resource);
         }
     }
 

@@ -4,16 +4,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -27,12 +24,10 @@ import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.internal.inject.ServiceProviders;
 import com.alibaba.webx.restful.message.internal.MessageBodyFactory;
-import com.alibaba.webx.restful.model.BasicValidator;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.MethodHandler;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.model.ResourceModelIssue;
 import com.alibaba.webx.restful.model.ResourceModelValidator;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 import com.alibaba.webx.restful.uri.PathPattern;
@@ -62,32 +57,6 @@ public class ApplicationHandler {
     private void initialize() {
         config.lock();
 
-        final List<ResourceModelIssue> resourceModelIssues = new LinkedList<ResourceModelIssue>();
-
-        final Map<String, Resource.Builder> pathToResourceBuilderMap = new HashMap<String, Resource.Builder>();
-        final List<Resource.Builder> resourcesBuilders = new LinkedList<Resource.Builder>();
-        for (Class<?> c : config.getClasses()) {
-            Path path = Resource.getPath(c);
-            if (path != null) { // root resource
-                try {
-                    final Resource.Builder builder = Resource.builder(c, resourceModelIssues);
-                    resourcesBuilders.add(builder);
-                    pathToResourceBuilderMap.put(path.value(), builder);
-                } catch (IllegalArgumentException ex) {
-                    LOG.warn(ex.getMessage());
-                }
-            }
-        }
-
-        for (Resource programmaticResource : config.getResources()) {
-            Resource.Builder builder = pathToResourceBuilderMap.get(programmaticResource.getPath());
-            if (builder != null) {
-                builder.mergeWith(programmaticResource);
-            } else {
-                resourcesBuilders.add(Resource.builder(programmaticResource));
-            }
-        }
-
         ServiceProviders providers = null;
 
         {
@@ -99,18 +68,6 @@ public class ApplicationHandler {
         }
 
         final MessageBodyFactory workers = new MessageBodyFactory(providers);
-
-        final List<Resource> result = new ArrayList<Resource>(resourcesBuilders.size());
-        ResourceModelValidator validator = new BasicValidator(resourceModelIssues, workers);
-
-        for (Resource.Builder rb : resourcesBuilders) {
-            final Resource r = rb.build();
-            result.add(r);
-            validator.validate(r);
-        }
-        processIssues(validator);
-
-        config.addResources(result);
 
     }
 
