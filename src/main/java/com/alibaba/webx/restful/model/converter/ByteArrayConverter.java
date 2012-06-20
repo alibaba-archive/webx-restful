@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server.process.converter;
+package com.alibaba.webx.restful.model.converter;
 
 import com.alibaba.fastjson.util.Base64;
 

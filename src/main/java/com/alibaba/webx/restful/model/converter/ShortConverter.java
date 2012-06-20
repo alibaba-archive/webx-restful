@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server.process.converter;
+package com.alibaba.webx.restful.model.converter;
 
 
 public class ShortConverter implements TypeConverter {

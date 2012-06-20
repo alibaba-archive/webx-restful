@@ -1,42 +1,42 @@
-package com.alibaba.webx.restful.server.process.param;
+package com.alibaba.webx.restful.model.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HeaderParam;
+import javax.ws.rs.FormParam;
 
 import org.springframework.util.Assert;
 
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.converter.TypeConverter;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
-import com.alibaba.webx.restful.server.process.converter.TypeConverter;
 
-public class HeaderParamProvider extends AbstractParameterProvider {
+public class FormParameter extends ParameterAdapter {
 
-    private String      headerName;
-    private HeaderParam annotation;
+    private String    parameterName;
+    private FormParam annotation;
 
-    public HeaderParamProvider(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
-                               Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
+    public FormParameter(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
+                             Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
         super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations, typeConverter);
 
         for (Annotation item : parameterAnnotations) {
-            if (item.getClass() == HeaderParam.class) {
-                this.annotation = (HeaderParam) item;
+            if (item.getClass() == FormParam.class) {
+                this.annotation = (FormParam) item;
             }
         }
 
         Assert.notNull(annotation);
 
-        headerName = annotation.value();
+        parameterName = annotation.value();
     }
 
     @Override
     public String getLiteralValue(WebxRestfulRequestContext requestContext) {
         HttpServletRequest httpRequest = requestContext.getHttpRequest();
-        return httpRequest.getHeader(headerName);
+        return httpRequest.getParameter(parameterName);
     }
 
 }

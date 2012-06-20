@@ -40,7 +40,6 @@
 package com.alibaba.webx.restful.model;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,9 +98,7 @@ public final class Invocable implements Parameterized {
                                                                         handlingMethod.getGenericReturnType());
         this.responseType = GenericType.of(ctPair.rawClass(), ctPair.type());
 
-        this.parameters = Collections.unmodifiableList(Parameter.create(handlerClass,
-                                                                        handlingMethod.getDeclaringClass(),
-                                                                        handlingMethod, encodedParameters));
+        this.parameters = null; // TODO
     }
 
     /**

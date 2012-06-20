@@ -137,10 +137,9 @@ public abstract class MethodHandler {
             this.handlerClass = handlerClass;
 
             List<HandlerConstructor> constructors = new LinkedList<HandlerConstructor>();
+            List<Parameter> parameters = null; // TODO
             for (Constructor<?> constructor : handlerClass.getConstructors()) {
-                constructors.add(new HandlerConstructor(constructor,
-                                                        Parameter.create(handlerClass, handlerClass, constructor,
-                                                                         disableParamDecoding)));
+                constructors.add(new HandlerConstructor(constructor, parameters));
             }
             this.handlerConstructors = Collections.unmodifiableList(constructors);
         }

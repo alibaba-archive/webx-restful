@@ -1,16 +1,17 @@
-package com.alibaba.webx.restful.server.process.param;
+package com.alibaba.webx.restful.model.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import javax.ws.rs.DefaultValue;
 
+import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.converter.TypeConverter;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
-import com.alibaba.webx.restful.server.process.converter.TypeConverter;
 
-public abstract class AbstractParameterProvider implements ParameterProvider {
+public abstract class ParameterAdapter implements Parameter {
 
     private final Resource       resource;
     private final ResourceMethod resourceMethod;
@@ -21,7 +22,7 @@ public abstract class AbstractParameterProvider implements ParameterProvider {
 
     private final TypeConverter  typeConverter;
 
-    public AbstractParameterProvider(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
+    public ParameterAdapter(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
                                      Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
         this.resource = resource;
         this.resourceMethod = resourceMethod;
@@ -72,6 +73,18 @@ public abstract class AbstractParameterProvider implements ParameterProvider {
 
     public Resource getResource() {
         return resource;
+    }
+
+    @Override
+    public Source getSource() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
