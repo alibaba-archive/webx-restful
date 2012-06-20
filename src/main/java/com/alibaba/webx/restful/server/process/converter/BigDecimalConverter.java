@@ -3,7 +3,7 @@ package com.alibaba.webx.restful.server.process.converter;
 import java.math.BigDecimal;
 
 
-public class BIgDecimalConverter implements TypeConverter {
+public class BigDecimalConverter implements TypeConverter {
 
     @Override
     public Object convert(String literalValue) {
