@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.server.process.converter.TypeConverter;
 
 public class CookieParamProvider extends AbstractParameterProvider {
 
@@ -19,8 +20,8 @@ public class CookieParamProvider extends AbstractParameterProvider {
     private CookieParam annotation;
 
     public CookieParamProvider(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
-                               Type paremeterType, Annotation[] parameterAnnotations){
-        super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations);
+                               Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
+        super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations, typeConverter);
 
         for (Annotation item : parameterAnnotations) {
             if (item.getClass() == CookieParam.class) {
@@ -36,7 +37,7 @@ public class CookieParamProvider extends AbstractParameterProvider {
     @Override
     public String getLiteralValue(WebxRestfulRequestContext requestContext) {
         HttpServletRequest httpRequest = requestContext.getHttpRequest();
-        
+
         String value = null;
         for (Cookie cookie : httpRequest.getCookies()) {
             if (cookie.getName().equals(cookieName)) {
@@ -44,7 +45,7 @@ public class CookieParamProvider extends AbstractParameterProvider {
                 break;
             }
         }
-        
+
         return value;
     }
 

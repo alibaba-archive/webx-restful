@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.server.process.converter.TypeConverter;
 
 public class PathParamProvider extends AbstractParameterProvider {
 
@@ -17,8 +18,8 @@ public class PathParamProvider extends AbstractParameterProvider {
     private PathParam annotation;
 
     public PathParamProvider(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
-                             Type paremeterType, Annotation[] parameterAnnotations){
-        super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations);
+                             Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
+        super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations, typeConverter);
 
         for (Annotation item : parameterAnnotations) {
             if (item.getClass() == PathParam.class) {
