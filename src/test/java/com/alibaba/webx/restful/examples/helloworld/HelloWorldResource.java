@@ -36,7 +36,15 @@ public class HelloWorldResource {
     @GET
     @Produces("text/plain")
     public Date now() {
-        return service.now();
+        Date now = service.now();
+        return now;
+    }
+
+    @Path("f")
+    @GET
+    @Produces("text/plain")
+    public short f1(byte b1) {
+        return b1;
     }
 
 }

@@ -45,9 +45,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.Suspend;
 import javax.ws.rs.core.MediaType;
 
 import com.alibaba.webx.restful.message.internal.MediaTypes;
@@ -60,7 +58,7 @@ import com.google.common.collect.Lists;
  * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public class ResourceMethod implements ResourceModelComponent, Routed, Producing, Consuming, Suspendable {
+public class ResourceMethod implements ResourceModelComponent, Routed, Producing, Consuming {
 
     /**
      * Resource method classification based on the recognized JAX-RS resource method types.
@@ -116,7 +114,7 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         private static JaxrsType classify(String httpMethod, String methodPath) {
             if (httpMethod != null) {
                 if (!httpMethod.isEmpty()) {
-                    if (methodPath.isEmpty() || "/".equals(methodPath)) {
+                    if (methodPath == null || methodPath.isEmpty() || "/".equals(methodPath)) {
                         return RESOURCE_METHOD;
                     } else {
                         return SUB_RESOURCE_METHOD;
@@ -147,10 +145,7 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         // Consuming & Producing
         private final Set<MediaType>   consumedTypes;
         private final Set<MediaType>   producedTypes;
-        // Suspendable
-        private boolean                suspended;
-        private long                   suspendTimeout;
-        private TimeUnit               suspendTimeoutUnit;
+
         // Invocable
         private Class<?>               handlerClass;
         private Object                 handlerInstance;
@@ -180,10 +175,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
 
             this.consumedTypes = Sets.newLinkedHashSet();
             this.producedTypes = Sets.newLinkedHashSet();
-
-            this.suspended = false;
-            this.suspendTimeout = Suspend.NEVER;
-            this.suspendTimeoutUnit = TimeUnit.MILLISECONDS;
 
             this.encodedParams = false;
         }
@@ -276,24 +267,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         }
 
         /**
-         * Mark the component for suspending.
-         * <p/>
-         * An invocation of a component (resource or sub-resource method) marked for suspending will be automatically
-         * suspended by the Jersey runtime.
-         * 
-         * @param timeout suspend timeout value.
-         * @param unit suspend timeout time unit.
-         * @return updated builder object.
-         */
-        public Builder suspended(long timeout, TimeUnit unit) {
-            suspended = true;
-            suspendTimeout = timeout;
-            suspendTimeoutUnit = unit;
-
-            return this;
-        }
-
-        /**
          * If set to {@code true}, the parameter values will not be automatically decoded.
          * <p/>
          * Defaults to {@code false}.
@@ -347,8 +320,7 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         public ResourceMethod build() {
             final Invocable invocable = createInvocable();
 
-            ResourceMethod method = new ResourceMethod(httpMethod, path, consumedTypes, producedTypes, suspended,
-                                                       suspendTimeout, suspendTimeoutUnit, invocable);
+            ResourceMethod method = new ResourceMethod(httpMethod, path, consumedTypes, producedTypes, invocable);
 
             parent.onBuildMethod(this, method);
 
@@ -379,16 +351,12 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
     // Consuming & Producing
     private final List<MediaType> consumedTypes;
     private final List<MediaType> producedTypes;
-    // SuspendableComponent
-    private final boolean         suspended;
-    private final long            suspendTimeout;
-    private final TimeUnit        suspendTimeoutUnit;
+
     // Invocable
     private final Invocable       invocable;
 
-    private ResourceMethod(final String httpMethod, final String path, final Collection<MediaType> consumedTypes,
-                           final Collection<MediaType> producedTypes, final boolean suspended,
-                           final long suspendTimeout, final TimeUnit suspendTimeoutUnit, final Invocable invocable){
+    public ResourceMethod(final String httpMethod, final String path, final Collection<MediaType> consumedTypes,
+                           final Collection<MediaType> producedTypes, final Invocable invocable){
 
         this.type = JaxrsType.classify(httpMethod, path);
 
@@ -400,9 +368,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         this.consumedTypes = Collections.unmodifiableList(Lists.newArrayList(consumedTypes));
         this.producedTypes = Collections.unmodifiableList(Lists.newArrayList(producedTypes));
         this.invocable = invocable;
-        this.suspended = suspended;
-        this.suspendTimeout = suspendTimeout;
-        this.suspendTimeoutUnit = suspendTimeoutUnit;
     }
 
     /**
@@ -466,22 +431,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
         return producedTypes;
     }
 
-    // Suspendable
-    @Override
-    public long getSuspendTimeout() {
-        return suspendTimeout;
-    }
-
-    @Override
-    public TimeUnit getSuspendTimeoutUnit() {
-        return suspendTimeoutUnit;
-    }
-
-    @Override
-    public boolean isSuspendDeclared() {
-        return suspended;
-    }
-
     // ResourceModelComponent
     @Override
     public List<? extends ResourceModelComponent> getComponents() {
@@ -496,7 +445,6 @@ public class ResourceMethod implements ResourceModelComponent, Routed, Producing
     @Override
     public String toString() {
         return "ResourceMethod{" + "httpMethod=" + httpMethod + ", path=" + path + ", consumedTypes=" + consumedTypes
-               + ", producedTypes=" + producedTypes + ", suspended=" + suspended + ", suspendTimeout=" + suspendTimeout
-               + ", suspendTimeoutUnit=" + suspendTimeoutUnit + ", invocable=" + invocable + '}';
+               + ", producedTypes=" + producedTypes + ", invocable=" + invocable + '}';
     }
 }

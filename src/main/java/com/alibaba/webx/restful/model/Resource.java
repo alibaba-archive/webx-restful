@@ -288,22 +288,6 @@ public final class Resource implements Routed, ResourceModelComponent {
     }
 
     /**
-     * Create a resource model builder initialized by introspecting an annotated JAX-RS resource instance.
-     * <p/>
-     * Unlike {@link #builder(Class, java.util.List)}, this method does not perform the
-     * {@link #isAcceptable(java.lang.Class) acceptability} check, since it is assumed that the instance of the resource
-     * has already been created and is acceptable.
-     * 
-     * @param resource resource instance to be modelled.
-     * @param issueList mutable list of issues that will be updated with the introspection-specific issues found in the
-     * model.
-     * @return resource model builder initialized by instance.
-     */
-    public static Builder builder(Object resource, List<ResourceModelIssue> issueList) {
-        return new IntrospectionModeller(resource.getClass(), issueList).createResourceBuilder(true);
-    }
-
-    /**
      * Check if the class is acceptable as a JAX-RS provider or resource.
      * <p/>
      * Method returns {@code false} if the class is either
@@ -361,9 +345,9 @@ public final class Resource implements Routed, ResourceModelComponent {
     private final List<ResourceMethod> subResourceMethods;
     private final List<ResourceMethod> subResourceLocators;
 
-    private Resource(final String name, final String path, final boolean isRoot,
-                     final List<ResourceMethod> resourceMethods, final List<ResourceMethod> subResourceMethods,
-                     final List<ResourceMethod> subResourceLocators){
+    public Resource(final String name, final String path, final boolean isRoot,
+                    final List<ResourceMethod> resourceMethods, final List<ResourceMethod> subResourceMethods,
+                    final List<ResourceMethod> subResourceLocators){
 
         this.name = name;
         this.path = path;

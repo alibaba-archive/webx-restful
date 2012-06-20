@@ -18,35 +18,43 @@ import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class HelloworldTest extends TestCase {
 
-    public void test_hello() throws Exception {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("hello-spring.xml");
+    private ApplicationContext       applicationContext;
+    private MockServletContext       servletContext;
+    private WebxRestfulServletFilter filter;
+    private WebxRestfulComponent     component;
 
-        MockServletContext servletContext = new MockServletContext();
-        
+    protected void setUp() throws Exception {
+        applicationContext = new ClassPathXmlApplicationContext("hello-spring.xml");
+        servletContext = new MockServletContext();
+
         ApplicationContextUtils.setApplicationContext(servletContext, applicationContext);
-        
-        MockFilterConfig filterConfig = new MockFilterConfig(servletContext);
-        
-        filterConfig.addInitParameter(ServerProperties.PROVIDER_PACKAGES, "com.alibaba.webx.restful.examples.helloworld");
 
-        WebxRestfulServletFilter filter = new WebxRestfulServletFilter();
+        MockFilterConfig filterConfig = new MockFilterConfig(servletContext);
+
+        filterConfig.addInitParameter(ServerProperties.PROVIDER_PACKAGES,
+                                      "com.alibaba.webx.restful.examples.helloworld");
+
+        filter = new WebxRestfulServletFilter();
         filter.init(filterConfig);
-        
-        WebxRestfulComponent component = filter.getComponent();
-        
+
+        component = filter.getComponent();
+    }
+
+    public void test_hello() throws Exception {
+
         Assert.assertNotNull(component);
-        
+
         MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
         MockHttpServletResponse response = new MockHttpServletResponse();
-        
+
         request.setServletPath("/rest");
         request.setContextPath("/jersey-study");
         request.setRequestURI("/jersey-study/rest/helloworld/now");
         request.setServerPort(8080);
         request.setServerName("localhost");
-        
+
         MockFilterChain chain = new MockFilterChain();
-        
+
         filter.doFilter(request, response, chain);
     }
 }

@@ -135,7 +135,7 @@ public abstract class MethodHandler implements ResourceModelComponent {
         visitor.visitMethodHandler(this);
     }
 
-    private static class ClassBasedMethodHandler extends MethodHandler {
+    public static class ClassBasedMethodHandler extends MethodHandler {
 
         private final Class<?>                 handlerClass;
         private final List<HandlerConstructor> handlerConstructors;
@@ -184,7 +184,7 @@ public abstract class MethodHandler implements ResourceModelComponent {
         }
     }
 
-    private static class InstanceBasedMethodHandler extends MethodHandler {
+    public static class InstanceBasedMethodHandler extends MethodHandler {
 
         private final Object   handler;
         private final Class<?> handlerClass;

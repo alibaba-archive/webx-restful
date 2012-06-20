@@ -172,7 +172,7 @@ public class BasicValidator extends ResourceModelValidator {
 
         if ("GET".equals(method.getHttpMethod())) {
             // ensure GET returns non-void value if not suspendable
-            if (void.class == invocable.getHandlingMethod().getReturnType() && !method.isSuspendDeclared()) {
+            if (void.class == invocable.getHandlingMethod().getReturnType()) {
                 addMinorIssue(method, LocalizationMessages.GET_RETURNS_VOID(invocable.getHandlingMethod()));
             }
 

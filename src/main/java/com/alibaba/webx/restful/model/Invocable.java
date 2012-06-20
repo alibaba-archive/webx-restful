@@ -88,7 +88,7 @@ public final class Invocable implements Parameterized, ResourceModelComponent {
     private final List<Parameter> parameters;
     private final GenericType<?>  responseType;
 
-    private Invocable(MethodHandler handler, Method handlingMethod, boolean encodedParameters){
+    public Invocable(MethodHandler handler, Method handlingMethod, boolean encodedParameters){
         this.handler = handler;
         this.handlingMethod = handlingMethod;
 

@@ -28,8 +28,9 @@ public class WebxRestfulServletFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        ApplicationConfig applicationConfig = createResourceConfig(filterConfig);
         ApplicationContext applicationContxt = ApplicationContextUtils.getApplicationContext(filterConfig.getServletContext());
+        
+        ApplicationConfig applicationConfig = createResourceConfig(filterConfig, applicationContxt);
 
         component = new WebxRestfulComponent(applicationConfig, applicationContxt);
     }
@@ -38,7 +39,7 @@ public class WebxRestfulServletFilter implements Filter {
         return component;
     }
 
-    private ApplicationConfig createResourceConfig(FilterConfig filterConfig) throws ServletException {
+    private ApplicationConfig createResourceConfig(FilterConfig filterConfig, ApplicationContext applicationContxt) throws ServletException {
         final Map<String, Object> initParams = getInitParams(filterConfig);
 
         final ApplicationConfig applicationConfig = new ApplicationConfig().addProperties(initParams);
@@ -47,8 +48,10 @@ public class WebxRestfulServletFilter implements Filter {
         if (webapp != null && !"false".equals(webapp)) {
             applicationConfig.addFinder(new WebAppResourcesScanner(filterConfig.getServletContext()));
         }
+        
+        ApplicationContextUtils.setApplicationContext(applicationContxt);
 
-        applicationConfig.init();
+        applicationConfig.init(applicationContxt);
 
         return applicationConfig;
     }

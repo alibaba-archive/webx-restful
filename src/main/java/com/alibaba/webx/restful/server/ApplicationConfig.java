@@ -1,6 +1,11 @@
 package com.alibaba.webx.restful.server;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -9,18 +14,31 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.Encoded;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
+import com.alibaba.webx.restful.model.Invocable;
+import com.alibaba.webx.restful.model.MethodHandler;
+import com.alibaba.webx.restful.model.MethodHandler.ClassBasedMethodHandler;
+import com.alibaba.webx.restful.model.MethodHandler.InstanceBasedMethodHandler;
 import com.alibaba.webx.restful.model.Resource;
+import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
+import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -41,6 +59,7 @@ public class ApplicationConfig extends Application {
     private final Set<Resource>       resourcesView;
     private final Map<String, Object> properties;
     private final Map<String, Object> propertiesView;
+
     //
     //
     private ClassLoader               classLoader          = null;
@@ -135,14 +154,8 @@ public class ApplicationConfig extends Application {
 
     }
 
-    public void init() {
-        cachedClasses = loadClasses();
-    }
-
-    private Set<Class<?>> loadClasses() {
+    public void init(ApplicationContext applicationContxt) {
         Set<Class<?>> result = new HashSet<Class<?>>();
-
-        Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
 
         // classes registered via configuration property
         String[] classNames = parsePropertyValue(ServerProperties.PROVIDER_CLASSNAMES);
@@ -156,6 +169,147 @@ public class ApplicationConfig extends Application {
             }
         }
 
+        Map<Class<?>, ClassInfo> scanResult = scanResources();
+
+        result.addAll(scanResult.keySet());
+        result.addAll(classes);
+
+        cachedClasses = result;
+
+        for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
+            buildResource(applicationContxt, entry.getKey(), entry.getValue());
+        }
+    }
+
+    private Resource buildResource(ApplicationContext applicationContxt, Class<?> clazz, ClassInfo classInfo) {
+        Path pathAnnotation = clazz.getAnnotation(Path.class);
+
+        String name = clazz.getName();
+        boolean isRoot = true;
+        String path = pathAnnotation.value();
+        List<ResourceMethod> resourceMethods = new ArrayList<ResourceMethod>();
+        List<ResourceMethod> subResourceMethods = new ArrayList<ResourceMethod>();
+        List<ResourceMethod> subResourceLocators = new ArrayList<ResourceMethod>();
+
+        List<Method> declaredMethods = getAllDeclaredMethods(clazz);
+        for (Method method : declaredMethods) {
+            String httpMethod = getHttpMethod(method);
+            String methodPath = getMethodPath(method);
+
+            if (httpMethod == null && methodPath == null) {
+                continue;
+            }
+
+            Collection<MediaType> consumedTypes = getConsumesMediaTypes(method);
+            Collection<MediaType> producedTypes = getProducesMediaTypes(method);
+
+            Invocable invocable = createInvocable(applicationContxt, clazz, method, httpMethod);
+            ResourceMethod resourceMethod = new ResourceMethod(httpMethod, methodPath, consumedTypes, producedTypes,
+                                                               invocable);
+
+            if (methodPath == null) {
+                resourceMethods.add(resourceMethod);
+            } else if (httpMethod == null) {
+                subResourceLocators.add(resourceMethod);
+            } else {
+                subResourceMethods.add(resourceMethod);
+            }
+        }
+
+        Resource resource = new Resource(name, path, isRoot, resourceMethods, subResourceMethods, subResourceLocators);
+
+        // final Suspend suspend = am.getAnnotation(Suspend.class);
+
+        return resource;
+    }
+
+    private static Invocable createInvocable(ApplicationContext applicationContxt, Class<?> clazz, Method method,
+                                             String httpMethod) {
+        Invocable invocable;
+        boolean keepEncodedParams = clazz.getAnnotation(Encoded.class) != null;
+
+        MethodHandler methodHandler;
+        if (httpMethod == null) {
+            methodHandler = new ClassBasedMethodHandler(clazz, keepEncodedParams);
+        } else {
+            Object resourceInstance = applicationContxt.getAutowireCapableBeanFactory().autowire(clazz,
+                                                                                                 AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
+                                                                                                 true);
+            methodHandler = new InstanceBasedMethodHandler(resourceInstance, clazz);
+        }
+        invocable = new Invocable(methodHandler, method, keepEncodedParams);
+        return invocable;
+    }
+
+    private static String getHttpMethod(Method method) {
+        HttpMethod httpMethodAnnotation = null;
+
+        for (Annotation annotation : method.getAnnotations()) {
+            httpMethodAnnotation = annotation.annotationType().getAnnotation(HttpMethod.class);
+            if (httpMethodAnnotation != null) {
+                break;
+            }
+        }
+
+        String httpMethod;
+        if (httpMethodAnnotation != null) {
+            httpMethod = httpMethodAnnotation.value();
+        } else {
+            httpMethod = null;
+        }
+        return httpMethod;
+    }
+
+    private static String getMethodPath(Method method) {
+        String methodPath;
+        Path methodPathAnnotation = method.getAnnotation(Path.class);
+        if (methodPathAnnotation != null) {
+            methodPath = methodPathAnnotation.value();
+        } else {
+            methodPath = null;
+        }
+        return methodPath;
+    }
+
+    private static Collection<MediaType> getProducesMediaTypes(Method method) {
+        Collection<MediaType> producedTypes = new ArrayList<MediaType>();
+        {
+            Produces producesAnnotation = method.getAnnotation(Produces.class);
+            if (producesAnnotation != null) {
+                for (String item : producesAnnotation.value()) {
+                    MediaType mediaType = MediaType.valueOf(item);
+                    producedTypes.add(mediaType);
+                }
+            }
+        }
+        return producedTypes;
+    }
+
+    private static Collection<MediaType> getConsumesMediaTypes(Method method) {
+        Collection<MediaType> consumedTypes = new ArrayList<MediaType>();
+        {
+            Consumes consumesAnnotation = method.getAnnotation(Consumes.class);
+            if (consumesAnnotation != null) {
+                for (String item : consumesAnnotation.value()) {
+                    MediaType mediaType = MediaType.valueOf(item);
+                    consumedTypes.add(mediaType);
+                }
+            }
+        }
+        return consumedTypes;
+    }
+
+    private static List<Method> getAllDeclaredMethods(Class<?> c) {
+        List<Method> l = new ArrayList<Method>();
+        while (c != null && c != Object.class) {
+            l.addAll(Arrays.asList(c.getDeclaredMethods()));
+            c = c.getSuperclass();
+        }
+        return l;
+    }
+
+    private Map<Class<?>, ClassInfo> scanResources() {
+        Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
         String[] packageNames = parsePropertyValue(ServerProperties.PROVIDER_PACKAGES);
         if (packageNames != null) {
             rfs.add(new PackageNamesScanner(packageNames));
@@ -182,9 +336,8 @@ public class ApplicationConfig extends Application {
             }
         }
 
-        result.addAll(resourceProcessor.getAnnotatedClasses());
-        result.addAll(classes);
-        return result;
+        Map<Class<?>, ClassInfo> processResult = resourceProcessor.getAnnotatedClasses();
+        return processResult;
     }
 
     private String[] parsePropertyValue(String propertyName) {
