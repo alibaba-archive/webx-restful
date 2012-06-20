@@ -32,7 +32,7 @@ public class PathParamProvider extends AbstractParameterProvider {
     }
 
     @Override
-    public Object getParameterValue(WebxRestfulRequestContext requestContext) {
+    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
         throw new UnsupportedOperationException(); // TODO
     }
 

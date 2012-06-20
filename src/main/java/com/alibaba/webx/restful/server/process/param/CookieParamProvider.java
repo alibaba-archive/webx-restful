@@ -34,10 +34,10 @@ public class CookieParamProvider extends AbstractParameterProvider {
     }
 
     @Override
-    public Object getParameterValue(WebxRestfulRequestContext requestContext) {
+    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
         HttpServletRequest httpRequest = requestContext.getHttpRequest();
         
-        Object value = null;
+        String value = null;
         for (Cookie cookie : httpRequest.getCookies()) {
             if (cookie.getName().equals(cookieName)) {
                 value = cookie.getValue();

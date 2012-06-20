@@ -3,8 +3,11 @@ package com.alibaba.webx.restful.server.process.param;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import javax.ws.rs.DefaultValue;
+
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
 public abstract class AbstractParameterProvider implements ParameterProvider {
 
@@ -13,6 +16,7 @@ public abstract class AbstractParameterProvider implements ParameterProvider {
     private final Class<?>       paremeterClass;
     private final Type           paremeterType;
     private final Annotation[]   parameterAnnotations;
+    private String               defaultLiteralValue;
 
     public AbstractParameterProvider(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
                                      Type paremeterType, Annotation[] parameterAnnotations){
@@ -21,6 +25,24 @@ public abstract class AbstractParameterProvider implements ParameterProvider {
         this.paremeterClass = paremeterClass;
         this.paremeterType = paremeterType;
         this.parameterAnnotations = parameterAnnotations;
+        
+        for (Annotation item : parameterAnnotations) {
+            if (item.getClass() == DefaultValue.class) {
+                this.defaultLiteralValue = ((DefaultValue) item).value();
+            }
+        }
+    }
+    
+    public abstract String getLiteralValue(WebxRestfulRequestContext requestContext);
+    
+    public Object getParameterValue(WebxRestfulRequestContext requestContext) {
+        String literalValue = getLiteralValue(requestContext);
+        
+        if (literalValue == null) {
+            literalValue = defaultLiteralValue;
+        }
+        
+        throw new UnsupportedOperationException();
     }
 
     public ResourceMethod getResourceMethod() {

@@ -33,7 +33,7 @@ public class QueryParamProvider extends AbstractParameterProvider {
     }
 
     @Override
-    public Object getParameterValue(WebxRestfulRequestContext requestContext) {
+    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
         HttpServletRequest httpRequest = requestContext.getHttpRequest();
         return httpRequest.getParameter(parameterName);
     }

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
 public abstract class ContextParamterProvider extends AbstractParameterProvider implements ParameterProvider {
 
@@ -13,4 +14,7 @@ public abstract class ContextParamterProvider extends AbstractParameterProvider 
         super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations);
     }
 
+    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
+        throw new UnsupportedOperationException();
+    }
 }
