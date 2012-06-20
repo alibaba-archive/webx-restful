@@ -25,14 +25,11 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.MethodHandler;
-import com.alibaba.webx.restful.model.MethodHandler.ClassBasedMethodHandler;
-import com.alibaba.webx.restful.model.MethodHandler.InstanceBasedMethodHandler;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
@@ -99,7 +96,7 @@ public class ApplicationConfig extends Application {
     public void addResources(List<Resource> resources) {
         this.resources.addAll(resources);
     }
-    
+
     public void addResource(Resource resource) {
         this.resources.add(resource);
     }
@@ -233,15 +230,8 @@ public class ApplicationConfig extends Application {
         Invocable invocable;
         boolean keepEncodedParams = clazz.getAnnotation(Encoded.class) != null;
 
-        MethodHandler methodHandler;
-        if (httpMethod == null) {
-            methodHandler = new ClassBasedMethodHandler(clazz, keepEncodedParams);
-        } else {
-            Object resourceInstance = applicationContxt.getAutowireCapableBeanFactory().autowire(clazz,
-                                                                                                 AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
-                                                                                                 true);
-            methodHandler = new InstanceBasedMethodHandler(resourceInstance, clazz);
-        }
+        MethodHandler methodHandler = new MethodHandler(clazz, keepEncodedParams);
+
         invocable = new Invocable(methodHandler, method, keepEncodedParams);
         return invocable;
     }

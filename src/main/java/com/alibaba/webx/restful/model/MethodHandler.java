@@ -52,153 +52,43 @@ import org.springframework.context.ApplicationContext;
  * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public abstract class MethodHandler {
+public class MethodHandler {
 
-    /**
-     * Create a class-based method handler from a class.
-     * 
-     * @param handlerClass method handler class.
-     * @return new class-based method handler.
-     */
-    public static MethodHandler create(final Class<?> handlerClass) {
-        return new ClassBasedMethodHandler(handlerClass);
+    private final Class<?>                 handlerClass;
+    private final List<HandlerConstructor> handlerConstructors;
+
+    public MethodHandler(final Class<?> handlerClass){
+        this(handlerClass, false);
     }
 
-    /**
-     * Create a class-based method handler from a class.
-     * 
-     * @param handlerClass method handler class.
-     * @param disableParamDecoding if set to {@code true}, any injected constructor parameters must be kept encoded and
-     * must not be automatically decoded.
-     * @return new class-based method handler.
-     */
-    public static MethodHandler create(final Class<?> handlerClass, final boolean disableParamDecoding) {
-        return new ClassBasedMethodHandler(handlerClass, disableParamDecoding);
+    public MethodHandler(final Class<?> handlerClass, final boolean disableParamDecoding){
+        this.handlerClass = handlerClass;
+
+        List<HandlerConstructor> constructors = new LinkedList<HandlerConstructor>();
+        List<Parameter> parameters = null; // TODO
+        for (Constructor<?> constructor : handlerClass.getConstructors()) {
+            constructors.add(new HandlerConstructor(constructor, parameters));
+        }
+        this.handlerConstructors = Collections.unmodifiableList(constructors);
     }
 
-    /**
-     * Create a instance-based (singleton) method handler from a class.
-     * 
-     * @param handlerInstance method handler instance (singleton).
-     * @return new instance-based method handler.
-     */
-    public static MethodHandler create(final Object handlerInstance) {
-        return new InstanceBasedMethodHandler(handlerInstance);
+    public Class<?> getHandlerClass() {
+        return handlerClass;
     }
 
-    /**
-     * Create a instance-based (singleton) method handler from a class. This method
-     * 
-     * @param handlerInstance method handler instance (singleton).
-     * @param handlerClass declared handler class.
-     * @return new instance-based method handler.
-     */
-    public static MethodHandler create(final Object handlerInstance, Class<?> handlerClass) {
-        return new InstanceBasedMethodHandler(handlerInstance, handlerClass);
-    }
-
-    /**
-     * Get the resource method handler class.
-     * 
-     * @return resource method handler class.
-     */
-    public abstract Class<?> getHandlerClass();
-
-    /**
-     * Get the resource method handler constructors. The returned is empty by default. Concrete implementations may
-     * override the method to return the actual list of constructors that will be used for the handler initialization.
-     * 
-     * @return resource method handler constructors.
-     */
     public List<HandlerConstructor> getConstructors() {
-        return Collections.emptyList();
+        return handlerConstructors;
     }
 
-    /**
-     * Get the injected resource method handler instance.
-     * 
-     * @param injector injector that can be used to inject the instance.
-     * @return injected resource method handler instance.
-     */
-    // public abstract Object getInstance(final Injector injector);
-
-    public abstract Object getInstance(ApplicationContext applicationContext);
-
-    public static class ClassBasedMethodHandler extends MethodHandler {
-
-        private final Class<?>                 handlerClass;
-        private final List<HandlerConstructor> handlerConstructors;
-
-        public ClassBasedMethodHandler(final Class<?> handlerClass){
-            this(handlerClass, false);
-        }
-
-        public ClassBasedMethodHandler(final Class<?> handlerClass, final boolean disableParamDecoding){
-            this.handlerClass = handlerClass;
-
-            List<HandlerConstructor> constructors = new LinkedList<HandlerConstructor>();
-            List<Parameter> parameters = null; // TODO
-            for (Constructor<?> constructor : handlerClass.getConstructors()) {
-                constructors.add(new HandlerConstructor(constructor, parameters));
-            }
-            this.handlerConstructors = Collections.unmodifiableList(constructors);
-        }
-
-        @Override
-        public Class<?> getHandlerClass() {
-            return handlerClass;
-        }
-
-        @Override
-        public List<HandlerConstructor> getConstructors() {
-            return handlerConstructors;
-        }
-
-        @Override
-        public Object getInstance(ApplicationContext applicationContext) {
-            Object instance = applicationContext.getAutowireCapableBeanFactory().autowire(this.handlerClass,
-                                                                                          AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
-                                                                                          true);
-            return instance;
-        }
-
-        @Override
-        public String toString() {
-            return "MethodHandler{" + "handlerClass=" + handlerClass + ", handlerConstructors=" + handlerConstructors
-                   + '}';
-        }
+    public Object getInstance(ApplicationContext applicationContext) {
+        Object instance = applicationContext.getAutowireCapableBeanFactory().autowire(this.handlerClass,
+                                                                                      AutowireCapableBeanFactory.AUTOWIRE_AUTODETECT,
+                                                                                      true);
+        return instance;
     }
 
-    public static class InstanceBasedMethodHandler extends MethodHandler {
-
-        private final Object   handler;
-        private final Class<?> handlerClass;
-
-        public InstanceBasedMethodHandler(final Object handler){
-            this.handler = handler;
-            this.handlerClass = handler.getClass();
-        }
-
-        public InstanceBasedMethodHandler(final Object handler, final Class<?> handlerClass){
-            this.handler = handler;
-            this.handlerClass = handlerClass;
-        }
-
-        @Override
-        public Class<?> getHandlerClass() {
-            return handlerClass;
-        }
-
-        @Override
-        public Object getInstance(ApplicationContext applicationContext) {
-            throw new UnsupportedOperationException();
-        }
-
-        // @Override
-        // public Object getInstance(final Injector injector) {
-        // // TODO: should we do the injection only once? Or not at all?
-        // injector.inject(handler);
-        // return handler;
-        // }
+    public String toString() {
+        return "MethodHandler{" + "handlerClass=" + handlerClass + ", handlerConstructors=" + handlerConstructors + '}';
     }
+
 }
