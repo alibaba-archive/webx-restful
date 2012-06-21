@@ -32,7 +32,6 @@ import org.springframework.context.ApplicationContext;
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
 import com.alibaba.webx.restful.model.HandlerConstructor;
 import com.alibaba.webx.restful.model.Invocable;
-import com.alibaba.webx.restful.model.MethodHandler;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
@@ -284,9 +283,7 @@ public class ApplicationConfig extends Application {
     private static Invocable createInvocable(HandlerConstructor handlerConstructor, Class<?> clazz, Method method,
                                              String httpMethod) {
 
-        MethodHandler methodHandler = new MethodHandler(clazz, handlerConstructor);
-
-        Invocable invocable = new Invocable(methodHandler, method);
+        Invocable invocable = new Invocable(handlerConstructor, method);
         return invocable;
     }
 

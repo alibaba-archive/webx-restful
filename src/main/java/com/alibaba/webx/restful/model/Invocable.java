@@ -10,16 +10,16 @@ import com.alibaba.webx.restful.util.ReflectionUtils;
 
 public final class Invocable implements Parameterized {
 
-    private final MethodHandler   handler;
-    private final Method          handlingMethod;
-    private final List<Parameter> parameters;
-    private final GenericType<?>  responseType;
+    private final HandlerConstructor handlerConstructor;
+    private final Method             handlingMethod;
+    private final List<Parameter>    parameters;
+    private final GenericType<?>     responseType;
 
-    public Invocable(MethodHandler handler, Method handlingMethod){
-        this.handler = handler;
+    public Invocable(HandlerConstructor handlerConstructor, Method handlingMethod){
+        this.handlerConstructor = handlerConstructor;
         this.handlingMethod = handlingMethod;
 
-        final Class<?> handlerClass = handler.getHandlerClass();
+        final Class<?> handlerClass = handlerConstructor.getHandlerClass();
         final ClassTypePair ctPair = ReflectionUtils.resolveGenericType(handlerClass,
                                                                         handlingMethod.getDeclaringClass(),
                                                                         handlingMethod.getReturnType(),
@@ -29,14 +29,8 @@ public final class Invocable implements Parameterized {
         this.parameters = null; // TODO
     }
 
-    /**
-     * Get the model of the resource method handler that will be used to invoke the {@link #getHandlingMethod() handling
-     * resource method} on.
-     * 
-     * @return resource method handler model.
-     */
-    public MethodHandler getHandler() {
-        return handler;
+    public HandlerConstructor getHandlerConstructor() {
+        return handlerConstructor;
     }
 
     /**
@@ -75,9 +69,4 @@ public final class Invocable implements Parameterized {
         return parameters;
     }
 
-    @Override
-    public String toString() {
-        return "Invocable{" + "handler=" + handler + ", handlingMethod=" + handlingMethod + ", parameters="
-               + parameters + ", responseType=" + responseType + '}';
-    }
 }
