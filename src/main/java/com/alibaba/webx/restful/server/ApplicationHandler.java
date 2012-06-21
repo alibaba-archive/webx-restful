@@ -1,9 +1,7 @@
 package com.alibaba.webx.restful.server;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,13 +23,9 @@ import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.internal.inject.ServiceProviders;
 import com.alibaba.webx.restful.message.internal.MessageBodyFactory;
-import com.alibaba.webx.restful.model.HandlerConstructor;
 import com.alibaba.webx.restful.model.Invocable;
-import com.alibaba.webx.restful.model.MethodHandler;
-import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.model.converter.TypeConvertException;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 import com.alibaba.webx.restful.uri.PathPattern;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
