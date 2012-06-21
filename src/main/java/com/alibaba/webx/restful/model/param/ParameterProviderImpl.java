@@ -18,14 +18,14 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.model.converter.TypeConverterFactory;
-import com.alibaba.webx.restful.model.converter.TypeConverterFactoryImpl;
+import com.alibaba.webx.restful.model.converter.TypeConverterProvider;
+import com.alibaba.webx.restful.model.converter.TypeConverterProviderImpl;
 import com.alibaba.webx.restful.server.ParameterProvider;
 
 public class ParameterProviderImpl implements ParameterProvider {
 
     private final static Log     LOG                   = LogFactory.getLog(ParameterProviderImpl.class);
-    private TypeConverterFactory typeConverterProvider = new TypeConverterFactoryImpl();
+    private TypeConverterProvider typeConverterProvider = new TypeConverterProviderImpl();
 
     @Override
     public Parameter createParameter(Class<?> clazz, Member method, String name, Class<?> paramClass, Type paramType,

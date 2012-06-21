@@ -5,11 +5,11 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class TypeConverterFactoryImpl implements TypeConverterFactory {
+public class TypeConverterProviderImpl implements TypeConverterProvider {
 
-    private final static TypeConverterFactoryImpl instance = new TypeConverterFactoryImpl();
+    private final static TypeConverterProviderImpl instance = new TypeConverterProviderImpl();
 
-    public static TypeConverterFactoryImpl getInstance() {
+    public static TypeConverterProviderImpl getInstance() {
         return instance;
     }
 
