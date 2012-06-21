@@ -23,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.server.MessageBodyWorkerProvider;
+import com.alibaba.webx.restful.server.WebxRestfulMessageBodyWorkerProvider;
 
 public class WebxRestfulRequestContext implements ContainerRequestContext {
 
@@ -51,13 +53,22 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
 
     private Map<String, Object>       properties      = null;
 
-    public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response){
+    private MessageBodyWorkerProvider workers;
+
+    public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response,
+                                     WebxRestfulMessageBodyWorkerProvider workers){
         super();
         this.httpRequest = request;
         this.httpResponse = response;
         this.date = new Date();
 
         this.uriInfo = new WebxRestfulUriInfo(request);
+
+        this.workers = workers;
+    }
+
+    public MessageBodyWorkerProvider getWorkers() {
+        return workers;
     }
 
     public HttpHeaders getHttpHeaders() {

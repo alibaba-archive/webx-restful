@@ -1,6 +1,8 @@
 package com.alibaba.webx.restful.server;
 
-public class WebxRestfulProcessException extends Exception {
+import java.io.IOException;
+
+public class WebxRestfulProcessException extends IOException {
 
     private static final long serialVersionUID = 1L;
 

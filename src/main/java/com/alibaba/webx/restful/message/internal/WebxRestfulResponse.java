@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.MessageProcessingException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericType;
@@ -29,6 +30,8 @@ public class WebxRestfulResponse extends Response {
     private Set<String>                        allowMethods;
     private MultivaluedHashMap<String, Object> headers;
 
+    private HttpServletResponse                httpResponse;
+
     public WebxRestfulResponse(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
                                Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
         super();
@@ -38,6 +41,22 @@ public class WebxRestfulResponse extends Response {
         this.declaredType = declaredType;
         this.allowMethods = allowMethods;
         this.headers = headers;
+    }
+
+    public HttpServletResponse getHttpResponse() {
+        return httpResponse;
+    }
+
+    public void setHttpResponse(HttpServletResponse httpResponse) {
+        this.httpResponse = httpResponse;
+    }
+
+    public Annotation[] getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(Annotation[] annotations) {
+        this.annotations = annotations;
     }
 
     @Override
@@ -53,6 +72,14 @@ public class WebxRestfulResponse extends Response {
     @Override
     public Object getEntity() throws IllegalStateException {
         return entity;
+    }
+
+    public void setEntity(Object entity) {
+        this.entity = entity;
+    }
+
+    public MultivaluedHashMap<String, Object> getHeaders() {
+        return headers;
     }
 
     @Override
@@ -107,6 +134,14 @@ public class WebxRestfulResponse extends Response {
     @Override
     public MediaType getMediaType() {
         return (MediaType) this.headers.getFirst(HttpHeaders.CONTENT_TYPE);
+    }
+
+    public void setMediaType(MediaType mediaType) {
+        if (mediaType == null) {
+            this.headers.remove(HttpHeaders.CONTENT_TYPE);
+        } else {
+            this.headers.putSingle(HttpHeaders.CONTENT_TYPE, mediaType);
+        }
     }
 
     @Override

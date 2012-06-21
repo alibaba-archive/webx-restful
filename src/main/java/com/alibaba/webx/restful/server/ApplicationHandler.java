@@ -1,11 +1,10 @@
 package com.alibaba.webx.restful.server;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,8 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.internal.inject.ServiceProviders;
-import com.alibaba.webx.restful.message.internal.MessageBodyFactory;
+import com.alibaba.webx.restful.message.internal.JSONMessageBodyWriter;
+import com.alibaba.webx.restful.message.internal.WebxRestfulResponse;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
@@ -34,11 +33,13 @@ import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
 
-    private final static Log        LOG = LogFactory.getLog(ApplicationHandler.class);
+    private final static Log                     LOG     = LogFactory.getLog(ApplicationHandler.class);
 
-    private final ApplicationConfig config;
+    private final ApplicationConfig              config;
 
-    private ApplicationContext      applicationContext;
+    private ApplicationContext                   applicationContext;
+
+    private WebxRestfulMessageBodyWorkerProvider workers = new WebxRestfulMessageBodyWorkerProvider();
 
     public ApplicationHandler(Application application, ApplicationContext applicationContext){
         ApplicationContextUtils.setApplicationContext(applicationContext);
@@ -53,38 +54,35 @@ public class ApplicationHandler {
         return applicationContext;
     }
 
+    @SuppressWarnings("rawtypes")
     private void initialize() {
-        config.lock();
-
-        ServiceProviders providers = null;
-
-        {
-            Map map = applicationContext.getBeansOfType(ServiceProviders.class);
-            Iterator iter = map.values().iterator();
-            if (iter.hasNext()) {
-                providers = (ServiceProviders) iter.next();
-            }
-        }
-
-        final MessageBodyFactory workers = new MessageBodyFactory(providers);
+        workers.addMessageBodyWriter(new JSONMessageBodyWriter());
 
     }
 
     public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
-        WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse);
+        WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse,
+                                                                                 this.workers);
 
         match(requestContext);
 
-        Response response;
+        WebxRestfulResponse response = null;
         try {
             response = process(requestContext);
         } catch (WebxRestfulProcessException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        try {
+            writeResponse(requestContext, response);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    private Response process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
+    private WebxRestfulResponse process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         Invocable invocable = resourceMethod.getInvocable();
@@ -111,15 +109,25 @@ public class ApplicationHandler {
         }
 
         ResponseBuilder responseBuilder;
-        
+
         if (returnObject == null) {
             responseBuilder = Response.noContent();
         } else {
             responseBuilder = Response.ok(returnObject);
         }
-        
-        Response response = responseBuilder.build();
+
+        WebxRestfulResponse response = (WebxRestfulResponse) responseBuilder.build();
+        response.setHttpResponse(requestContext.getHttpResponse());
         return response;
+    }
+
+    public void writeResponse(WebxRestfulRequestContext requestContext, WebxRestfulResponse response)
+                                                                                                     throws IOException {
+        MessageBodyWorkerProvider workers = requestContext.getWorkers();
+        WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
+                                                                                                         response);
+
+        interceptorContext.proceed();
     }
 
     public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {
