@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -312,6 +313,14 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
             this.superName = superName;
             this.interfaces = interfaces;
         }
+        
+        public MethodInfo getMethodInfo(Member member) {
+            if (member instanceof Constructor<?>) {
+                return getMethodInfo((Constructor<?>) member);
+            }
+            
+            return getMethodInfo((Method) member);
+        }
 
         public MethodInfo getMethodInfo(Constructor<?> constructor) {
             String desc = ClassUtils.getDesc(constructor);
@@ -333,7 +342,7 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
             String desc = ClassUtils.getDesc(method);
             
             for (MethodInfo item : this.methods) {
-                if (!item.getName().equals("<init>")) {
+                if (!item.getName().equals(method.getName())) {
                     continue;
                 }
                 

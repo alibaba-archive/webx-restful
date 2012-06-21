@@ -14,6 +14,8 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
@@ -68,39 +70,56 @@ public class ApplicationHandler {
 
     }
 
-    public void service(HttpServletRequest request, HttpServletResponse response) {
-        WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(request, response);
+    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse);
 
         match(requestContext);
 
-        process(requestContext);
+        Response response;
+        try {
+            response = process(requestContext);
+        } catch (WebxRestfulProcessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
-    private void process(WebxRestfulRequestContext requestContext) {
+    private Response process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         Invocable invocable = resourceMethod.getInvocable();
 
-        Method method = invocable.getHandlingMethod();
-
         Object resourceInstance = null;
         try {
             resourceInstance = invocable.getHandlerConstructor().createInstance(requestContext);
-        } catch (Exception error) {
-            // TODO
+        } catch (Exception e) {
+            throw new WebxRestfulProcessException("createResourceInstance error", e);
         }
 
         Object[] args = null;
-        for (int i = 0; i < method.getParameterTypes().length; ++i) {
-
-        }
-
         try {
-            Object returnObject = method.invoke(resourceInstance, args);
-            requestContext.setReturnObject(returnObject);
+            args = invocable.getArguments(requestContext);
         } catch (Exception e) {
-            requestContext.setException(e);
+            throw new WebxRestfulProcessException("get resourceMethod's arguemnts error", e);
         }
+
+        Object returnObject = null;
+        try {
+            returnObject = invocable.invoke(resourceInstance, args);
+        } catch (Exception e) {
+            throw new WebxRestfulProcessException("invoke resourceMethod error", e);
+        }
+
+        ResponseBuilder responseBuilder;
+        
+        if (returnObject == null) {
+            responseBuilder = Response.noContent();
+        } else {
+            responseBuilder = Response.ok(returnObject);
+        }
+        
+        Response response = responseBuilder.build();
+        return response;
     }
 
     public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {

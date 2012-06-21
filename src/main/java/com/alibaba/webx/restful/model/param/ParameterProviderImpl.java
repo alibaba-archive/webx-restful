@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
@@ -39,6 +40,7 @@ public class ParameterProviderImpl implements ParameterProvider {
         FormParam formParam = null;
         QueryParam queryParam = null;
         PathParam pathParam = null;
+        MatrixParam matrixParam = null;
 
         for (Annotation annotation : annotations) {
             Class<?> annotationType = annotation.annotationType();
@@ -56,6 +58,8 @@ public class ParameterProviderImpl implements ParameterProvider {
                 queryParam = (QueryParam) annotation;
             } else if (annotationType == PathParam.class) {
                 pathParam = (PathParam) annotation;
+            } else if (annotationType == MatrixParam.class) {
+                matrixParam = (MatrixParam) annotation;
             }
         }
 
@@ -94,6 +98,11 @@ public class ParameterProviderImpl implements ParameterProvider {
         if (pathParam != null) {
             String paramName = pathParam.value();
             return new PathParameter(paramName, typeConverter, defaultValue);
+        }
+        
+        if (matrixParam != null) {
+            // TODO
+            throw new RuntimeException("TODO");
         }
 
         return new DefaultParameter(name, typeConverter, defaultValue);

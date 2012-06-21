@@ -12,6 +12,6 @@ public class Responses {
      * @return response builder instance.
      */
     public static ResponseBuilder empty() {
-        throw new UnsupportedOperationException();
+        return new WebxRestfulResponseBuilder();
     }
 }

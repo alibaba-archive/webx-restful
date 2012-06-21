@@ -3,6 +3,8 @@ package com.alibaba.webx.restful.server;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -18,7 +20,11 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.HttpMethod;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
@@ -27,20 +33,24 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
+import com.alibaba.webx.restful.model.AutowireSetter;
 import com.alibaba.webx.restful.model.HandlerConstructor;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.param.AutowiredParameter;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl.MethodInfo;
+import com.alibaba.webx.restful.util.ClassUtils;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -199,8 +209,13 @@ public class ApplicationConfig extends Application {
                                    Class<?> clazz, ClassInfo classInfo) {
         Path pathAnnotation = clazz.getAnnotation(Path.class);
 
-        HandlerConstructor handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz,
-                                                                         classInfo);
+        HandlerConstructor handlerConstructor;
+        try {
+            handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz, classInfo);
+        } catch (Exception e) {
+            LOG.error("load resourceClass error. class '" + clazz.getName() + "'", e);
+            return null;
+        }
 
         if (handlerConstructor == null) {
             LOG.error("load resourceClass error, constructor not found. class '" + clazz.getName() + "'");
@@ -226,7 +241,9 @@ public class ApplicationConfig extends Application {
             Collection<MediaType> consumedTypes = getConsumesMediaTypes(method);
             Collection<MediaType> producedTypes = getProducesMediaTypes(method);
 
-            Invocable invocable = createInvocable(handlerConstructor, clazz, method, httpMethod);
+            List<Parameter> invokeParameters = createParameters(parameterProvider, clazz, classInfo, method);
+            Invocable invocable = new Invocable(handlerConstructor, method, invokeParameters);
+
             ResourceMethod resourceMethod = new ResourceMethod(httpMethod, methodPath, consumedTypes, producedTypes,
                                                                invocable);
 
@@ -248,7 +265,7 @@ public class ApplicationConfig extends Application {
 
     private static HandlerConstructor createHandlerConstructor(ApplicationContext applicationContxt,
                                                                ParameterProvider parameterProvider, Class<?> clazz,
-                                                               ClassInfo classInfo) {
+                                                               ClassInfo classInfo) throws Exception {
 
         Constructor<?> constructor = null;
         for (Constructor<?> item : clazz.getConstructors()) {
@@ -262,29 +279,123 @@ public class ApplicationConfig extends Application {
             return null;
         }
 
-        MethodInfo methodInfo = classInfo.getMethodInfo(constructor);
+        List<Parameter> parameters = createParameters(parameterProvider, clazz, classInfo, constructor);
 
-        int parametersLength = constructor.getParameterTypes().length;
+        List<AutowireSetter> autowireSetters = createSetters(applicationContxt, clazz);
+
+        return new HandlerConstructor(constructor, parameters, autowireSetters);
+    }
+
+    static List<AutowireSetter> createSetters(ApplicationContext applicationContext, Class<?> clazz) throws Exception {
+        List<AutowireSetter> autowireSetters = new ArrayList<AutowireSetter>();
+
+        List<Method> declaredMethods = getAllDeclaredMethods(clazz);
+        for (Method method : declaredMethods) {
+            if (method.getParameterTypes().length != 1) {
+                continue;
+            }
+
+            if (!method.getName().startsWith("set")) {
+                continue;
+            }
+
+            if (method.getName().length() < 4) {
+                continue;
+            }
+
+            if (!Character.isUpperCase(method.getName().charAt(3))) {
+                continue;
+            }
+
+            if (method.getAnnotation(Path.class) != null) {
+                continue;
+            }
+
+            if (method.getAnnotation(GET.class) != null) {
+                continue;
+            }
+
+            if (method.getAnnotation(POST.class) != null) {
+                continue;
+            }
+
+            if (method.getAnnotation(DELETE.class) != null) {
+                continue;
+            }
+
+            if (method.getAnnotation(PUT.class) != null) {
+                continue;
+            }
+
+            String propertyName = Character.toLowerCase(method.getName().charAt(3)) + method.getName().substring(4);
+
+            Class<?> setterClass = method.getParameterTypes()[0];
+            Type setterType = method.getGenericParameterTypes()[0];
+            Annotation[] annotations = method.getParameterAnnotations()[0];
+
+            Autowired autowired = method.getAnnotation(Autowired.class);
+
+            if (autowired == null) {
+                Field field = ClassUtils.getField(clazz, propertyName);
+
+                if (field != null) {
+                    autowired = field.getAnnotation(Autowired.class);
+                }
+            }
+
+            if (autowired == null) {
+                continue;
+            }
+
+            Map beanMap = applicationContext.getBeansOfType(setterClass);
+            if (beanMap.size() == 0) {
+                throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
+            }
+            if (beanMap.size() > 1) {
+                throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
+            }
+
+            Object bean = beanMap.values().iterator().next();
+
+            Parameter parameter = new AutowiredParameter(bean);
+
+            AutowireSetter setter = new AutowireSetter(method, parameter);
+            autowireSetters.add(setter);
+        }
+        return autowireSetters;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static List<Parameter> createParameters(ParameterProvider parameterProvider, Class<?> clazz,
+                                                    ClassInfo classInfo, Member member) {
+        MethodInfo methodInfo = classInfo.getMethodInfo(member);
+
+        Class<?>[] parameterClasses;
+        Type[] parameterTypes;
+        Annotation[][] annotationArrays;
+        if (member instanceof Constructor<?>) {
+            parameterClasses = ((Constructor) member).getParameterTypes();
+            parameterTypes = ((Constructor) member).getGenericParameterTypes();
+            annotationArrays = ((Constructor) member).getParameterAnnotations();
+        } else {
+            parameterClasses = ((Method) member).getParameterTypes();
+            parameterTypes = ((Method) member).getGenericParameterTypes();
+            annotationArrays = ((Method) member).getParameterAnnotations();
+        }
+
+        int parametersLength = parameterTypes.length;
         List<Parameter> parameters = new ArrayList<Parameter>(parametersLength);
         for (int i = 0; i < parametersLength; ++i) {
-            Class<?> paramClass = constructor.getParameterTypes()[i];
-            Type paramType = constructor.getGenericParameterTypes()[i];
-            Annotation[] annotations = constructor.getParameterAnnotations()[i];
+            Class<?> paramClass = parameterClasses[i];
+            Type paramType = parameterTypes[i];
+            Annotation[] annotations = annotationArrays[i];
             String name = methodInfo.getParameterNames().get(i);
 
-            Parameter parameter = parameterProvider.createParameter(clazz, constructor, name, paramClass, paramType,
+            Parameter parameter = parameterProvider.createParameter(clazz, member, name, paramClass, paramType,
                                                                     annotations);
             parameters.add(parameter);
         }
-
-        return new HandlerConstructor(constructor, parameters);
-    }
-
-    private static Invocable createInvocable(HandlerConstructor handlerConstructor, Class<?> clazz, Method method,
-                                             String httpMethod) {
-
-        Invocable invocable = new Invocable(handlerConstructor, method);
-        return invocable;
+        return parameters;
     }
 
     private static String getHttpMethod(Method method) {

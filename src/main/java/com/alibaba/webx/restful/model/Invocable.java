@@ -5,8 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.core.GenericType;
 
-import com.alibaba.webx.restful.util.ClassTypePair;
-import com.alibaba.webx.restful.util.ReflectionUtils;
+import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
 public final class Invocable implements Parameterized {
 
@@ -15,18 +14,13 @@ public final class Invocable implements Parameterized {
     private final List<Parameter>    parameters;
     private final GenericType<?>     responseType;
 
-    public Invocable(HandlerConstructor handlerConstructor, Method handlingMethod){
+    public Invocable(HandlerConstructor handlerConstructor, Method handlingMethod, List<Parameter> parameters){
         this.handlerConstructor = handlerConstructor;
         this.handlingMethod = handlingMethod;
 
-        final Class<?> handlerClass = handlerConstructor.getHandlerClass();
-        final ClassTypePair ctPair = ReflectionUtils.resolveGenericType(handlerClass,
-                                                                        handlingMethod.getDeclaringClass(),
-                                                                        handlingMethod.getReturnType(),
-                                                                        handlingMethod.getGenericReturnType());
-        this.responseType = GenericType.of(ctPair.rawClass(), ctPair.type());
+        this.responseType = GenericType.of(handlingMethod.getReturnType(), handlingMethod.getGenericReturnType());
 
-        this.parameters = null; // TODO
+        this.parameters = parameters;
     }
 
     public HandlerConstructor getHandlerConstructor() {
@@ -69,4 +63,18 @@ public final class Invocable implements Parameterized {
         return parameters;
     }
 
+    public Object[] getArguments(WebxRestfulRequestContext requestContext) throws Exception {
+        Object[] args = new Object[parameters.size()];
+        for (int i = 0; i < args.length; ++i) {
+            Parameter parameter = parameters.get(i);
+            args[i] = parameter.getParameterValue(requestContext);
+        }
+
+        return args;
+    }
+
+    public Object invoke(Object instance, Object[] args) throws Exception {
+        Object returnObject = handlingMethod.invoke(instance, args);
+        return returnObject;
+    }
 }

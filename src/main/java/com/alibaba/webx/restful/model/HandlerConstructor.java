@@ -7,14 +7,21 @@ import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
 public final class HandlerConstructor implements Parameterized {
 
-    private final Class<?>        handlerClass;
-    private final Constructor<?>  constructor;
-    private final List<Parameter> parameters;
+    private final Class<?>             handlerClass;
+    private final Constructor<?>       constructor;
+    private final List<Parameter>      parameters;
 
-    public HandlerConstructor(Constructor<?> constructor, List<Parameter> parameters){
+    private final List<AutowireSetter> setters;
+
+    public HandlerConstructor(Constructor<?> constructor, List<Parameter> parameters, List<AutowireSetter> setters){
         this.handlerClass = constructor.getDeclaringClass();
         this.constructor = constructor;
         this.parameters = parameters;
+        this.setters = setters;
+    }
+
+    public List<AutowireSetter> getSetters() {
+        return setters;
     }
 
     public Class<?> getHandlerClass() {
@@ -52,6 +59,13 @@ public final class HandlerConstructor implements Parameterized {
             constructArgs[i] = parameter.getParameterValue(requestContext);
         }
         Object resourceInstance = constructor.newInstance(constructArgs);
+        
+        for (AutowireSetter setter : setters) {
+            Parameter parameter = setter.getParameter();
+            Object propertyValue = parameter.getParameterValue(requestContext);
+            setter.getMethod().invoke(resourceInstance, propertyValue);
+        }
+        
         return resourceInstance;
     }
 }

@@ -1,0 +1,183 @@
+package com.alibaba.webx.restful.message.internal;
+
+import java.lang.annotation.Annotation;
+import java.net.URI;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.MessageProcessingException;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.Link.Builder;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
+import javax.ws.rs.core.Response;
+
+import com.google.common.net.HttpHeaders;
+
+public class WebxRestfulResponse extends Response {
+
+    private StatusType                         status;
+    private Object                             entity;
+    private Annotation[]                       annotations;
+    private GenericType<?>                     declaredType;
+    private Set<String>                        allowMethods;
+    private MultivaluedHashMap<String, Object> headers;
+
+    public WebxRestfulResponse(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
+                               Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
+        super();
+        this.status = status;
+        this.entity = entity;
+        this.annotations = annotations;
+        this.declaredType = declaredType;
+        this.allowMethods = allowMethods;
+        this.headers = headers;
+    }
+
+    @Override
+    public int getStatus() {
+        return status.getStatusCode();
+    }
+
+    @Override
+    public StatusType getStatusInfo() {
+        return status;
+    }
+
+    @Override
+    public Object getEntity() throws IllegalStateException {
+        return entity;
+    }
+
+    @Override
+    public <T> T readEntity(Class<T> entityType) throws MessageProcessingException, IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public <T> T readEntity(GenericType<T> entityType) throws MessageProcessingException, IllegalStateException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T readEntity(Class<T> entityType, Annotation[] annotations) throws MessageProcessingException,
+                                                                          IllegalStateException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T> T readEntity(GenericType<T> entityType, Annotation[] annotations) throws MessageProcessingException,
+                                                                                IllegalStateException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean hasEntity() {
+        return entity != null;
+    }
+
+    @Override
+    public boolean bufferEntity() throws MessageProcessingException {
+        return entity != null;
+    }
+
+    @Override
+    public void close() throws MessageProcessingException {
+
+    }
+
+    @Override
+    public String getHeader(String name) {
+        Object first = headers.getFirst(name);
+        if (first == null) {
+            return null;
+        }
+        return first.toString();
+    }
+
+    @Override
+    public MediaType getMediaType() {
+        return (MediaType) this.headers.getFirst(HttpHeaders.CONTENT_TYPE);
+    }
+
+    @Override
+    public Locale getLanguage() {
+        return (Locale) this.headers.getFirst(HttpHeaders.CONTENT_LANGUAGE);
+    }
+
+    @Override
+    public int getLength() {
+        Object length = this.headers.getFirst(HttpHeaders.CONTENT_LENGTH);
+        if (length == null) {
+            return -1;
+        }
+        return 0;
+    }
+
+    @Override
+    public Map<String, NewCookie> getCookies() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public EntityTag getEntityTag() {
+        return (EntityTag) this.headers.getFirst(HttpHeaders.ETAG);
+    }
+
+    @Override
+    public Date getDate() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Date getLastModified() {
+        return (Date) this.headers.getFirst(HttpHeaders.LAST_MODIFIED);
+    }
+
+    @Override
+    public URI getLocation() {
+        return (URI) this.headers.getFirst(HttpHeaders.LOCATION);
+    }
+
+    @Override
+    public Set<Link> getLinks() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean hasLink(String relation) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Link getLink(String relation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Builder getLinkBuilder(String relation) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public MultivaluedMap<String, Object> getMetadata() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+}

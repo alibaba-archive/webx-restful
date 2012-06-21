@@ -1,9 +1,23 @@
 package com.alibaba.webx.restful.util;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class ClassUtils {
+    public static Field getField(Class<?> clazz, String fieldName) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (field.getName().equals(fieldName)) {
+                return field;
+            }
+        }
+        
+        if (clazz.getSuperclass() != Object.class) {
+            return getField(clazz.getSuperclass(), fieldName);
+        }
+        
+        return null;
+    }
 
     public static String getDesc(Method method) {
         StringBuffer buf = new StringBuffer();

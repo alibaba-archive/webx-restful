@@ -48,7 +48,7 @@ import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 public interface Parameter {
 
     public static enum Source {
-        ENTITY, QUERY, MATRIX, PATH, COOKIE, HEADER, CONTEXT, FORM, UNKNOWN
+        ENTITY, QUERY, MATRIX, PATH, COOKIE, HEADER, CONTEXT, FORM, UNKNOWN, AUTO_WIRED
     }
 
     Source getSource();
