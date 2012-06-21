@@ -2,6 +2,7 @@ package com.alibaba.webx.restful.examples.helloworld;
 
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -11,11 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Path("helloworld")
 public class HelloWorldResource {
 
+    private HttpServletRequest request;
+
     @Autowired(required = true)
-    private HelloWorldService service;
+    private HelloWorldService  service;
 
-    public HelloWorldResource(){
+    public HelloWorldResource(HttpServletRequest request){
+        this.request = request;
+    }
 
+    public HttpServletRequest getHttpRequest() {
+        return request;
     }
 
     public HelloWorldService getService() {

@@ -2,7 +2,10 @@ package com.alibaba.webx.restful.server;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.Encoded;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -28,14 +30,18 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.message.internal.LocalizationMessages;
+import com.alibaba.webx.restful.model.HandlerConstructor;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.MethodHandler;
+import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.server.internal.scanning.FilesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.PackageNamesScanner;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl;
 import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl.ClassInfo;
+import com.alibaba.webx.restful.server.internal.scanning.ResourceProcessorImpl.MethodInfo;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -156,6 +162,8 @@ public class ApplicationConfig extends Application {
     }
 
     public void init(ApplicationContext applicationContxt) {
+        ParameterProvider parameterProvider = new ParameterProviderImpl(); // TODO
+
         Set<Class<?>> result = new HashSet<Class<?>>();
 
         // classes registered via configuration property
@@ -178,13 +186,27 @@ public class ApplicationConfig extends Application {
         cachedClasses = result;
 
         for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
-            Resource resource = buildResource(applicationContxt, entry.getKey(), entry.getValue());
+            Resource resource = buildResource(applicationContxt, parameterProvider, entry.getKey(), entry.getValue());
+
+            if (resource == null) {
+                continue;
+            }
+
             this.addResource(resource);
         }
     }
 
-    private Resource buildResource(ApplicationContext applicationContxt, Class<?> clazz, ClassInfo classInfo) {
+    private Resource buildResource(ApplicationContext applicationContxt, ParameterProvider parameterProvider,
+                                   Class<?> clazz, ClassInfo classInfo) {
         Path pathAnnotation = clazz.getAnnotation(Path.class);
+
+        HandlerConstructor handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz,
+                                                                         classInfo);
+
+        if (handlerConstructor == null) {
+            LOG.error("load resourceClass error, constructor not found. class '" + clazz.getName() + "'");
+            return null;
+        }
 
         String name = clazz.getName();
         boolean isRoot = true;
@@ -205,7 +227,7 @@ public class ApplicationConfig extends Application {
             Collection<MediaType> consumedTypes = getConsumesMediaTypes(method);
             Collection<MediaType> producedTypes = getProducesMediaTypes(method);
 
-            Invocable invocable = createInvocable(applicationContxt, clazz, method, httpMethod);
+            Invocable invocable = createInvocable(handlerConstructor, clazz, method, httpMethod);
             ResourceMethod resourceMethod = new ResourceMethod(httpMethod, methodPath, consumedTypes, producedTypes,
                                                                invocable);
 
@@ -225,14 +247,46 @@ public class ApplicationConfig extends Application {
         return resource;
     }
 
-    private static Invocable createInvocable(ApplicationContext applicationContxt, Class<?> clazz, Method method,
+    private static HandlerConstructor createHandlerConstructor(ApplicationContext applicationContxt,
+                                                               ParameterProvider parameterProvider, Class<?> clazz,
+                                                               ClassInfo classInfo) {
+
+        Constructor<?> constructor = null;
+        for (Constructor<?> item : clazz.getConstructors()) {
+            if (Modifier.isPublic(item.getModifiers())) {
+                constructor = item;
+                break;
+            }
+        }
+
+        if (constructor == null) {
+            return null;
+        }
+
+        MethodInfo methodInfo = classInfo.getMethodInfo(constructor);
+
+        int parametersLength = constructor.getParameterTypes().length;
+        List<Parameter> parameters = new ArrayList<Parameter>(parametersLength);
+        for (int i = 0; i < parametersLength; ++i) {
+            Class<?> paramClass = constructor.getParameterTypes()[i];
+            Type paramType = constructor.getGenericParameterTypes()[i];
+            Annotation[] annotations = constructor.getParameterAnnotations()[i];
+            String name = methodInfo.getParameterNames().get(i);
+
+            Parameter parameter = parameterProvider.createParameter(clazz, constructor, name, paramClass, paramType,
+                                                                    annotations);
+            parameters.add(parameter);
+        }
+
+        return new HandlerConstructor(constructor, parameters);
+    }
+
+    private static Invocable createInvocable(HandlerConstructor handlerConstructor, Class<?> clazz, Method method,
                                              String httpMethod) {
-        Invocable invocable;
-        boolean keepEncodedParams = clazz.getAnnotation(Encoded.class) != null;
 
-        MethodHandler methodHandler = new MethodHandler(clazz, keepEncodedParams);
+        MethodHandler methodHandler = new MethodHandler(clazz, handlerConstructor);
 
-        invocable = new Invocable(methodHandler, method, keepEncodedParams);
+        Invocable invocable = new Invocable(methodHandler, method);
         return invocable;
     }
 

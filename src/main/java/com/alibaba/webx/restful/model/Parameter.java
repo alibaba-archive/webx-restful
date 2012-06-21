@@ -39,6 +39,7 @@
  */
 package com.alibaba.webx.restful.model;
 
+import com.alibaba.webx.restful.model.converter.TypeConvertException;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
 /**
@@ -52,8 +53,6 @@ public interface Parameter {
 
     Source getSource();
 
-    String getName();
-    
-    Object getParameterValue(WebxRestfulRequestContext requestContext);
+    Object getParameterValue(WebxRestfulRequestContext requestContext) throws TypeConvertException;
 
 }

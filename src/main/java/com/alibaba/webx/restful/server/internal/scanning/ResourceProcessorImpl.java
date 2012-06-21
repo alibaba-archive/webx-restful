@@ -3,6 +3,8 @@ package com.alibaba.webx.restful.server.internal.scanning;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.springframework.util.Assert;
 
+import com.alibaba.webx.restful.util.ClassUtils;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 
 public final class ResourceProcessorImpl implements ResourceProcessor {
@@ -128,14 +131,6 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
         }
 
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-            if (!isAnnotated) {
-                return null;
-            }
-
-            if ("<init>".equals(name)) {
-                return null;
-            }
-
             return new ResourceMethodVisitor(access, name, desc, signature, exceptions);
         }
 
@@ -316,6 +311,38 @@ public final class ResourceProcessorImpl implements ResourceProcessor {
             this.signature = signature;
             this.superName = superName;
             this.interfaces = interfaces;
+        }
+
+        public MethodInfo getMethodInfo(Constructor<?> constructor) {
+            String desc = ClassUtils.getDesc(constructor);
+
+            for (MethodInfo item : this.methods) {
+                if (!item.getName().equals("<init>")) {
+                    continue;
+                }
+
+                if (desc.equals(item.getDesc())) {
+                    return item;
+                }
+            }
+            
+            return null;
+        }
+        
+        public MethodInfo getMethodInfo(Method method) {
+            String desc = ClassUtils.getDesc(method);
+            
+            for (MethodInfo item : this.methods) {
+                if (!item.getName().equals("<init>")) {
+                    continue;
+                }
+                
+                if (desc.equals(item.getDesc())) {
+                    return item;
+                }
+            }
+            
+            return null;
         }
 
         public List<MethodInfo> getMethods() {

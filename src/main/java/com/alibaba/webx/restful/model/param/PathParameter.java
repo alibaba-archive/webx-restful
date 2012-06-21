@@ -1,35 +1,13 @@
 package com.alibaba.webx.restful.model.param;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-
-import javax.ws.rs.PathParam;
-
-import org.springframework.util.Assert;
-
-import com.alibaba.webx.restful.model.Resource;
-import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
-public class PathParameter extends ParameterAdapter {
+public class PathParameter extends LiteralParameter implements Parameter {
 
-    private String    parameterName;
-    private PathParam annotation;
-
-    public PathParameter(Resource resource, ResourceMethod resourceMethod, Class<?> paremeterClass,
-                             Type paremeterType, Annotation[] parameterAnnotations, TypeConverter typeConverter){
-        super(resource, resourceMethod, paremeterClass, paremeterType, parameterAnnotations, typeConverter);
-
-        for (Annotation item : parameterAnnotations) {
-            if (item.getClass() == PathParam.class) {
-                this.annotation = (PathParam) item;
-            }
-        }
-
-        Assert.notNull(annotation);
-
-        parameterName = annotation.value();
+    public PathParameter(String name, TypeConverter typeConverter, Object defaultValue){
+        super(name, typeConverter, defaultValue);
     }
 
     @Override
@@ -37,12 +15,9 @@ public class PathParameter extends ParameterAdapter {
         throw new UnsupportedOperationException(); // TODO
     }
 
-    public String getParameterName() {
-        return parameterName;
-    }
-
-    public PathParam getAnnotation() {
-        return annotation;
+    @Override
+    public Source getSource() {
+        return Source.PATH;
     }
 
 }
