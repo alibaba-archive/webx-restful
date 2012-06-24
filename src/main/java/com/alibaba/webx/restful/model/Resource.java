@@ -1,107 +1,10 @@
 package com.alibaba.webx.restful.model;
 
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import com.alibaba.webx.restful.uri.PathPattern;
 
-/**
- * Model of a single resource component.
- * <p>
- * Resource component model represents a collection of {@link ResourceMethod methods} grouped under the same parent
- * request path template. {@code Resource} class is also the main entry point to the programmatic resource modeling API
- * that provides ability to programmatically extend the existing JAX-RS annotated resource classes or build new resource
- * models that may be utilized by Jersey runtime.
- * </p>
- * <p>
- * For example:
- * 
- * <pre>
- * &#64;Path("hello")
- * public class HelloResource {
- *      &#64;GET
- *      &#64;Produces("text/plain")
- *      public String sayHello() {
- *          return "Hello!";
- *      }
- * }
- * 
- * ...
- * 
- * // Register the annotated resource.
- * ResourceConfig resourceConfig = new ResourceConfig(HelloResource.class);
- * 
- * // Add new "hello2" resource using the annotated resource class
- * // and overriding the resource path.
- * Resource.Builder resourceBuilder =
- *         Resource.builder(HelloResource.class, new LinkedList&lt;ResourceModelIssue&gt;())
- *         .path("hello2");
- * 
- * // Add a new (virtual) sub-resource method to the "hello2" resource.
- * resourceBuilder.addMethod("GET")
- *         .path("world")
- *         .produces("text/plain")
- *         .handledBy(new Inflector&lt;Request, String&gt;() {
- *                 &#64;Override
- *                 public String apply(Request request) {
- *                     return "Hello World!";
- *                 }
- *         });
- * 
- * // Register the new programmatic resource in the application's configuration.
- * resourceConfig.addResources(resourceBuilder.build());
- * </pre>
- * 
- * The following table illustrates the supported requests and provided responses for the application configured in the
- * example above.
- * <table>
- * <tr>
- * <th>Request</th>
- * <th>Response</th>
- * <th>Method invoked</th>
- * </tr>
- * <tr>
- * <td>{@code "GET /hello"}</td>
- * <td>{@code "Hello!"}</td>
- * <td>{@code HelloResource.sayHello()}</td>
- * </tr>
- * <tr>
- * <td>{@code "GET /hello2"}</td>
- * <td>{@code "Hello!"}</td>
- * <td>{@code HelloResource.sayHello()}</td>
- * </tr>
- * <tr>
- * <td>{@code "GET /hello2/world"}</td>
- * <td>{@code "Hello World!"}</td>
- * <td>{@code Inflector.apply()}</td>
- * </tr>
- * </table>
- * </p>
- * 
- * @author Marek Potociar (marek.potociar at oracle.com)
- */
-public final class Resource implements Routed {
-
-    /**
-     * Check if the class is acceptable as a JAX-RS provider or resource.
-     * <p/>
-     * Method returns {@code false} if the class is either
-     * <ul>
-     * <li>abstract</li>
-     * <li>interface</li>
-     * <li>annotation</li>
-     * <li>primitive</li>
-     * <li>local class</li>
-     * <li>non-static member class</li>
-     * </ul>
-     * 
-     * @param c class to be checked.
-     * @return {@code true} if the class is an acceptable JAX-RS provider or resource, {@code false} otherwise.
-     */
-    public static boolean isAcceptable(Class<?> c) {
-        return !((c.getModifiers() & Modifier.ABSTRACT) != 0 || c.isPrimitive() || c.isAnnotation() || c.isInterface()
-                 || c.isLocalClass() || (c.isMemberClass() && (c.getModifiers() & Modifier.STATIC) == 0));
-    }
+public final class Resource {
 
     private final String               name;
     private final String               path;
@@ -137,12 +40,10 @@ public final class Resource implements Routed {
         return isRoot;
     }
 
-    @Override
     public String getPath() {
         return path;
     }
 
-    @Override
     public PathPattern getPathPattern() {
         return pathPattern;
     }
@@ -186,10 +87,4 @@ public final class Resource implements Routed {
         return subResourceLocators;
     }
 
-    @Override
-    public String toString() {
-        return "Resource {" + ((path == null) ? "[unbound], " : "\"" + path + "\", ") + resourceMethods.size()
-               + " resource methods, " + subResourceMethods.size() + " sub-resource methods, " + subResourceLocators
-               + " sub-resource locators" + '}';
-    }
 }

@@ -53,7 +53,7 @@ public class JSONMessageBodyWriter<T> implements MessageBodyWriter<T> {
         }
 
         SerializerFeature[] features = new SerializerFeature[] { SerializerFeature.DisableCircularReferenceDetect,
-                SerializerFeature.BrowserCompatible };
+                SerializerFeature.BrowserCompatible, SerializerFeature.WriteDateUseDateFormat };
 
         byte[] bytes = toJSONBytes(object, encoding, features);
 

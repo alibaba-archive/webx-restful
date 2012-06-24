@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
-public final class HandlerConstructor implements Parameterized {
+public final class HandlerConstructor {
 
     private final Class<?>             handlerClass;
     private final Constructor<?>       constructor;
@@ -37,12 +37,10 @@ public final class HandlerConstructor implements Parameterized {
         return constructor;
     }
 
-    @Override
     public List<Parameter> getParameters() {
         return parameters;
     }
 
-    @Override
     public boolean requiresEntity() {
         for (Parameter p : getParameters()) {
             if (Parameter.Source.ENTITY == p.getSource()) {

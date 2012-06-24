@@ -7,7 +7,7 @@ import javax.ws.rs.core.GenericType;
 
 import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
 
-public final class Invocable implements Parameterized {
+public final class Invocable {
 
     private final HandlerConstructor handlerConstructor;
     private final Method             handlingMethod;
@@ -48,7 +48,6 @@ public final class Invocable implements Parameterized {
         return responseType;
     }
 
-    @Override
     public boolean requiresEntity() {
         for (Parameter p : getParameters()) {
             if (Parameter.Source.ENTITY == p.getSource()) {
@@ -58,7 +57,6 @@ public final class Invocable implements Parameterized {
         return false;
     }
 
-    @Override
     public List<Parameter> getParameters() {
         return parameters;
     }

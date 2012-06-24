@@ -205,8 +205,45 @@ public class ApplicationConfig extends Application {
         }
     }
 
+    public static boolean isAcceptable(Class<?> c) {
+        if (Modifier.isAbstract(c.getModifiers())) {
+            return false;
+        }
+
+        if (c.isPrimitive()) {
+            return false;
+        }
+
+        if (c.isAnnotation()) {
+            return false;
+        }
+
+        if (c.isInterface()) {
+            return false;
+        }
+
+        if (c.isLocalClass()) {
+            return false;
+        }
+
+        if (c.isMemberClass()) {
+            return false;
+        }
+
+        if (Modifier.isStatic(c.getModifiers())) {
+            return false;
+        }
+
+        return true;
+    }
+
     private Resource buildResource(ApplicationContext applicationContxt, ParameterProvider parameterProvider,
                                    Class<?> clazz, ClassInfo classInfo) {
+
+        if (!isAcceptable(clazz)) {
+            return null;
+        }
+
         Path pathAnnotation = clazz.getAnnotation(Path.class);
 
         HandlerConstructor handlerConstructor;

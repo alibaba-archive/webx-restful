@@ -56,5 +56,8 @@ public class HelloworldTest extends TestCase {
         MockFilterChain chain = new MockFilterChain();
 
         filter.doFilter(request, response, chain);
+        
+        String content = response.getContentAsString();
+        System.out.println(content);
     }
 }
