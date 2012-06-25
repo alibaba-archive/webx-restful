@@ -1,7 +1,9 @@
 package com.alibaba.webx.restful.process;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -15,42 +17,44 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.internal.inject.Providers;
-import com.alibaba.webx.restful.message.MediaTypeProvider;
-import com.alibaba.webx.restful.message.Responses;
 import com.alibaba.webx.restful.message.VariantListBuilder;
+import com.alibaba.webx.restful.message.WebxRestfulResponseBuilder;
 import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDelegate {
 
-    private Set<HeaderDelegateProvider>      hps;
+    private final static Log                 LOG = LogFactory.getLog(WebxRestfulRuntimeDelegateImpl.class);
+
     private Map<Class<?>, HeaderDelegate<?>> map;
 
+    @SuppressWarnings("unchecked")
     public WebxRestfulRuntimeDelegateImpl(){
         try {
+            Set<HeaderDelegateProvider<?>> hps = new HashSet<HeaderDelegateProvider<?>>();
+
             ApplicationContext applicationContext = ApplicationContextUtils.getApplicationContext();
+            if (applicationContext != null) {
+                Map<?, ?> beanMap = applicationContext.getBeansOfType(HeaderDelegate.class);
+                hps.addAll((Collection<HeaderDelegateProvider<?>>) beanMap.values());
+            }
 
-            // MediaTypeProvider
-            Providers.bind(applicationContext, "webx-restful-mediaTypeProvider", new MediaTypeProvider());
-            hps = Providers.getProviders(applicationContext, HeaderDelegateProvider.class);
-
-            /**
-             * Construct a map for quick look up of known header classes
-             */
             map = new WeakHashMap<Class<?>, HeaderDelegate<?>>();
-            map.put(EntityTag.class, _createHeaderDelegate(EntityTag.class));
-            map.put(MediaType.class, _createHeaderDelegate(MediaType.class));
-            map.put(CacheControl.class, _createHeaderDelegate(CacheControl.class));
-            map.put(NewCookie.class, _createHeaderDelegate(NewCookie.class));
-            map.put(Cookie.class, _createHeaderDelegate(Cookie.class));
-            map.put(URI.class, _createHeaderDelegate(URI.class));
-            map.put(Date.class, _createHeaderDelegate(Date.class));
-            map.put(String.class, _createHeaderDelegate(String.class));
+            map.put(EntityTag.class, findHeaderDelegate(hps, EntityTag.class));
+            map.put(MediaType.class, findHeaderDelegate(hps, MediaType.class));
+            map.put(CacheControl.class, findHeaderDelegate(hps, CacheControl.class));
+            map.put(NewCookie.class, findHeaderDelegate(hps, NewCookie.class));
+            map.put(Cookie.class, findHeaderDelegate(hps, Cookie.class));
+            map.put(URI.class, findHeaderDelegate(hps, URI.class));
+            map.put(Date.class, findHeaderDelegate(hps, Date.class));
+            map.put(String.class, findHeaderDelegate(hps, String.class));
+
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.error("init WebxRestfulRuntimeDelegateImpl error", e);
         }
     }
 
@@ -62,7 +66,7 @@ public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDeleg
 
     @Override
     public ResponseBuilder createResponseBuilder() {
-        return Responses.empty();
+        return new WebxRestfulResponseBuilder();
     }
 
     @Override
@@ -89,12 +93,11 @@ public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDeleg
             return delegate;
         }
 
-        return _createHeaderDelegate(type);
+        return null;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> HeaderDelegate<T> _createHeaderDelegate(Class<T> type) {
-        for (HeaderDelegateProvider hp : hps) {
+    private HeaderDelegate<?> findHeaderDelegate(Set<HeaderDelegateProvider<?>> hps, Class<?> type) {
+        for (HeaderDelegateProvider<?> hp : hps) {
             if (hp.supports(type)) {
                 return hp;
             }

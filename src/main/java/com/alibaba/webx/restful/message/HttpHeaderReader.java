@@ -56,11 +56,11 @@ import javax.ws.rs.core.NewCookie;
 
 /**
  * An abstract pull-based reader of HTTP headers.
- *
+ * 
  * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-/*package*/ abstract class HttpHeaderReader {
+/* package */abstract class HttpHeaderReader {
 
     public enum Event {
 
@@ -110,8 +110,8 @@ import javax.ws.rs.core.NewCookie;
         }
 
         if (c != getEventValue().charAt(0)) {
-            throw new ParseException("Expected separator '" + c + "' instead of '"
-                    + getEventValue().charAt(0) + "'", getIndex());
+            throw new ParseException("Expected separator '" + c + "' instead of '" + getEventValue().charAt(0) + "'",
+                                     getIndex());
         }
     }
 
@@ -127,8 +127,7 @@ import javax.ws.rs.core.NewCookie;
     public String nextTokenOrQuotedString() throws ParseException {
         Event e = next(false);
         if (e != Event.Token && e != Event.QuotedString) {
-            throw new ParseException("Next event is not a Token or a Quoted String, "
-                    + getEventValue(), getIndex());
+            throw new ParseException("Next event is not a Token or a Quoted String, " + getEventValue(), getIndex());
         }
 
         return getEventValue();
@@ -166,8 +165,8 @@ import javax.ws.rs.core.NewCookie;
             }
             c = q.charAt(index++);
             if (c != '.') {
-                throw new ParseException("Error parsing Quality value: a decimal place is expected rather than '"
-                        + c + "'", index);
+                throw new ParseException("Error parsing Quality value: a decimal place is expected rather than '" + c
+                                         + "'", index);
             }
             if (index == length) {
                 return (c - '0') * 1000;
@@ -176,12 +175,15 @@ import javax.ws.rs.core.NewCookie;
             // This is not conformant to the HTTP specification but some implementations
             // do this, for example HttpURLConnection.
             if (index == length) {
-                throw new ParseException("Error parsing Quality value: a decimal numeral is expected after the decimal point", index);
+                throw new ParseException(
+                                         "Error parsing Quality value: a decimal numeral is expected after the decimal point",
+                                         index);
             }
 
         } else {
-            throw new ParseException("Error parsing Quality value: a decimal numeral '0' or '1' is expected rather than '"
-                    + c + "'", index);
+            throw new ParseException(
+                                     "Error parsing Quality value: a decimal numeral '0' or '1' is expected rather than '"
+                                             + c + "'", index);
         }
 
         // Parse the fraction
@@ -193,8 +195,8 @@ import javax.ws.rs.core.NewCookie;
                 value += (c - '0') * exponent;
                 exponent /= 10;
             } else {
-                throw new ParseException("Error parsing Quality value: a decimal numeral is expected rather than '"
-                        + c + "'", index);
+                throw new ParseException("Error parsing Quality value: a decimal numeral is expected rather than '" + c
+                                         + "'", index);
             }
         }
 
@@ -274,14 +276,15 @@ import javax.ws.rs.core.NewCookie;
     public static NewCookie readNewCookie(String header) {
         return CookiesParser.parseNewCookie(header);
     }
-    private static final ListElementCreator<MatchingEntityTag> MATCHING_ENTITY_TAG_CREATOR =
-            new ListElementCreator<MatchingEntityTag>() {
 
-                @Override
-                public MatchingEntityTag create(HttpHeaderReader reader) throws ParseException {
-                    return MatchingEntityTag.valueOf(reader);
-                }
-            };
+    private static final ListElementCreator<MatchingEntityTag> MATCHING_ENTITY_TAG_CREATOR = new ListElementCreator<MatchingEntityTag>() {
+
+                                                                                               @Override
+                                                                                               public MatchingEntityTag create(HttpHeaderReader reader)
+                                                                                                                                                       throws ParseException {
+                                                                                                   return MatchingEntityTag.valueOf(reader);
+                                                                                               }
+                                                                                           };
 
     public static Set<MatchingEntityTag> readMatchingEntityTag(String header) throws ParseException {
         if (header.equals("*")) {
@@ -301,62 +304,61 @@ import javax.ws.rs.core.NewCookie;
 
         return l;
     }
-    private static final ListElementCreator<MediaType> MEDIA_TYPE_CREATOR =
-            new ListElementCreator<MediaType>() {
 
-                @Override
-                public MediaType create(HttpHeaderReader reader) throws ParseException {
-                    return MediaTypeProvider.valueOf(reader);
-                }
-            };
+    private static final ListElementCreator<MediaType> MEDIA_TYPE_CREATOR = new ListElementCreator<MediaType>() {
+
+                                                                              @Override
+                                                                              public MediaType create(HttpHeaderReader reader)
+                                                                                                                              throws ParseException {
+                                                                                  return MediaTypeProvider.valueOf(reader);
+                                                                              }
+                                                                          };
 
     public static List<MediaType> readMediaTypes(List<MediaType> l, String header) throws ParseException {
-        return HttpHeaderReader.readList(
-                l,
-                MEDIA_TYPE_CREATOR,
-                header);
+        return HttpHeaderReader.readList(l, MEDIA_TYPE_CREATOR, header);
     }
-    private static final ListElementCreator<AcceptableMediaType> ACCEPTABLE_MEDIA_TYPE_CREATOR =
-            new ListElementCreator<AcceptableMediaType>() {
 
-                @Override
-                public AcceptableMediaType create(HttpHeaderReader reader) throws ParseException {
-                    return AcceptableMediaType.valueOf(reader);
-                }
-            };
-    private static final Comparator<AcceptableMediaType> ACCEPTABLE_MEDIA_TYPE_COMPARATOR = new Comparator<AcceptableMediaType>() {
+    private static final ListElementCreator<AcceptableMediaType> ACCEPTABLE_MEDIA_TYPE_CREATOR    = new ListElementCreator<AcceptableMediaType>() {
 
-        @Override
-        public int compare(AcceptableMediaType o1, AcceptableMediaType o2) {
-            int i = o2.getQuality() - o1.getQuality();
-            if (i != 0) {
-                return i;
-            }
+                                                                                                      @Override
+                                                                                                      public AcceptableMediaType create(HttpHeaderReader reader)
+                                                                                                                                                                throws ParseException {
+                                                                                                          return AcceptableMediaType.valueOf(reader);
+                                                                                                      }
+                                                                                                  };
+    private static final Comparator<AcceptableMediaType>         ACCEPTABLE_MEDIA_TYPE_COMPARATOR = new Comparator<AcceptableMediaType>() {
 
-            return MediaTypes.MEDIA_TYPE_COMPARATOR.compare(o1, o2);
-        }
-    };
+                                                                                                      @Override
+                                                                                                      public int compare(AcceptableMediaType o1,
+                                                                                                                         AcceptableMediaType o2) {
+                                                                                                          int i = o2.getQuality()
+                                                                                                                  - o1.getQuality();
+                                                                                                          if (i != 0) {
+                                                                                                              return i;
+                                                                                                          }
+
+                                                                                                          return MediaTypes.MEDIA_TYPE_COMPARATOR.compare(o1,
+                                                                                                                                                          o2);
+                                                                                                      }
+                                                                                                  };
 
     public static List<AcceptableMediaType> readAcceptMediaType(String header) throws ParseException {
-        return HttpHeaderReader.readAcceptableList(
-                ACCEPTABLE_MEDIA_TYPE_COMPARATOR,
-                ACCEPTABLE_MEDIA_TYPE_CREATOR,
-                header);
+        return HttpHeaderReader.readAcceptableList(ACCEPTABLE_MEDIA_TYPE_COMPARATOR, ACCEPTABLE_MEDIA_TYPE_CREATOR,
+                                                   header);
     }
-    private static final ListElementCreator<QualitySourceMediaType> QUALITY_SOURCE_MEDIA_TYPE_CREATOR =
-            new ListElementCreator<QualitySourceMediaType>() {
 
-                @Override
-                public QualitySourceMediaType create(HttpHeaderReader reader) throws ParseException {
-                    return QualitySourceMediaType.valueOf(reader);
-                }
-            };
+    private static final ListElementCreator<QualitySourceMediaType> QUALITY_SOURCE_MEDIA_TYPE_CREATOR = new ListElementCreator<QualitySourceMediaType>() {
+
+                                                                                                          @Override
+                                                                                                          public QualitySourceMediaType create(HttpHeaderReader reader)
+                                                                                                                                                                       throws ParseException {
+                                                                                                              return QualitySourceMediaType.valueOf(reader);
+                                                                                                          }
+                                                                                                      };
 
     public static List<QualitySourceMediaType> readQualitySourceMediaType(String header) throws ParseException {
-        return HttpHeaderReader.readAcceptableList(
-                MediaTypes.QUALITY_SOURCE_MEDIA_TYPE_COMPARATOR,
-                QUALITY_SOURCE_MEDIA_TYPE_CREATOR,
-                header);
+        return HttpHeaderReader.readAcceptableList(MediaTypes.QUALITY_SOURCE_MEDIA_TYPE_COMPARATOR,
+                                                   QUALITY_SOURCE_MEDIA_TYPE_CREATOR, header);
     }
 
     public static List<QualitySourceMediaType> readQualitySourceMediaType(String[] header) throws ParseException {
@@ -377,85 +379,88 @@ import javax.ws.rs.core.NewCookie;
     }
 
     public static List<AcceptableMediaType> readAcceptMediaType(String header,
-            final List<QualitySourceMediaType> priorityMediaTypes) throws ParseException {
-        return HttpHeaderReader.readAcceptableList(
-                new Comparator<AcceptableMediaType>() {
+                                                                final List<QualitySourceMediaType> priorityMediaTypes)
+                                                                                                                      throws ParseException {
+        return HttpHeaderReader.readAcceptableList(new Comparator<AcceptableMediaType>() {
 
-                    @Override
-                    public int compare(AcceptableMediaType o1, AcceptableMediaType o2) {
-                        boolean q_o1_set = false;
-                        int q_o1 = QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR * QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR;
-                        boolean q_o2_set = false;
-                        int q_o2 = QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR * QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR;
-                        for (QualitySourceMediaType m : priorityMediaTypes) {
-                            if (!q_o1_set && MediaTypes.typeEqual(o1, m)) {
-                                q_o1 = o1.getQuality() * m.getQualitySource();
-                                q_o1_set = true;
-                            } else if (!q_o2_set && MediaTypes.typeEqual(o2, m)) {
-                                q_o2 = o2.getQuality() * m.getQualitySource();
-                                q_o2_set = true;
-                            }
-                        }
-                        int i = q_o2 - q_o1;
-                        if (i != 0) {
-                            return i;
-                        }
-
-                        i = o2.getQuality() - o1.getQuality();
-                        if (i != 0) {
-                            return i;
-                        }
-
-                        return MediaTypes.MEDIA_TYPE_COMPARATOR.compare(o1, o2);
+            @Override
+            public int compare(AcceptableMediaType o1, AcceptableMediaType o2) {
+                boolean q_o1_set = false;
+                int q_o1 = QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR
+                           * QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR;
+                boolean q_o2_set = false;
+                int q_o2 = QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR
+                           * QualitySourceMediaType.DEFAULT_QUALITY_SOURCE_FACTOR;
+                for (QualitySourceMediaType m : priorityMediaTypes) {
+                    if (!q_o1_set && MediaTypes.typeEqual(o1, m)) {
+                        q_o1 = o1.getQuality() * m.getQualitySource();
+                        q_o1_set = true;
+                    } else if (!q_o2_set && MediaTypes.typeEqual(o2, m)) {
+                        q_o2 = o2.getQuality() * m.getQualitySource();
+                        q_o2_set = true;
                     }
-                },
-                ACCEPTABLE_MEDIA_TYPE_CREATOR,
-                header);
-    }
-    private static final ListElementCreator<AcceptableToken> ACCEPTABLE_TOKEN_CREATOR =
-            new ListElementCreator<AcceptableToken>() {
-
-                @Override
-                public AcceptableToken create(HttpHeaderReader reader) throws ParseException {
-                    return new AcceptableToken(reader);
                 }
-            };
+                int i = q_o2 - q_o1;
+                if (i != 0) {
+                    return i;
+                }
+
+                i = o2.getQuality() - o1.getQuality();
+                if (i != 0) {
+                    return i;
+                }
+
+                return MediaTypes.MEDIA_TYPE_COMPARATOR.compare(o1, o2);
+            }
+        }, ACCEPTABLE_MEDIA_TYPE_CREATOR, header);
+    }
+
+    private static final ListElementCreator<AcceptableToken> ACCEPTABLE_TOKEN_CREATOR = new ListElementCreator<AcceptableToken>() {
+
+                                                                                          @Override
+                                                                                          public AcceptableToken create(HttpHeaderReader reader)
+                                                                                                                                                throws ParseException {
+                                                                                              return new AcceptableToken(
+                                                                                                                         reader);
+                                                                                          }
+                                                                                      };
 
     public static List<AcceptableToken> readAcceptToken(String header) throws ParseException {
         return HttpHeaderReader.readAcceptableList(ACCEPTABLE_TOKEN_CREATOR, header);
     }
-    private static final ListElementCreator<AcceptableLanguageTag> LANGUAGE_CREATOR =
-            new ListElementCreator<AcceptableLanguageTag>() {
 
-                @Override
-                public AcceptableLanguageTag create(HttpHeaderReader reader) throws ParseException {
-                    return new AcceptableLanguageTag(reader);
-                }
-            };
+    private static final ListElementCreator<AcceptableLanguageTag> LANGUAGE_CREATOR = new ListElementCreator<AcceptableLanguageTag>() {
+
+                                                                                        @Override
+                                                                                        public AcceptableLanguageTag create(HttpHeaderReader reader)
+                                                                                                                                                    throws ParseException {
+                                                                                            return new AcceptableLanguageTag(
+                                                                                                                             reader);
+                                                                                        }
+                                                                                    };
 
     public static List<AcceptableLanguageTag> readAcceptLanguage(String header) throws ParseException {
         return HttpHeaderReader.readAcceptableList(LANGUAGE_CREATOR, header);
     }
+
     private static final Comparator<QualityFactor> QUALITY_COMPARATOR = new Comparator<QualityFactor>() {
 
-        @Override
-        public int compare(QualityFactor o1, QualityFactor o2) {
-            return o2.getQuality() - o1.getQuality();
-        }
-    };
+                                                                          @Override
+                                                                          public int compare(QualityFactor o1,
+                                                                                             QualityFactor o2) {
+                                                                              return o2.getQuality() - o1.getQuality();
+                                                                          }
+                                                                      };
 
-    public static <T extends QualityFactor> List<T> readAcceptableList(
-            ListElementCreator<T> c,
-            String header) throws ParseException {
+    public static <T extends QualityFactor> List<T> readAcceptableList(ListElementCreator<T> c, String header)
+                                                                                                              throws ParseException {
         List<T> l = readList(c, header);
         Collections.sort(l, QUALITY_COMPARATOR);
         return l;
     }
 
-    public static <T> List<T> readAcceptableList(
-            Comparator<T> comparator,
-            ListElementCreator<T> c,
-            String header) throws ParseException {
+    public static <T> List<T> readAcceptableList(Comparator<T> comparator, ListElementCreator<T> c, String header)
+                                                                                                                  throws ParseException {
         List<T> l = readList(c, header);
         Collections.sort(l, comparator);
         return l;
@@ -477,13 +482,11 @@ import javax.ws.rs.core.NewCookie;
         T create(HttpHeaderReader reader) throws ParseException;
     }
 
-    public static <T> List<T> readList(ListElementCreator<T> c,
-            String header) throws ParseException {
+    public static <T> List<T> readList(ListElementCreator<T> c, String header) throws ParseException {
         return readList(new ArrayList<T>(), c, header);
     }
 
-    public static <T> List<T> readList(List<T> l, ListElementCreator<T> c,
-            String header) throws ParseException {
+    public static <T> List<T> readList(List<T> l, ListElementCreator<T> c, String header) throws ParseException {
         HttpHeaderReader reader = new HttpHeaderReaderImpl(header);
         HttpHeaderListAdapter adapter = new HttpHeaderListAdapter(reader);
         while (reader.hasNext()) {
