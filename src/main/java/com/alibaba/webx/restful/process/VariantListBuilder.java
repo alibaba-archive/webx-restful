@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.message;
+package com.alibaba.webx.restful.process;
 
 import java.util.ArrayList;
 import java.util.Arrays;

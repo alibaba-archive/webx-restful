@@ -76,7 +76,7 @@ public class MediaTypeProvider implements HeaderDelegateProvider<MediaType> {
         String subType = rest;
 
         for (MediaType item : this.mediaTypes) {
-            if (item.getType().equals(type) && item.getSubtype().endsWith(subType)) {
+            if (item.getType().equals(type) && item.getSubtype().equals(subType)) {
                 return item;
             }
         }

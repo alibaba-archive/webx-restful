@@ -21,8 +21,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.message.VariantListBuilder;
-import com.alibaba.webx.restful.message.WebxRestfulResponseBuilder;
 import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 

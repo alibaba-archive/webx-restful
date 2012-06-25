@@ -22,8 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.message.JSONMessageBodyWriter;
-import com.alibaba.webx.restful.message.WebxRestfulResponse;
 import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
@@ -128,7 +126,11 @@ public class ApplicationHandler {
         WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
                                                                                                          response);
 
-        interceptorContext.proceed();
+        try {
+            interceptorContext.proceed();
+        } catch (Exception ex) {
+            throw new MessageBodyProcessingException(ex.getMessage(), ex);
+        }
     }
 
     public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {

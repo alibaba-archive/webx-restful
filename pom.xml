@@ -78,6 +78,12 @@
 			<artifactId>guava-osgi</artifactId>
 			<version>11.0.1</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.9</version>
+		</dependency>
 		<!-- <dependency> <groupId>com.alibaba.citrus</groupId> <artifactId>citrus-webx-all</artifactId> 
 			<version>3.0.8</version> </dependency> -->
 	</dependencies>

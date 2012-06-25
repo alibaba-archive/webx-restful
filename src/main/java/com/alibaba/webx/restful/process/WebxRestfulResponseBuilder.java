@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.message;
+package com.alibaba.webx.restful.process;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;
@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Variant;
+
 
 public class WebxRestfulResponseBuilder extends ResponseBuilder {
 

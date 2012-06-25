@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.message;
+package com.alibaba.webx.restful.process;
 
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
