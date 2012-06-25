@@ -22,8 +22,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.internal.WebxRestfulMessageBodyWorkerProvider;
-import com.alibaba.webx.restful.internal.WebxRestfulWriterInterceptorContext;
 import com.alibaba.webx.restful.message.JSONMessageBodyWriter;
 import com.alibaba.webx.restful.message.WebxRestfulResponse;
 import com.alibaba.webx.restful.model.ApplicationConfig;

@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.internal;
+package com.alibaba.webx.restful.process;
 
 import java.net.URI;
 import java.util.Date;
@@ -24,12 +24,12 @@ import com.alibaba.webx.restful.message.VariantListBuilder;
 import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
-public class RuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDelegate {
+public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDelegate {
 
     private Set<HeaderDelegateProvider>      hps;
     private Map<Class<?>, HeaderDelegate<?>> map;
 
-    public RuntimeDelegateImpl(){
+    public WebxRestfulRuntimeDelegateImpl(){
         try {
             ApplicationContext applicationContext = ApplicationContextUtils.getApplicationContext();
 

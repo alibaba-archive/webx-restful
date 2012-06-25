@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.internal;
+package com.alibaba.webx.restful.process;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

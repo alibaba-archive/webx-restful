@@ -1,1 +1,1 @@
-com.alibaba.webx.restful.server.internal.RuntimeDelegateImpl
+com.alibaba.webx.restful.process.WebxRestfulRuntimeDelegateImpl
