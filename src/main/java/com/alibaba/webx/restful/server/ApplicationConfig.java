@@ -38,7 +38,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.message.LocalizationMessages;
 import com.alibaba.webx.restful.model.AutowireSetter;
-import com.alibaba.webx.restful.model.HandlerConstructor;
+import com.alibaba.webx.restful.model.InstanceConstructor;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
@@ -247,7 +247,7 @@ public class ApplicationConfig extends Application {
 
         Path pathAnnotation = clazz.getAnnotation(Path.class);
 
-        HandlerConstructor handlerConstructor;
+        InstanceConstructor handlerConstructor;
         try {
             handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz, classInfo);
         } catch (Exception e) {
@@ -301,7 +301,7 @@ public class ApplicationConfig extends Application {
         return resource;
     }
 
-    private static HandlerConstructor createHandlerConstructor(ApplicationContext applicationContxt,
+    private static InstanceConstructor createHandlerConstructor(ApplicationContext applicationContxt,
                                                                ParameterProvider parameterProvider, Class<?> clazz,
                                                                ClassInfo classInfo) throws Exception {
 
@@ -321,7 +321,7 @@ public class ApplicationConfig extends Application {
 
         List<AutowireSetter> autowireSetters = createSetters(applicationContxt, clazz);
 
-        return new HandlerConstructor(constructor, parameters, autowireSetters);
+        return new InstanceConstructor(constructor, parameters, autowireSetters);
     }
 
     static List<AutowireSetter> createSetters(ApplicationContext applicationContext, Class<?> clazz) throws Exception {
@@ -385,7 +385,7 @@ public class ApplicationConfig extends Application {
                 continue;
             }
 
-            Map beanMap = applicationContext.getBeansOfType(setterClass);
+            Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
             if (beanMap.size() == 0) {
                 throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
             }

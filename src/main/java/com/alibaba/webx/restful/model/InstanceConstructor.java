@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
-public final class HandlerConstructor {
+public final class InstanceConstructor {
 
     private final Class<?>             handlerClass;
     private final Constructor<?>       constructor;
@@ -13,7 +13,7 @@ public final class HandlerConstructor {
 
     private final List<AutowireSetter> setters;
 
-    public HandlerConstructor(Constructor<?> constructor, List<Parameter> parameters, List<AutowireSetter> setters){
+    public InstanceConstructor(Constructor<?> constructor, List<Parameter> parameters, List<AutowireSetter> setters){
         this.handlerClass = constructor.getDeclaringClass();
         this.constructor = constructor;
         this.parameters = parameters;

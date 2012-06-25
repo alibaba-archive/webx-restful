@@ -160,12 +160,12 @@ public class ResourceMethod implements ResourceInfo {
 
     @Override
     public Method getResourceMethod() {
-        return this.getInvocable().getHandlingMethod();
+        return this.getInvocable().getMethod();
     }
 
     @Override
     public Class<?> getResourceClass() {
-        return this.getInvocable().getHandlerConstructor().getHandlerClass();
+        return this.getInvocable().getConstructor().getHandlerClass();
     }
 
 }

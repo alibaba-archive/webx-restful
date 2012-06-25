@@ -9,41 +9,28 @@ import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 public final class Invocable {
 
-    private final HandlerConstructor handlerConstructor;
-    private final Method             handlingMethod;
-    private final List<Parameter>    parameters;
-    private final GenericType<?>     responseType;
+    private final InstanceConstructor constructor;
+    private final Method              method;
+    private final List<Parameter>     parameters;
+    private final GenericType<?>      responseType;
 
-    public Invocable(HandlerConstructor handlerConstructor, Method handlingMethod, List<Parameter> parameters){
-        this.handlerConstructor = handlerConstructor;
-        this.handlingMethod = handlingMethod;
+    public Invocable(InstanceConstructor instanceConstructor, Method method, List<Parameter> parameters){
+        this.constructor = instanceConstructor;
+        this.method = method;
 
-        this.responseType = GenericType.of(handlingMethod.getReturnType(), handlingMethod.getGenericReturnType());
+        this.responseType = GenericType.of(method.getReturnType(), method.getGenericReturnType());
 
         this.parameters = parameters;
     }
 
-    public HandlerConstructor getHandlerConstructor() {
-        return handlerConstructor;
+    public InstanceConstructor getConstructor() {
+        return constructor;
     }
 
-    /**
-     * Getter for the Java method
-     * 
-     * @return corresponding Java method
-     */
-    public Method getHandlingMethod() {
-        return handlingMethod;
+    public Method getMethod() {
+        return method;
     }
 
-    /**
-     * Get the resource method response type.
-     * <p/>
-     * The returned value provides information about the raw Java class as well as the Type information that contains
-     * additional generic declaration information for generic Java class types.
-     * 
-     * @return resource method response type information.
-     */
     public GenericType<?> getResponseType() {
         return responseType;
     }
@@ -72,7 +59,7 @@ public final class Invocable {
     }
 
     public Object invoke(Object instance, Object[] args) throws Exception {
-        Object returnObject = handlingMethod.invoke(instance, args);
+        Object returnObject = method.invoke(instance, args);
         return returnObject;
     }
 }

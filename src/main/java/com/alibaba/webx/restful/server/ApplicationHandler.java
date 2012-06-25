@@ -89,7 +89,7 @@ public class ApplicationHandler {
 
         Object resourceInstance = null;
         try {
-            resourceInstance = invocable.getHandlerConstructor().createInstance(requestContext);
+            resourceInstance = invocable.getConstructor().createInstance(requestContext);
         } catch (Exception e) {
             throw new WebxRestfulProcessException("createResourceInstance error", e);
         }
@@ -133,7 +133,7 @@ public class ApplicationHandler {
     public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
         Invocable invocable = resourceMethod.getInvocable();
-        Method method = invocable.getHandlingMethod();
+        Method method = invocable.getMethod();
 
         int argsLength = method.getParameterTypes().length;
         Object[] args = new Object[argsLength];
