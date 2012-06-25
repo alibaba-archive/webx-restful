@@ -12,9 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
-
-import com.alibaba.webx.restful.uri.MultivaluedStringMap;
 
 public class WebxRestfulHttpHeaders implements HttpHeaders {
 
@@ -51,7 +50,7 @@ public class WebxRestfulHttpHeaders implements HttpHeaders {
 
     @Override
     public MultivaluedMap<String, String> getRequestHeaders() {
-        MultivaluedStringMap map = new MultivaluedStringMap();
+        MultivaluedHashMap<String, String> map = new MultivaluedHashMap<String, String>();
 
         Enumeration<?> nameEnum = httpRequest.getHeaderNames();
         while (nameEnum.hasMoreElements()) {
