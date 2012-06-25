@@ -27,7 +27,7 @@ import com.alibaba.webx.restful.message.internal.WebxRestfulResponse;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 import com.alibaba.webx.restful.uri.PathPattern;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.core.GenericType;
 
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 public final class Invocable {
 

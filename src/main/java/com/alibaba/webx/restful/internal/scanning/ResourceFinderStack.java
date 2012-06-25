@@ -37,72 +37,55 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server.internal.scanning;
+package com.alibaba.webx.restful.internal.scanning;
 
-import java.io.IOException;
+
 import java.io.InputStream;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Stack;
 
 import com.alibaba.webx.restful.server.ResourceFinder;
 
 /**
- * A utility class that scans entries in jar files.
- * 
- * @author Paul Sandoz
+ * {@link Stack} of {@link ResourceFinder} instances.
+ *
+ * Used to combine various finders into one instance.
+ *
+ * @author Pavel Bucek (pavel.bucek at oracle.com)
  */
-public final class JarFileScanner implements ResourceFinder {
+public class ResourceFinderStack implements ResourceFinder {
 
-    private final JarInputStream jarInputStream;
-    private final String         parent;
-
-    public JarFileScanner(InputStream inputStream, String parent) throws IOException{
-        this.jarInputStream = new JarInputStream(inputStream);
-        this.parent = parent;
-    }
-
-    private JarEntry next = null;
+    private final Deque<ResourceFinder> stack = new LinkedList<ResourceFinder> ();
+    private ResourceFinder current = null;
 
     @Override
     public boolean hasNext() {
-        if (next == null) {
-            try {
-                do {
-                    this.next = jarInputStream.getNextJarEntry();
-                } while (next != null && (next.isDirectory() || !next.getName().startsWith(parent)));
-            } catch (IOException e) {
-                Logger.getLogger(JarFileScanner.class.getName()).log(Level.CONFIG,
-                                                                     "Unable to read the next jar entry.", e);
-                return false;
-            } catch (SecurityException e) {
-                Logger.getLogger(JarFileScanner.class.getName()).log(Level.CONFIG,
-                                                                     "Unable to read the next jar entry.", e);
+        if(current == null) {
+            if(!stack.isEmpty()) {
+                current = stack.pop();
+            } else {
                 return false;
             }
         }
 
-        if (next == null) {
-            try {
-                jarInputStream.close();
-            } catch (IOException e) {
-                Logger.getLogger(JarFileScanner.class.getName()).log(Level.FINE, "Unable to close jar file.", e);
+        if(current.hasNext()) {
+            return true;
+        } else {
+            if(!stack.isEmpty()) {
+                current = stack.pop();
+                return hasNext();
+            } else {
+                return false;
             }
-
-            return false;
         }
-
-        return true;
     }
 
     @Override
     public String next() {
-        if (next != null || hasNext()) {
-            final String name = next.getName();
-            next = null;
-            return name;
+        if(hasNext()) {
+            return current.next();
         }
 
         throw new NoSuchElementException();
@@ -110,12 +93,16 @@ public final class JarFileScanner implements ResourceFinder {
 
     @Override
     public void remove() {
-        throw new UnsupportedOperationException();
+        current.remove();
     }
 
     @Override
     public InputStream open() {
-        return jarInputStream;
+        return current.open();
+    }
+
+    public void push(ResourceFinder iterator) {
+        stack.push(iterator);
     }
 
     @Override

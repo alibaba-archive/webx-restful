@@ -3,7 +3,7 @@ package com.alibaba.webx.restful.model;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 public final class HandlerConstructor {
 

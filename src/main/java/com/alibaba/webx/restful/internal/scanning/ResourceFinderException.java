@@ -37,76 +37,51 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server.internal.scanning;
+package com.alibaba.webx.restful.internal.scanning;
 
-
-import java.io.InputStream;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-
-import com.alibaba.webx.restful.server.ResourceFinder;
 
 /**
- * {@link Stack} of {@link ResourceFinder} instances.
+ * An runtime exception that may be thrown when scanning.
  *
- * Used to combine various finders into one instance.
- *
- * @author Pavel Bucek (pavel.bucek at oracle.com)
+ * @author Paul Sandoz
  */
-public class ResourceFinderStack implements ResourceFinder {
+public class ResourceFinderException extends RuntimeException {
 
-    private final Deque<ResourceFinder> stack = new LinkedList<ResourceFinder> ();
-    private ResourceFinder current = null;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
 
-    @Override
-    public boolean hasNext() {
-        if(current == null) {
-            if(!stack.isEmpty()) {
-                current = stack.pop();
-            } else {
-                return false;
-            }
-        }
-
-        if(current.hasNext()) {
-            return true;
-        } else {
-            if(!stack.isEmpty()) {
-                current = stack.pop();
-                return hasNext();
-            } else {
-                return false;
-            }
-        }
+    /**
+     * Construct a new instance with the supplied message
+     */
+    public ResourceFinderException() {
+        super();
     }
 
-    @Override
-    public String next() {
-        if(hasNext()) {
-            return current.next();
-        }
-
-        throw new NoSuchElementException();
+    /**
+     * Construct a new instance with the supplied message
+     * @param message the message
+     */
+    public ResourceFinderException(String message) {
+        super(message);
     }
 
-    @Override
-    public void remove() {
-        current.remove();
+    /**
+     * Construct a new instance with the supplied message and cause
+     * @param message the message
+     * @param cause the Throwable that caused the exception to be thrown
+     */
+    public ResourceFinderException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public InputStream open() {
-        return current.open();
-    }
-
-    public void push(ResourceFinder iterator) {
-        stack.push(iterator);
-    }
-
-    @Override
-    public void reset() {
-        throw new UnsupportedOperationException();
+    /**
+     * Construct a new instance with the supplied cause
+     * @param cause the Throwable that caused the exception to be thrown
+     */
+    public ResourceFinderException(Throwable cause) {
+        super(cause);
     }
 }
+

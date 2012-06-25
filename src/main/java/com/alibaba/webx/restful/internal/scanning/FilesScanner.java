@@ -37,79 +37,90 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server.servlet;
+package com.alibaba.webx.restful.internal.scanning;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.Stack;
 
-import javax.servlet.ServletContext;
-
+import com.alibaba.webx.restful.server.ApplicationConfig;
 import com.alibaba.webx.restful.server.ResourceFinder;
-import com.alibaba.webx.restful.server.internal.scanning.JarFileScanner;
-import com.alibaba.webx.restful.server.internal.scanning.ResourceFinderException;
-import com.alibaba.webx.restful.server.internal.scanning.ResourceFinderStack;
+import com.alibaba.webx.restful.server.ServerProperties;
 
-public class WebAppResourcesScanner implements ResourceFinder {
+/**
+ * A scanner that recursively scans directories and jar files.
+ * Files or jar entries are reported to a {@link ResourceProcessor}.
+ *
+ * @author Paul Sandoz
+ */
+public class FilesScanner implements ResourceFinder {
 
-    // private final String[] paths;
-    private final ServletContext sc;
-    private ResourceFinderStack  resourceFinderStack = new ResourceFinderStack();
-    private static String[]      paths               = new String[] { "/WEB-INF/lib/", "/WEB-INF/classes/" };
+    private ResourceFinderStack resourceFinderStack = new ResourceFinderStack();
 
     /**
-     * Scan from a set of web resource paths.
-     * <p>
-     * 
-     * @param sc {@link ServletContext}.
+     * Scan from a set of packages.
+     *
+     * @param files a {@link String} containing package names.
      */
-    public WebAppResourcesScanner(final ServletContext sc){
-        this.sc = sc;
-
-        processPaths(paths);
+    public FilesScanner(final String files) {
+        this(new String[]{files});
     }
 
-    @SuppressWarnings("unchecked")
-    private void processPaths(String... paths) {
-        for (final String path : paths) {
+    private final File[] files;
 
-            final Set<String> resourcePaths = sc.getResourcePaths(path);
-            if (resourcePaths == null) {
-                break;
+    /**
+     * Scan from a set of packages.
+     *
+     * @param fileNames an array of package names.
+     */
+    public FilesScanner(final String[] fileNames) {
+        files = new File[ApplicationConfig.getElements(fileNames, ServerProperties.COMMON_DELIMITERS).length];
+        for (int i = 0; i < files.length; i++) {
+            files[i] = new File(fileNames[i]);
+        }
+
+        for(final File f : files) {
+            processFile(f);
+        }
+    }
+
+    private void processFile(final File f) {
+
+        if(f.getName().endsWith(".jar") || f.getName().endsWith(".zip")) {
+            try {
+                resourceFinderStack.push(new JarFileScanner(new FileInputStream(f), ""));
+            } catch(IOException e) {
+                // logging might be sufficient in this case
+                throw new ResourceFinderException(e);
             }
 
+        } else {
             resourceFinderStack.push(new ResourceFinder() {
 
-                private Deque<String> resourcePathsStack = new LinkedList<String>() {
+                Stack<File> files = new Stack<File>() {{
+                    if(f.isDirectory()) {
+                        for(File file : f.listFiles()) {
+                            push(file);
+                        }
+                    } else {
+                        push(f);
+                    }
+                }};
 
-                                                             private static final long serialVersionUID = 3109256773218160485L;
-
-                                                             {
-                                                                 for (String resourcePath : resourcePaths) {
-                                                                     push(resourcePath);
-                                                                 }
-                                                             }
-                                                         };
-                private String        current;
-                private String        next;
+                private File current;
+                private File next;
 
                 @Override
                 public boolean hasNext() {
-                    while (next == null && !resourcePathsStack.isEmpty()) {
-                        next = resourcePathsStack.pop();
+                    while(next == null && !files.empty()) {
+                        next = files.pop();
 
-                        if (next.endsWith("/")) {
-                            processPaths(next);
-                            next = null;
-                        } else if (next.endsWith(".jar")) {
-                            try {
-                                resourceFinderStack.push(new JarFileScanner(sc.getResourceAsStream(next), ""));
-                            } catch (IOException ioe) {
-                                throw new ResourceFinderException(ioe);
-                            }
+                        if(next.isDirectory() || next.getName().endsWith(".jar") || next.getName().endsWith(".zip")) {
+                            processFile(next);
                             next = null;
                         }
                     }
@@ -119,12 +130,11 @@ public class WebAppResourcesScanner implements ResourceFinder {
 
                 @Override
                 public String next() {
-                    if (next != null || hasNext()) {
+                    if(next != null || hasNext()) {
                         current = next;
                         next = null;
-                        return current;
+                        return current.getName();
                     }
-
                     throw new NoSuchElementException();
                 }
 
@@ -135,15 +145,17 @@ public class WebAppResourcesScanner implements ResourceFinder {
 
                 @Override
                 public InputStream open() {
-                    return sc.getResourceAsStream(current);
+                    try {
+                        return new FileInputStream(current);
+                    } catch (FileNotFoundException e) {
+                        throw new ResourceFinderException(e);
+                    }
                 }
 
                 @Override
                 public void reset() {
-                    throw new UnsupportedOperationException();
                 }
             });
-
         }
     }
 
@@ -169,7 +181,10 @@ public class WebAppResourcesScanner implements ResourceFinder {
 
     @Override
     public void reset() {
-        resourceFinderStack = new ResourceFinderStack();
-        processPaths(paths);
+        this.resourceFinderStack = new ResourceFinderStack();
+
+        for(File f : files) {
+            processFile(f);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server.process;
+package com.alibaba.webx.restful.process;
 
 import java.io.InputStream;
 import java.net.URI;

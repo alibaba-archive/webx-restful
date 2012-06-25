@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server.internal.scanning;
+package com.alibaba.webx.restful.internal.scanning;
 
 import java.net.URI;
 import java.util.Set;

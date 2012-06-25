@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server.internal.scanning;
+package com.alibaba.webx.restful.internal.scanning;
 
 import java.io.FileInputStream;
 import java.io.IOException;

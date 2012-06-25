@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server.internal;
+package com.alibaba.webx.restful.internal;
 
 import java.net.URI;
 import java.util.Date;

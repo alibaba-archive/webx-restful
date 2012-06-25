@@ -1,7 +1,7 @@
 package com.alibaba.webx.restful.model;
 
 import com.alibaba.webx.restful.model.converter.TypeConvertException;
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 /**
  * Abstraction for a method parameter

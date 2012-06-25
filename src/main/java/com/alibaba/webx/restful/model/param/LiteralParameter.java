@@ -3,7 +3,7 @@ package com.alibaba.webx.restful.model.param;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConvertException;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 public abstract class LiteralParameter implements Parameter {
 

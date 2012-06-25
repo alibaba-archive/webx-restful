@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.server.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
 
 public class CookieParameter extends LiteralParameter implements Parameter {
 
