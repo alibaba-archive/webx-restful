@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -36,7 +38,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.message.LocalizationMessages;
 import com.alibaba.webx.restful.model.AutowireSetter;
 import com.alibaba.webx.restful.model.InstanceConstructor;
 import com.alibaba.webx.restful.model.Invocable;
@@ -50,6 +51,8 @@ import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.MethodInfo;
 import com.alibaba.webx.restful.model.param.AutowiredParameter;
+import com.alibaba.webx.restful.model.param.HttpServletRequestParameter;
+import com.alibaba.webx.restful.model.param.HttpServletResponseParameter;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.util.ClassUtils;
 import com.alibaba.webx.restful.util.ReflectionUtils;
@@ -76,8 +79,8 @@ public class ApplicationConfig extends Application {
     //
     //
     private ClassLoader               classLoader          = null;
+
     //
-    private InternalState             internalState        = new Mutable();
 
     public ApplicationConfig(){
         this.classLoader = ReflectionUtils.getContextClassLoader();
@@ -135,8 +138,8 @@ public class ApplicationConfig extends Application {
      * @param resourceFinder {@link ResourceFinder}
      * @return updated resource configuration instance.
      */
-    public final ApplicationConfig addFinder(ResourceFinder resourceFinder) {
-        return internalState.addFinder(resourceFinder);
+    public boolean addFinder(ResourceFinder resourceFinder) {
+        return this.resourceFinders.add(resourceFinder);
     }
 
     /**
@@ -146,8 +149,8 @@ public class ApplicationConfig extends Application {
      * @param properties properties to add.
      * @return updated resource configuration instance.
      */
-    public final ApplicationConfig addProperties(Map<String, Object> properties) {
-        return internalState.addProperties(properties);
+    public final void addProperties(Map<String, Object> properties) {
+        this.properties.putAll(properties);
     }
 
     public final Object getProperty(String name) {
@@ -302,8 +305,8 @@ public class ApplicationConfig extends Application {
     }
 
     private static InstanceConstructor createHandlerConstructor(ApplicationContext applicationContxt,
-                                                               ParameterProvider parameterProvider, Class<?> clazz,
-                                                               ClassInfo classInfo) throws Exception {
+                                                                ParameterProvider parameterProvider, Class<?> clazz,
+                                                                ClassInfo classInfo) throws Exception {
 
         Constructor<?> constructor = null;
         for (Constructor<?> item : clazz.getConstructors()) {
@@ -368,8 +371,6 @@ public class ApplicationConfig extends Application {
             String propertyName = Character.toLowerCase(method.getName().charAt(3)) + method.getName().substring(4);
 
             Class<?> setterClass = method.getParameterTypes()[0];
-            Type setterType = method.getGenericParameterTypes()[0];
-            Annotation[] annotations = method.getParameterAnnotations()[0];
 
             Autowired autowired = method.getAnnotation(Autowired.class);
 
@@ -385,17 +386,25 @@ public class ApplicationConfig extends Application {
                 continue;
             }
 
-            Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
-            if (beanMap.size() == 0) {
-                throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
-            }
-            if (beanMap.size() > 1) {
-                throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
-            }
+            Parameter parameter;
 
-            Object bean = beanMap.values().iterator().next();
+            if (setterClass == HttpServletRequest.class) {
+                parameter = new HttpServletRequestParameter();
+            } else if (setterClass == HttpServletResponse.class) {
+                parameter = new HttpServletResponseParameter();
+            } else {
+                Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
+                if (beanMap.size() == 0) {
+                    throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
+                }
+                if (beanMap.size() > 1) {
+                    throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
+                }
 
-            Parameter parameter = new AutowiredParameter(bean);
+                Object bean = beanMap.values().iterator().next();
+
+                parameter = new AutowiredParameter(bean);
+            }
 
             AutowireSetter setter = new AutowireSetter(method, parameter);
             autowireSetters.add(setter);
@@ -503,6 +512,7 @@ public class ApplicationConfig extends Application {
         return l;
     }
 
+    @SuppressWarnings("unchecked")
     private Map<Class<?>, ClassInfo> scanResources() {
         Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
         String[] packageNames = parsePropertyValue(ServerProperties.PROVIDER_PACKAGES);
@@ -515,7 +525,9 @@ public class ApplicationConfig extends Application {
             rfs.add(new FilesScanner(classPathElements));
         }
 
-        ResourceProcessorImpl resourceProcessor = new ResourceProcessorImpl(classLoader, Path.class, Provider.class);
+        Class<? extends Annotation>[] annotations = (Class<? extends Annotation>[]) new Class<?>[] { Path.class,
+                Provider.class };
+        ResourceProcessorImpl resourceProcessor = new ResourceProcessorImpl(classLoader, annotations);
         for (ResourceFinder resourceFinder : rfs) {
             while (resourceFinder.hasNext()) {
                 final String next = resourceFinder.next();
@@ -603,122 +615,4 @@ public class ApplicationConfig extends Application {
         return es;
     }
 
-    private interface InternalState {
-
-        ApplicationConfig addClasses(Set<Class<?>> classes);
-
-        ApplicationConfig addResources(Set<Resource> resources);
-
-        ApplicationConfig addFinder(ResourceFinder resourceFinder);
-
-        ApplicationConfig addProperties(Map<String, Object> properties);
-
-        ApplicationConfig addSingletons(Set<Object> singletons);
-
-        ApplicationConfig setClassLoader(ClassLoader classLoader);
-
-        ApplicationConfig setProperty(String name, Object value);
-
-        ApplicationConfig setApplication(Application application);
-    }
-
-    private class Immutable implements InternalState {
-
-        @Override
-        public ApplicationConfig addClasses(Set<Class<?>> classes) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig addResources(Set<Resource> resources) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig addFinder(ResourceFinder resourceFinder) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig addProperties(Map<String, Object> properties) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig addSingletons(Set<Object> singletons) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig setClassLoader(ClassLoader classLoader) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig setProperty(String name, Object value) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-
-        @Override
-        public ApplicationConfig setApplication(Application application) {
-            throw new IllegalStateException(LocalizationMessages.RC_NOT_MODIFIABLE());
-        }
-    }
-
-    private class Mutable implements InternalState {
-
-        @Override
-        public ApplicationConfig addClasses(Set<Class<?>> classes) {
-            invalidateCache();
-            ApplicationConfig.this.classes.addAll(classes);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig addResources(Set<Resource> resources) {
-            ApplicationConfig.this.resources.addAll(resources);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig addFinder(ResourceFinder resourceFinder) {
-            invalidateCache();
-            ApplicationConfig.this.resourceFinders.add(resourceFinder);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig addProperties(Map<String, Object> properties) {
-            invalidateCache();
-            ApplicationConfig.this.properties.putAll(properties);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig addSingletons(Set<Object> singletons) {
-            invalidateCache();
-            ApplicationConfig.this.singletons.addAll(singletons);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig setClassLoader(ClassLoader classLoader) {
-            invalidateCache();
-            ApplicationConfig.this.classLoader = classLoader;
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig setProperty(String name, Object value) {
-            invalidateCache();
-            ApplicationConfig.this.properties.put(name, value);
-            return ApplicationConfig.this;
-        }
-
-        @Override
-        public ApplicationConfig setApplication(Application application) {
-            invalidateCache();
-            return ApplicationConfig.this._setApplication(application);
-        }
-    }
 }
