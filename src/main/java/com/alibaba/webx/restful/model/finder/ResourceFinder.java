@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.InputStream;
 import java.util.Iterator;

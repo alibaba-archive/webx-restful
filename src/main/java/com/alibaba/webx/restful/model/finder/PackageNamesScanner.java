@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.webx.restful.server.ApplicationConfig;
-import com.alibaba.webx.restful.server.ResourceFinder;
 import com.alibaba.webx.restful.server.ServerProperties;
 import com.alibaba.webx.restful.uri.UriComponent;
 import com.alibaba.webx.restful.util.ReflectionUtils;

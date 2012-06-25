@@ -1,9 +1,8 @@
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.net.URI;
 import java.util.Set;
 
-import com.alibaba.webx.restful.server.ResourceFinder;
 
 
 interface UriSchemeResourceFinderFactory {

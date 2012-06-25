@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationContext;
 
+import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class WebxRestfulServletFilter implements Filter {

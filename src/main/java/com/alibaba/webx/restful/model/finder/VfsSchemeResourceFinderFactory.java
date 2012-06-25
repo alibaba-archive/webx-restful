@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -50,7 +50,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.UriBuilder;
 
-import com.alibaba.webx.restful.server.ResourceFinder;
 
 /**
  * A JBoss-based "vfsfile", "vfs" and "vfszip" scheme URI scanner.

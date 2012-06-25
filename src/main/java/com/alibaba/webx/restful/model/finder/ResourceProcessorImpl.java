@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.IOException;
 import java.io.InputStream;

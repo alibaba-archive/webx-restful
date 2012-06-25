@@ -37,37 +37,75 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
-import java.io.IOException;
+
 import java.io.InputStream;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Stack;
+
 
 /**
- * Processes resources found by {@link org.glassfish.jersey.server.ResourceFinder}.
+ * {@link Stack} of {@link ResourceFinder} instances.
+ *
+ * Used to combine various finders into one instance.
  *
  * @author Pavel Bucek (pavel.bucek at oracle.com)
  */
-public interface ResourceProcessor {
+public class ResourceFinderStack implements ResourceFinder {
 
-    /**
-     * Accept a scanned resource.
-     * <p>
-     *
-     * @param name the resource name.
-     * @return true if the resource is accepted for processing, otherwise false.
-     */
-    boolean accept(String name);
+    private final Deque<ResourceFinder> stack = new LinkedList<ResourceFinder> ();
+    private ResourceFinder current = null;
 
-    /**
-     * Process a scanned resource.
-     * <p>
-     * This method will be invoked after the listener has accepted the
-     * resource.
-     *
-     * @param name the resource name.
-     * @param in the input stream of the resource
-     * @throws java.io.IOException if an error occurs when processing the resource.
-     */
-    void process(String name, InputStream in) throws IOException;
+    @Override
+    public boolean hasNext() {
+        if(current == null) {
+            if(!stack.isEmpty()) {
+                current = stack.pop();
+            } else {
+                return false;
+            }
+        }
 
+        if(current.hasNext()) {
+            return true;
+        } else {
+            if(!stack.isEmpty()) {
+                current = stack.pop();
+                return hasNext();
+            } else {
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public String next() {
+        if(hasNext()) {
+            return current.next();
+        }
+
+        throw new NoSuchElementException();
+    }
+
+    @Override
+    public void remove() {
+        current.remove();
+    }
+
+    @Override
+    public InputStream open() {
+        return current.open();
+    }
+
+    public void push(ResourceFinder iterator) {
+        stack.push(iterator);
+    }
+
+    @Override
+    public void reset() {
+        throw new UnsupportedOperationException();
+    }
 }

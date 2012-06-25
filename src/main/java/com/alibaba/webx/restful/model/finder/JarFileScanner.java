@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +47,6 @@ import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.alibaba.webx.restful.server.ResourceFinder;
 
 /**
  * A utility class that scans entries in jar files.

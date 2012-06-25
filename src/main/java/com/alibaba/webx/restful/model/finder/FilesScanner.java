@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.internal.scanning;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +48,6 @@ import java.util.NoSuchElementException;
 import java.util.Stack;
 
 import com.alibaba.webx.restful.server.ApplicationConfig;
-import com.alibaba.webx.restful.server.ResourceFinder;
 import com.alibaba.webx.restful.server.ServerProperties;
 
 /**

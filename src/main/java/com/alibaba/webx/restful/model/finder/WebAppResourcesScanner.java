@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.model.finder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,9 +48,6 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import com.alibaba.webx.restful.internal.scanning.JarFileScanner;
-import com.alibaba.webx.restful.internal.scanning.ResourceFinderException;
-import com.alibaba.webx.restful.internal.scanning.ResourceFinderStack;
 
 public class WebAppResourcesScanner implements ResourceFinder {
 
