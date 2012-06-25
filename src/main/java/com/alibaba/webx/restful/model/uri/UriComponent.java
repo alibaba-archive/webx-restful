@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.uri;
+package com.alibaba.webx.restful.model.uri;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

@@ -5,8 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.alibaba.webx.restful.server.ApplicationConfig;
-import com.alibaba.webx.restful.server.ServerProperties;
+import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.ServerProperties;
 
 /**
  * A scanner that recursively scans directories and jar files. Files or jar entries are reported to a

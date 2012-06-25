@@ -11,9 +11,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import com.alibaba.webx.restful.server.ServerProperties;
-import com.alibaba.webx.restful.server.WebxRestfulComponent;
-import com.alibaba.webx.restful.server.WebxRestfulServletFilter;
+import com.alibaba.webx.restful.WebxRestfulServletFilter;
+import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.process.WebxRestfulComponent;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class HelloworldTest extends TestCase {

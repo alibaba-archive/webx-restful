@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.process;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -22,13 +22,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.alibaba.webx.restful.internal.WebxRestfulMessageBodyWorkerProvider;
+import com.alibaba.webx.restful.internal.WebxRestfulWriterInterceptorContext;
 import com.alibaba.webx.restful.message.JSONMessageBodyWriter;
 import com.alibaba.webx.restful.message.WebxRestfulResponse;
+import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
-import com.alibaba.webx.restful.uri.PathPattern;
+import com.alibaba.webx.restful.model.uri.PathPattern;
+import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {

@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.internal;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -19,6 +19,8 @@ import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
 import com.alibaba.webx.restful.message.WebxRestfulResponse;
+import com.alibaba.webx.restful.process.WebxRestfulProcessException;
+import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WebxRestfulWriterInterceptorContext implements WriterInterceptorContext {
 

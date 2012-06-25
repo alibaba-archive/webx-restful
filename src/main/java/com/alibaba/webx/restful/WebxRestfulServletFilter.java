@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -16,7 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationContext;
 
+import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
+import com.alibaba.webx.restful.process.ApplicationHandler;
+import com.alibaba.webx.restful.process.WebxRestfulComponent;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class WebxRestfulServletFilter implements Filter {

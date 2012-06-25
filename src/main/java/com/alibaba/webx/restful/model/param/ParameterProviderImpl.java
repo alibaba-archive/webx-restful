@@ -21,7 +21,7 @@ import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
 import com.alibaba.webx.restful.model.converter.TypeConverterProvider;
 import com.alibaba.webx.restful.model.converter.TypeConverterProviderImpl;
-import com.alibaba.webx.restful.server.ParameterProvider;
+import com.alibaba.webx.restful.spi.ParameterProvider;
 
 public class ParameterProviderImpl implements ParameterProvider {
 

@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.process;
 
 import java.io.IOException;
 

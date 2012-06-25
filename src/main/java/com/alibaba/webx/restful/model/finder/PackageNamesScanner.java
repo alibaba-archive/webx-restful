@@ -49,9 +49,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.webx.restful.server.ApplicationConfig;
-import com.alibaba.webx.restful.server.ServerProperties;
-import com.alibaba.webx.restful.uri.UriComponent;
+import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.model.uri.UriComponent;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 
 /**

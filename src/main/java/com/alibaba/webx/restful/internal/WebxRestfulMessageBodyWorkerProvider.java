@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -10,6 +10,8 @@ import java.util.Set;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
+
+import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WebxRestfulMessageBodyWorkerProvider implements MessageBodyWorkerProvider {
 

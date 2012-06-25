@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.alibaba.webx.restful.uri.UriComponent;
+import com.alibaba.webx.restful.model.uri.UriComponent;
 
 class JarZipSchemeResourceFinderFactory implements UriSchemeResourceFinderFactory {
 

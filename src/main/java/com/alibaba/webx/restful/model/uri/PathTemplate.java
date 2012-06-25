@@ -38,7 +38,7 @@
  * holder.
  */
 
-package com.alibaba.webx.restful.uri;
+package com.alibaba.webx.restful.model.uri;
 
 /**
  * A URI template for a URI path.

@@ -2,7 +2,7 @@ package com.alibaba.webx.restful.model;
 
 import java.util.List;
 
-import com.alibaba.webx.restful.uri.PathPattern;
+import com.alibaba.webx.restful.model.uri.PathPattern;
 
 public final class Resource {
 

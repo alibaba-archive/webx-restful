@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.model;
 
 public class ResourceConfigException extends RuntimeException {
 

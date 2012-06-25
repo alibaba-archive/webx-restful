@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.spi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

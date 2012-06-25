@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.model;
 
 /**
  * Jersey server-side configuration properties.

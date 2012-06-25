@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.model;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -38,12 +38,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.model.AutowireSetter;
-import com.alibaba.webx.restful.model.InstanceConstructor;
-import com.alibaba.webx.restful.model.Invocable;
-import com.alibaba.webx.restful.model.Parameter;
-import com.alibaba.webx.restful.model.Resource;
-import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.finder.FilesScanner;
 import com.alibaba.webx.restful.model.finder.PackageNamesScanner;
 import com.alibaba.webx.restful.model.finder.ResourceFinder;
@@ -54,6 +48,7 @@ import com.alibaba.webx.restful.model.param.AutowiredParameter;
 import com.alibaba.webx.restful.model.param.HttpServletRequestParameter;
 import com.alibaba.webx.restful.model.param.HttpServletResponseParameter;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
+import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ClassUtils;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.google.common.collect.Maps;

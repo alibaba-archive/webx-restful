@@ -1,8 +1,10 @@
-package com.alibaba.webx.restful.server;
+package com.alibaba.webx.restful.process;
 
 import junit.framework.Assert;
 
 import org.springframework.context.ApplicationContext;
+
+import com.alibaba.webx.restful.model.ApplicationConfig;
 
 public class WebxRestfulComponent {
 
