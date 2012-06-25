@@ -37,20 +37,44 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message.l10n;
 
 /**
- * Quality factor for acceptable header types.
+ * Localizable message.
  *
- * @author Paul Sandoz
- * @author Marek Potociar (marek.potociar at oracle.com)
+ * @author WS Development Team
  */
-public interface QualityFactor {
+public interface Localizable {
 
-    static final String QUALITY_FACTOR = "q";
-    static final int MINUMUM_QUALITY = 0;
-    static final int MAXIMUM_QUALITY = 1000;
-    static final int DEFAULT_QUALITY_FACTOR = MAXIMUM_QUALITY;
+    /**
+     * Special constant that represents a message that
+     * is not localizable.
+     *
+     * <p>
+     * Use of "new" is to create an unique instance.
+     */
+    public static final String NOT_LOCALIZABLE = "\u0000";
 
-    int getQuality();
+    /**
+     * Gets the key in the resource bundle.
+     *
+     * @return if this method returns {@link #NOT_LOCALIZABLE}, that means the
+     *     message is not localizable, and the first item of {@link #getArguments()}
+     *     array holds a {@code String}.
+     */
+    public String getKey();
+
+    /**
+     * Returns the arguments for message formatting.
+     *
+     * @return can be an array of length 0 but never be {@code null}.
+     */
+    public Object[] getArguments();
+
+    /**
+     * Get the name of the localization messages resource bundle.
+     *
+     * @return the localization messages resource bundle name.
+     */
+    public String getResourceBundleName();
 }

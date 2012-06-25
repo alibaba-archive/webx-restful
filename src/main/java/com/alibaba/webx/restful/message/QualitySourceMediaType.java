@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.text.ParseException;
 import java.util.Map;
@@ -45,69 +45,103 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 
 /**
- * An acceptable media type.
+ * An quality source media type.
  *
  * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-class AcceptableMediaType extends MediaType implements QualityFactor {
+public class QualitySourceMediaType extends MediaType {
 
-    private final int q;
+    public static final String QUALITY_SOURCE_FACTOR = "qs";
+    public static final int DEFAULT_QUALITY_SOURCE_FACTOR = 1000;
+    private final int qs;
 
-    public AcceptableMediaType(String p, String s) {
+    public QualitySourceMediaType(String p, String s) {
         super(p, s);
-        q = DEFAULT_QUALITY_FACTOR;
+        qs = DEFAULT_QUALITY_SOURCE_FACTOR;
     }
 
-    public AcceptableMediaType(String p, String s, int q, Map<String, String> parameters) {
+    public QualitySourceMediaType(String p, String s, int qs, Map<String, String> parameters) {
         super(p, s, parameters);
-        this.q = q;
+        this.qs = qs;
     }
 
-    @Override
-    public int getQuality() {
-        return q;
+    public QualitySourceMediaType(MediaType mt) {
+        this(mt.getType(), mt.getSubtype(), getQs(mt), mt.getParameters());
     }
 
-    public static AcceptableMediaType valueOf(HttpHeaderReader reader) throws ParseException {
+    public int getQualitySource() {
+        return qs;
+    }
+
+    public static QualitySourceMediaType valueOf(HttpHeaderReader reader) throws ParseException {
         // Skip any white space
         reader.hasNext();
 
         // Get the type
         String type = reader.nextToken();
-        String subType = "*";
-        // Some HTTP implements use "*" to mean "*/*"
-        if (reader.hasNextSeparator('/', false)) {
-            reader.next(false);
-            // Get the subtype
-            subType = reader.nextToken();
-        }
+        reader.nextSeparator('/');
+        // Get the subtype
+        String subType = reader.nextToken();
 
+        int qs = DEFAULT_QUALITY_SOURCE_FACTOR;
         Map<String, String> parameters = null;
-        int quality = DEFAULT_QUALITY_FACTOR;
         if (reader.hasNext()) {
             parameters = HttpHeaderReader.readParameters(reader);
             if (parameters != null) {
-                String v = parameters.get(QUALITY_FACTOR);
-                if (v != null) {
-                    quality = HttpHeaderReader.readQualityFactor(v);
-                }
+                qs = getQs(parameters.get(QUALITY_SOURCE_FACTOR));
             }
         }
 
-        return new AcceptableMediaType(type, subType, quality, parameters);
+        return new QualitySourceMediaType(type, subType, qs, parameters);
     }
+
+    public static int getQualitySource(MediaType mt) {
+        if (mt instanceof QualitySourceMediaType) {
+            QualitySourceMediaType qsmt = (QualitySourceMediaType) mt;
+            return qsmt.getQualitySource();
+        } else {
+            return getQs(mt);
+        }
+    }
+
+    private static int getQs(MediaType mt) {
+        try {
+            return getQs(mt.getParameters().get(QUALITY_SOURCE_FACTOR));
+        } catch (ParseException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+    private static int getQs(String v) throws ParseException {
+        if (v == null) {
+            return DEFAULT_QUALITY_SOURCE_FACTOR;
+        }
+
+        try {
+            final int qs = (int) (Float.valueOf(v) * 1000.0);
+            if (qs < 0) {
+                throw new ParseException("The quality source (qs) value, " + v + ", must be non-negative number", 0);
+            }
+            return qs;
+        } catch (NumberFormatException ex) {
+            ParseException pe = new ParseException("The quality source (qs) value, " + v + ", is not a valid value", 0);
+            pe.initCause(ex);
+            throw pe;
+        }
+    }
+
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof AcceptableMediaType)) {
+        if (!(obj instanceof QualitySourceMediaType)) {
             return false;
         }
         if (!super.equals(obj)) {
             return false;
         }
-        final AcceptableMediaType other = (AcceptableMediaType) obj;
-        if (this.q != other.q) {
+        final QualitySourceMediaType other = (QualitySourceMediaType) obj;
+        if (this.qs != other.qs) {
             return false;
         }
         return true;
@@ -116,7 +150,7 @@ class AcceptableMediaType extends MediaType implements QualityFactor {
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 47 * hash + this.q;
+        hash = 47 * hash + this.qs;
         return hash;
     }
 }

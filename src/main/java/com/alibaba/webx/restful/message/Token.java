@@ -37,68 +37,47 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.text.ParseException;
 
 /**
- * An acceptable language tag.
- * 
+ * A token.
+ *
  * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-class AcceptableLanguageTag extends LanguageTag implements QualityFactor {
+public class Token {
 
-    private final int quality;
+    protected String token;
 
-    public AcceptableLanguageTag(String primaryTag, String subTags){
-        super(primaryTag, subTags);
-        this.quality = DEFAULT_QUALITY_FACTOR;
+    protected Token() {
     }
 
-    public AcceptableLanguageTag(String header) throws ParseException{
+    public Token(String header) throws ParseException {
         this(HttpHeaderReader.newInstance(header));
     }
 
-    public AcceptableLanguageTag(HttpHeaderReader reader) throws ParseException{
+    public Token(HttpHeaderReader reader) throws ParseException {
         // Skip any white space
         reader.hasNext();
 
-        tag = reader.nextToken();
-        if (!tag.equals("*")) {
-            parse(tag);
-        } else {
-            primaryTag = tag;
-        }
+        token = reader.nextToken();
 
         if (reader.hasNext()) {
-            quality = HttpHeaderReader.readQualityFactorParameter(reader);
-        } else {
-            quality = DEFAULT_QUALITY_FACTOR;
+            throw new ParseException("Invalid token", reader.getIndex());
         }
     }
 
-    @Override
-    public int getQuality() {
-        return quality;
+    public String getToken() {
+        return token;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
-            return false;
+    public final boolean isCompatible(String token) {
+        if (this.token.equals("*")) {
+            return true;
         }
-        final AcceptableLanguageTag other = (AcceptableLanguageTag) obj;
-        if (this.quality != other.quality) {
-            return false;
-        }
-        return true;
-    }
 
-    @Override
-    public int hashCode() {
-        int hash = super.hashCode();
-        hash = 47 * hash + this.quality;
-        return hash;
+        return this.token.equals(token);
     }
 }

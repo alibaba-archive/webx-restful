@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,41 +37,20 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
-
-import javax.ws.rs.MessageProcessingException;
+package com.alibaba.webx.restful.message;
 
 /**
- * Jersey exception signaling that error occurred during reading or writing message body (entity).
+ * Quality factor for acceptable header types.
  *
- * @author Miroslav Fuksa (miroslav.fuksa at oracle.com)
+ * @author Paul Sandoz
+ * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public class MessageBodyProcessingException extends MessageProcessingException {
+public interface QualityFactor {
 
-    private static final long serialVersionUID = 2093175681702118380L;
+    static final String QUALITY_FACTOR = "q";
+    static final int MINUMUM_QUALITY = 0;
+    static final int MAXIMUM_QUALITY = 1000;
+    static final int DEFAULT_QUALITY_FACTOR = MAXIMUM_QUALITY;
 
-    /**
-     * Creates new instance initialized with exception cause.
-     * @param cause Exception cause.
-     */
-    public MessageBodyProcessingException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * Creates new instance initialized with exception message and exception cause.
-     * @param message Message.
-     * @param cause Exception cause.
-     */
-    public MessageBodyProcessingException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * Creates new instance initialized with exception message.
-     * @param message Message.
-     */
-    public MessageBodyProcessingException(String message) {
-        super(message);
-    }
+    int getQuality();
 }

@@ -36,7 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.message.internal.LocalizationMessages;
+import com.alibaba.webx.restful.message.LocalizationMessages;
 import com.alibaba.webx.restful.model.AutowireSetter;
 import com.alibaba.webx.restful.model.HandlerConstructor;
 import com.alibaba.webx.restful.model.Invocable;

@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

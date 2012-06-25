@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;

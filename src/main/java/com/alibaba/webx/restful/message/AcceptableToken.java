@@ -37,52 +37,37 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.Set;
-import javax.ws.rs.core.EntityTag;
 
 /**
- * A matching entity tag.
- * <p>
- * Note that this type and it's super type cannot be used to create request
- * header values for <code>If-Match</code> and <code>If-None-Match</code>
- * of the form <code>If-Match: *</code> or <code>If-None-Match: *</code> as
- * <code>*</code> is not a valid entity tag.
+ * An acceptable token.
  *
  * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-class MatchingEntityTag extends EntityTag {
+public class AcceptableToken extends Token implements QualityFactor {
 
-    /**
-     * An empty set that corresponds to <code>If-Match: *</code> or
-     * <code>If-None-Match: *</code>.
-     */
-    public static final Set<MatchingEntityTag> ANY_MATCH = Collections.emptySet();
+    protected int quality = DEFAULT_QUALITY_FACTOR;
 
-    private MatchingEntityTag(String value) {
-        super(value, false);
+    public AcceptableToken(String header) throws ParseException {
+        this(HttpHeaderReader.newInstance(header));
     }
 
-    private MatchingEntityTag(String value, boolean weak) {
-        super(value, weak);
-    }
+    public AcceptableToken(HttpHeaderReader reader) throws ParseException {
+        // Skip any white space
+        reader.hasNext();
 
-    public static MatchingEntityTag valueOf(HttpHeaderReader reader) throws ParseException {
-        HttpHeaderReader.Event e = reader.next(false);
-        if (e == HttpHeaderReader.Event.QuotedString) {
-            return new MatchingEntityTag(reader.getEventValue());
-        } else if (e == HttpHeaderReader.Event.Token) {
-            String v = reader.getEventValue();
-            if (v.equals("W")) {
-                reader.nextSeparator('/');
-                return new MatchingEntityTag(reader.nextQuotedString(), true);
-            }
+        token = reader.nextToken();
+
+        if (reader.hasNext()) {
+            quality = HttpHeaderReader.readQualityFactorParameter(reader);
         }
+    }
 
-        throw new ParseException("Error parsing entity tag", reader.getIndex());
+    @Override
+    public int getQuality() {
+        return quality;
     }
 }

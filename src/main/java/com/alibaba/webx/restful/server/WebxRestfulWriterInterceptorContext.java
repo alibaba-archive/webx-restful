@@ -18,7 +18,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
-import com.alibaba.webx.restful.message.internal.WebxRestfulResponse;
+import com.alibaba.webx.restful.message.WebxRestfulResponse;
 
 public class WebxRestfulWriterInterceptorContext implements WriterInterceptorContext {
 

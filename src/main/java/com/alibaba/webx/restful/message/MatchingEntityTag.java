@@ -37,70 +37,52 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.text.ParseException;
-import java.util.Map;
-
-import javax.ws.rs.core.MediaType;
-
-import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
-import com.alibaba.webx.restful.util.StringBuilderUtils;
+import java.util.Collections;
+import java.util.Set;
+import javax.ws.rs.core.EntityTag;
 
 /**
+ * A matching entity tag.
+ * <p>
+ * Note that this type and it's super type cannot be used to create request
+ * header values for <code>If-Match</code> and <code>If-None-Match</code>
+ * of the form <code>If-Match: *</code> or <code>If-None-Match: *</code> as
+ * <code>*</code> is not a valid entity tag.
  *
- * @author Marc Hadley
+ * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
- * @author Martin Matula (martin.matula at oracle.com)
  */
-public class MediaTypeProvider implements HeaderDelegateProvider<MediaType> {
+class MatchingEntityTag extends EntityTag {
 
-    @Override
-    public boolean supports(Class<?> type) {
-        return MediaType.class.isAssignableFrom(type);
+    /**
+     * An empty set that corresponds to <code>If-Match: *</code> or
+     * <code>If-None-Match: *</code>.
+     */
+    public static final Set<MatchingEntityTag> ANY_MATCH = Collections.emptySet();
+
+    private MatchingEntityTag(String value) {
+        super(value, false);
     }
 
-    @Override
-    public String toString(MediaType header) {
-        StringBuilder b = new StringBuilder();
-        b.append(header.getType()).append('/').append(header.getSubtype());
-        for (Map.Entry<String, String> e : header.getParameters().entrySet()) {
-            b.append("; ").append(e.getKey()).append('=');
-            StringBuilderUtils.appendQuotedIfNonToken(b, e.getValue());
-        }
-        return b.toString();
+    private MatchingEntityTag(String value, boolean weak) {
+        super(value, weak);
     }
 
-    @Override
-    public MediaType fromString(String header) {
-        if (header == null) {
-            throw new IllegalArgumentException("Media type is null");
+    public static MatchingEntityTag valueOf(HttpHeaderReader reader) throws ParseException {
+        HttpHeaderReader.Event e = reader.next(false);
+        if (e == HttpHeaderReader.Event.QuotedString) {
+            return new MatchingEntityTag(reader.getEventValue());
+        } else if (e == HttpHeaderReader.Event.Token) {
+            String v = reader.getEventValue();
+            if (v.equals("W")) {
+                reader.nextSeparator('/');
+                return new MatchingEntityTag(reader.nextQuotedString(), true);
+            }
         }
 
-        try {
-            return valueOf(HttpHeaderReader.newInstance(header));
-        } catch (ParseException ex) {
-            throw new IllegalArgumentException(
-                    "Error parsing media type '" + header + "'", ex);
-        }
-    }
-
-    public static MediaType valueOf(HttpHeaderReader reader) throws ParseException {
-        // Skip any white space
-        reader.hasNext();
-
-        // Get the type
-        String type = reader.nextToken();
-        reader.nextSeparator('/');
-        // Get the subtype
-        String subType = reader.nextToken();
-
-        Map<String, String> params = null;
-
-        if (reader.hasNext()) {
-            params = HttpHeaderReader.readParameters(reader);
-        }
-
-        return new MediaType(type, subType, params);
+        throw new ParseException("Error parsing entity tag", reader.getIndex());
     }
 }

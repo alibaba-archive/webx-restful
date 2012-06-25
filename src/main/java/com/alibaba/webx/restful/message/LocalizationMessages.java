@@ -1,8 +1,8 @@
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
-import com.alibaba.webx.restful.message.internal.l10n.Localizable;
-import com.alibaba.webx.restful.message.internal.l10n.LocalizableMessageFactory;
-import com.alibaba.webx.restful.message.internal.l10n.Localizer;
+import com.alibaba.webx.restful.message.l10n.Localizable;
+import com.alibaba.webx.restful.message.l10n.LocalizableMessageFactory;
+import com.alibaba.webx.restful.message.l10n.Localizer;
 
 public final class LocalizationMessages
 {

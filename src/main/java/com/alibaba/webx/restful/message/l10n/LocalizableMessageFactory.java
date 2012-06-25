@@ -38,7 +38,7 @@
  * holder.
  */
 
-package com.alibaba.webx.restful.message.internal.l10n;
+package com.alibaba.webx.restful.message.l10n;
 
 /**
  * @author WS Development Team

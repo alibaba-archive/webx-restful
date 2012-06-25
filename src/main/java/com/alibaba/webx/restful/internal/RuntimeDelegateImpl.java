@@ -18,9 +18,9 @@ import javax.ws.rs.core.UriBuilder;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.internal.inject.Providers;
-import com.alibaba.webx.restful.message.internal.MediaTypeProvider;
-import com.alibaba.webx.restful.message.internal.Responses;
-import com.alibaba.webx.restful.message.internal.VariantListBuilder;
+import com.alibaba.webx.restful.message.MediaTypeProvider;
+import com.alibaba.webx.restful.message.Responses;
+import com.alibaba.webx.restful.message.VariantListBuilder;
 import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 

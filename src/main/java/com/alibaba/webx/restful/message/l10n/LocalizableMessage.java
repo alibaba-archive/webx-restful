@@ -37,47 +37,38 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
-
-import java.text.ParseException;
+package com.alibaba.webx.restful.message.l10n;
 
 /**
- * A token.
- *
- * @author Paul Sandoz
- * @author Marek Potociar (marek.potociar at oracle.com)
+ * @author WS Development Team
  */
-public class Token {
+public final class LocalizableMessage implements Localizable {
 
-    protected String token;
+    private final String _bundlename;
+    private final String _key;
+    private final Object[] _args;
 
-    protected Token() {
-    }
-
-    public Token(String header) throws ParseException {
-        this(HttpHeaderReader.newInstance(header));
-    }
-
-    public Token(HttpHeaderReader reader) throws ParseException {
-        // Skip any white space
-        reader.hasNext();
-
-        token = reader.nextToken();
-
-        if (reader.hasNext()) {
-            throw new ParseException("Invalid token", reader.getIndex());
+    public LocalizableMessage(String bundlename, String key, Object... args) {
+        _bundlename = bundlename;
+        _key = key;
+        if (args == null) {
+            args = new Object[0];
         }
+        _args = args;
     }
 
-    public String getToken() {
-        return token;
+    @Override
+    public String getKey() {
+        return _key;
     }
 
-    public final boolean isCompatible(String token) {
-        if (this.token.equals("*")) {
-            return true;
-        }
+    @Override
+    public Object[] getArguments() {
+        return _args;
+    }
 
-        return this.token.equals(token);
+    @Override
+    public String getResourceBundleName() {
+        return _bundlename;
     }
 }

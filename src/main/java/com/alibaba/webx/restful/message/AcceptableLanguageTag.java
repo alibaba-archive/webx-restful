@@ -37,37 +37,68 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.text.ParseException;
 
 /**
- * An acceptable token.
- *
+ * An acceptable language tag.
+ * 
  * @author Paul Sandoz
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
-public class AcceptableToken extends Token implements QualityFactor {
+class AcceptableLanguageTag extends LanguageTag implements QualityFactor {
 
-    protected int quality = DEFAULT_QUALITY_FACTOR;
+    private final int quality;
 
-    public AcceptableToken(String header) throws ParseException {
+    public AcceptableLanguageTag(String primaryTag, String subTags){
+        super(primaryTag, subTags);
+        this.quality = DEFAULT_QUALITY_FACTOR;
+    }
+
+    public AcceptableLanguageTag(String header) throws ParseException{
         this(HttpHeaderReader.newInstance(header));
     }
 
-    public AcceptableToken(HttpHeaderReader reader) throws ParseException {
+    public AcceptableLanguageTag(HttpHeaderReader reader) throws ParseException{
         // Skip any white space
         reader.hasNext();
 
-        token = reader.nextToken();
+        tag = reader.nextToken();
+        if (!tag.equals("*")) {
+            parse(tag);
+        } else {
+            primaryTag = tag;
+        }
 
         if (reader.hasNext()) {
             quality = HttpHeaderReader.readQualityFactorParameter(reader);
+        } else {
+            quality = DEFAULT_QUALITY_FACTOR;
         }
     }
 
     @Override
     public int getQuality() {
         return quality;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!super.equals(obj)) {
+            return false;
+        }
+        final AcceptableLanguageTag other = (AcceptableLanguageTag) obj;
+        if (this.quality != other.quality) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        hash = 47 * hash + this.quality;
+        return hash;
     }
 }

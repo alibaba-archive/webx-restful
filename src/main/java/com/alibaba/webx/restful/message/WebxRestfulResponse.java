@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.message.internal;
+package com.alibaba.webx.restful.message;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;

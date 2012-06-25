@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-package com.alibaba.webx.restful.message.internal.l10n;
+package com.alibaba.webx.restful.message.l10n;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
