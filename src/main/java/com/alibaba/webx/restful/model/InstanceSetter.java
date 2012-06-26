@@ -2,12 +2,12 @@ package com.alibaba.webx.restful.model;
 
 import java.lang.reflect.Method;
 
-public class AutowireSetter {
+public class InstanceSetter {
 
     private final Method    method;
     private final Parameter parameter;
 
-    public AutowireSetter(Method method, Parameter parameter){
+    public InstanceSetter(Method method, Parameter parameter){
         this.method = method;
         this.parameter = parameter;
     }

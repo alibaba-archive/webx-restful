@@ -1,8 +1,6 @@
 package com.alibaba.webx.restful.process;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
@@ -10,13 +8,8 @@ import java.util.regex.MatchResult;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
-import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.core.UriInfo;
 
 import org.springframework.context.ApplicationContext;
 
@@ -69,6 +62,10 @@ public class ApplicationHandler {
     private WebxRestfulResponse process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
+        if (resourceMethod == null) {
+            throw new WebxRestfulProcessException("resourceMethod not match : " + requestContext.getUriInfo().getPath());
+        }
+
         Invocable invocable = resourceMethod.getInvocable();
 
         Object resourceInstance = null;
@@ -116,63 +113,6 @@ public class ApplicationHandler {
         } catch (Exception ex) {
             throw new MessageBodyProcessingException(ex.getMessage(), ex);
         }
-    }
-
-    public Object[] getParameterValues(WebxRestfulRequestContext requestContext) {
-        ResourceMethod resourceMethod = requestContext.getResourceMethod();
-        Invocable invocable = resourceMethod.getInvocable();
-        Method method = invocable.getMethod();
-
-        int argsLength = method.getParameterTypes().length;
-        Object[] args = new Object[argsLength];
-        for (int i = 0; i < argsLength; ++i) {
-            Class<?> clazz = method.getParameterTypes()[i];
-            Annotation[] annatations = method.getParameterAnnotations()[i];
-
-            boolean isContext = false;
-            for (Annotation item : annatations) {
-                if (item.annotationType() == Context.class) {
-                    isContext = true;
-                    break;
-                }
-            }
-
-            Object arg = null;
-            if (isContext) {
-                arg = getContextParameter(requestContext, clazz);
-            }
-
-        }
-
-        return args;
-    }
-
-    private Object getContextParameter(WebxRestfulRequestContext requestContext, Class<?> clazz) {
-        if (clazz == HttpServletRequest.class) {
-            return requestContext.getHttpRequest();
-        }
-
-        if (clazz == HttpServletResponse.class) {
-            return requestContext.getHttpResponse();
-        }
-
-        if (clazz == HttpHeaders.class) {
-            return requestContext.getHttpHeaders();
-        }
-
-        if (clazz == SecurityContext.class) {
-            return requestContext.getSecurityContext();
-        }
-
-        if (clazz == UriInfo.class) {
-            return requestContext.getUriInfo();
-        }
-
-        if (clazz == Request.class) {
-            return requestContext.getRequest();
-        }
-
-        throw new RuntimeException("TODO"); // TODO
     }
 
     private void match(WebxRestfulRequestContext requestContext) {

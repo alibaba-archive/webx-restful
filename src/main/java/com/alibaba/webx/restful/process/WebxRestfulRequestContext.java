@@ -23,6 +23,8 @@ import javax.ws.rs.core.UriInfo;
 
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
+import com.alibaba.webx.restful.model.uri.PathPattern;
+import com.alibaba.webx.restful.model.uri.UriTemplate;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WebxRestfulRequestContext implements ContainerRequestContext {
@@ -53,6 +55,8 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
     private Map<String, Object>       properties      = null;
 
     private MessageBodyWorkerProvider workers;
+
+    private Map<String, String>       pathVariables;
 
     public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response,
                                      WebxRestfulMessageBodyWorkerProvider workers){
@@ -250,6 +254,19 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
             request = new WebxRestfulRequest(httpRequest);
         }
         return request;
+    }
+
+    public Map<String, String> getPathVariables() {
+        if (pathVariables == null) {
+            pathVariables = new HashMap<String, String>();
+            
+            PathPattern pathPattern = this.resource.getPathPattern();
+            
+            UriTemplate template = pathPattern.getTemplate();
+            String path = this.getUriInfo().getPath();
+            template.match(path, pathVariables);
+        }
+        return pathVariables;
     }
 
 }

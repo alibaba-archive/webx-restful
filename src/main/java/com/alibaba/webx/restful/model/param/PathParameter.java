@@ -12,7 +12,9 @@ public class PathParameter extends LiteralParameter implements Parameter {
 
     @Override
     public String getLiteralValue(WebxRestfulRequestContext requestContext) {
-        throw new UnsupportedOperationException(); // TODO
+        String varName = this.getName();
+        String value = requestContext.getPathVariables().get(varName);
+        return value;
     }
 
     @Override

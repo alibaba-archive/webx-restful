@@ -11,16 +11,16 @@ public final class InstanceConstructor {
     private final Constructor<?>       constructor;
     private final List<Parameter>      parameters;
 
-    private final List<AutowireSetter> setters;
+    private final List<InstanceSetter> setters;
 
-    public InstanceConstructor(Constructor<?> constructor, List<Parameter> parameters, List<AutowireSetter> setters){
+    public InstanceConstructor(Constructor<?> constructor, List<Parameter> parameters, List<InstanceSetter> setters){
         this.handlerClass = constructor.getDeclaringClass();
         this.constructor = constructor;
         this.parameters = parameters;
         this.setters = setters;
     }
 
-    public List<AutowireSetter> getSetters() {
+    public List<InstanceSetter> getSetters() {
         return setters;
     }
 
@@ -58,7 +58,7 @@ public final class InstanceConstructor {
         }
         Object resourceInstance = constructor.newInstance(constructArgs);
         
-        for (AutowireSetter setter : setters) {
+        for (InstanceSetter setter : setters) {
             Parameter parameter = setter.getParameter();
             Object propertyValue = parameter.getParameterValue(requestContext);
             setter.getMethod().invoke(resourceInstance, propertyValue);

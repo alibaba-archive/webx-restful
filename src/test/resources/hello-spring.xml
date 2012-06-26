@@ -8,7 +8,9 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 	default-lazy-init="false">
 	
 	<bean id="hello-service" class="com.alibaba.webx.restful.examples.helloworld.HelloWorldService">
+	</bean>
 	
+	<bean id="order-service" class="com.alibaba.webx.restful.examples.helloworld.OrderService">
 	</bean>
 
 </beans>

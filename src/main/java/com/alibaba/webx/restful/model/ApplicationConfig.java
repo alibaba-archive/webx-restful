@@ -158,7 +158,7 @@ public class ApplicationConfig extends Application {
     }
 
     public void init(ApplicationContext applicationContxt) {
-        ParameterProvider parameterProvider = new ParameterProviderImpl(); // TODO
+        ParameterProvider parameterProvider = new ParameterProviderImpl(applicationContxt);
 
         Set<Class<?>> result = new HashSet<Class<?>>();
 
@@ -305,13 +305,14 @@ public class ApplicationConfig extends Application {
 
         List<Parameter> parameters = createParameters(parameterProvider, clazz, classInfo, constructor);
 
-        List<AutowireSetter> autowireSetters = createSetters(applicationContxt, clazz);
+        List<InstanceSetter> autowireSetters = createSetters(applicationContxt, parameterProvider, clazz);
 
         return new InstanceConstructor(constructor, parameters, autowireSetters);
     }
 
-    static List<AutowireSetter> createSetters(ApplicationContext applicationContext, Class<?> clazz) throws Exception {
-        List<AutowireSetter> autowireSetters = new ArrayList<AutowireSetter>();
+    static List<InstanceSetter> createSetters(ApplicationContext applicationContext,
+                                              ParameterProvider parameterProvider, Class<?> clazz) throws Exception {
+        List<InstanceSetter> autowireSetters = new ArrayList<InstanceSetter>();
 
         List<Method> declaredMethods = getAllDeclaredMethods(clazz);
         for (Method method : declaredMethods) {
@@ -358,46 +359,28 @@ public class ApplicationConfig extends Application {
             Autowired autowired = method.getAnnotation(Autowired.class);
             Qualifier qualifier = method.getAnnotation(Qualifier.class);
 
+            Annotation[] annotations = method.getAnnotations();
             if (autowired == null) {
                 Field field = ClassUtils.getField(clazz, propertyName);
 
                 if (field != null) {
                     autowired = field.getAnnotation(Autowired.class);
                     qualifier = field.getAnnotation(Qualifier.class);
+                    if (field.getAnnotations().length != 0) {
+                        annotations = field.getAnnotations();
+                    }
                 }
             }
 
-            if (autowired == null) {
-                continue;
+            if (annotations.length == 0) {
+                annotations = method.getParameterAnnotations()[0];
             }
+            Type paramType = method.getGenericParameterTypes()[0];
 
-            Parameter parameter;
+            Parameter parameter = parameterProvider.createParameter(clazz, method, propertyName, setterClass,
+                                                                    paramType, annotations);
 
-            if (setterClass == HttpServletRequest.class) {
-                parameter = new HttpServletRequestParameter();
-            } else if (setterClass == HttpServletResponse.class) {
-                parameter = new HttpServletResponseParameter();
-            } else {
-                Object bean;
-                if (qualifier != null) {
-                    String beanName = qualifier.value();
-                    bean = applicationContext.getBean(beanName);
-                } else {
-                    Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
-                    if (beanMap.size() == 0) {
-                        throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
-                    }
-                    if (beanMap.size() > 1) {
-                        throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
-                    }
-
-                    bean = beanMap.values().iterator().next();
-                }
-
-                parameter = new AutowiredParameter(bean);
-            }
-
-            AutowireSetter setter = new AutowireSetter(method, parameter);
+            InstanceSetter setter = new InstanceSetter(method, parameter);
             autowireSetters.add(setter);
         }
         return autowireSetters;
