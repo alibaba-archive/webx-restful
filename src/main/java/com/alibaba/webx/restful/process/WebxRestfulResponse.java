@@ -43,6 +43,14 @@ public class WebxRestfulResponse extends Response {
         this.headers = headers;
     }
 
+    public GenericType<?> getDeclaredType() {
+        return declaredType;
+    }
+
+    public Set<String> getAllowMethods() {
+        return allowMethods;
+    }
+
     public HttpServletResponse getHttpResponse() {
         return httpResponse;
     }

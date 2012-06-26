@@ -259,12 +259,33 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
     public Map<String, String> getPathVariables() {
         if (pathVariables == null) {
             pathVariables = new HashMap<String, String>();
+
+            {
+                PathPattern pathPattern = this.resource.getPathPattern();
+
+                UriTemplate template = pathPattern.getTemplate();
+
+                List<String> templateVariables = template.getTemplateVariables();
+                for (int i = 0; i < templateVariables.size(); ++i) {
+                    String name = templateVariables.get(0);
+                    String value = this.resourceMatchResult.group(i + 1);
+                    pathVariables.put(name, value);
+                }
+            }
             
-            PathPattern pathPattern = this.resource.getPathPattern();
-            
-            UriTemplate template = pathPattern.getTemplate();
-            String path = this.getUriInfo().getPath();
-            template.match(path, pathVariables);
+            {
+                PathPattern pathPattern = this.resourceMethod.getPathPattern();
+                
+                UriTemplate template = pathPattern.getTemplate();
+                
+                List<String> templateVariables = template.getTemplateVariables();
+                for (int i = 0; i < templateVariables.size(); ++i) {
+                    String name = templateVariables.get(0);
+                    String value = this.resourceMethodMatchResult.group(i + 1);
+                    pathVariables.put(name, value);
+                }
+            }
+
         }
         return pathVariables;
     }

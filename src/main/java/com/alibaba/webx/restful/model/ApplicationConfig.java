@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -34,8 +32,6 @@ import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.finder.FilesScanner;
@@ -44,9 +40,6 @@ import com.alibaba.webx.restful.model.finder.ResourceFinder;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.MethodInfo;
-import com.alibaba.webx.restful.model.param.AutowiredParameter;
-import com.alibaba.webx.restful.model.param.HttpServletRequestParameter;
-import com.alibaba.webx.restful.model.param.HttpServletResponseParameter;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ClassUtils;
@@ -356,19 +349,12 @@ public class ApplicationConfig extends Application {
 
             Class<?> setterClass = method.getParameterTypes()[0];
 
-            Autowired autowired = method.getAnnotation(Autowired.class);
-            Qualifier qualifier = method.getAnnotation(Qualifier.class);
-
             Annotation[] annotations = method.getAnnotations();
-            if (autowired == null) {
-                Field field = ClassUtils.getField(clazz, propertyName);
+            Field field = ClassUtils.getField(clazz, propertyName);
 
-                if (field != null) {
-                    autowired = field.getAnnotation(Autowired.class);
-                    qualifier = field.getAnnotation(Qualifier.class);
-                    if (field.getAnnotations().length != 0) {
-                        annotations = field.getAnnotations();
-                    }
+            if (field != null) {
+                if (field.getAnnotations().length != 0) {
+                    annotations = field.getAnnotations();
                 }
             }
 

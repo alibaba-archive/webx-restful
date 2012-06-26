@@ -10,4 +10,13 @@ public class OrderService {
         
         return order;
     }
+    
+    public Order findOrder(int id, String name) {
+        Order order = new Order();
+        
+        order.setId(id);
+        order.setName(name);
+        
+        return order;
+    }
 }

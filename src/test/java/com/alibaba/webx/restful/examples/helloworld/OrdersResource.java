@@ -35,4 +35,10 @@ public class OrdersResource {
     public Order getOrder() {
         return service.findOrder(id);
     }
+    
+    @GET
+    @Path("{name}")
+    public Order findOrder(@PathParam("id") int id, String name) {
+        return service.findOrder(id, name);
+    }
 }

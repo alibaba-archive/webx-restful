@@ -14,8 +14,15 @@ public class DefaultParameter extends LiteralParameter implements Parameter {
 
     @Override
     public String getLiteralValue(WebxRestfulRequestContext requestContext) {
-        HttpServletRequest httpRequest = requestContext.getHttpRequest();
-        return httpRequest.getParameter(getName());
+        String name = getName();
+        String value = requestContext.getPathVariables().get(name);
+
+        if (value == null) {
+            HttpServletRequest httpRequest = requestContext.getHttpRequest();
+            value = httpRequest.getParameter(name);
+        }
+
+        return value;
     }
 
     @Override
