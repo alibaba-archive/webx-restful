@@ -11,7 +11,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +35,7 @@ import javax.ws.rs.ext.Provider;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.finder.FilesScanner;
@@ -56,24 +56,19 @@ import com.google.common.collect.Sets;
 
 public class ApplicationConfig extends Application {
 
-    private static final Log          LOG                  = LogFactory.getLog(ApplicationConfig.class);
+    private static final Log          LOG           = LogFactory.getLog(ApplicationConfig.class);
     //
-    private transient Set<Class<?>>   cachedClasses        = null;
-    private transient Set<Object>     cachedSingletons     = null;
-    private transient Set<Object>     cachedSingletonsView = null;
+    private transient Set<Class<?>>   cachedClasses = null;
     //
     private final Set<Class<?>>       classes;
-    private final Set<Object>         singletons;
     private final Set<ResourceFinder> resourceFinders;
     //
     private final Set<Resource>       resources;
-    private final Set<Resource>       resourcesView;
     private final Map<String, Object> properties;
-    private final Map<String, Object> propertiesView;
 
     //
     //
-    private ClassLoader               classLoader          = null;
+    private ClassLoader               classLoader   = null;
 
     //
 
@@ -81,12 +76,9 @@ public class ApplicationConfig extends Application {
         this.classLoader = ReflectionUtils.getContextClassLoader();
 
         this.classes = Sets.newHashSet();
-        this.singletons = Sets.newHashSet();
         this.resources = Sets.newHashSet();
-        this.resourcesView = Collections.unmodifiableSet(this.resources);
 
         this.properties = Maps.newHashMap();
-        this.propertiesView = Collections.unmodifiableMap(this.properties);
 
         this.resourceFinders = Sets.newHashSet();
     }
@@ -104,7 +96,7 @@ public class ApplicationConfig extends Application {
     }
 
     public final Set<Resource> getResources() {
-        return resourcesView;
+        return resources;
     }
 
     public void addResources(List<Resource> resources) {
@@ -163,10 +155,6 @@ public class ApplicationConfig extends Application {
         }
 
         return false;
-    }
-
-    private void invalidateCache() {
-
     }
 
     public void init(ApplicationContext applicationContxt) {
@@ -368,12 +356,14 @@ public class ApplicationConfig extends Application {
             Class<?> setterClass = method.getParameterTypes()[0];
 
             Autowired autowired = method.getAnnotation(Autowired.class);
+            Qualifier qualifier = method.getAnnotation(Qualifier.class);
 
             if (autowired == null) {
                 Field field = ClassUtils.getField(clazz, propertyName);
 
                 if (field != null) {
                     autowired = field.getAnnotation(Autowired.class);
+                    qualifier = field.getAnnotation(Qualifier.class);
                 }
             }
 
@@ -388,15 +378,21 @@ public class ApplicationConfig extends Application {
             } else if (setterClass == HttpServletResponse.class) {
                 parameter = new HttpServletResponseParameter();
             } else {
-                Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
-                if (beanMap.size() == 0) {
-                    throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
-                }
-                if (beanMap.size() > 1) {
-                    throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
-                }
+                Object bean;
+                if (qualifier != null) {
+                    String beanName = qualifier.value();
+                    bean = applicationContext.getBean(beanName);
+                } else {
+                    Map<?, ?> beanMap = applicationContext.getBeansOfType(setterClass);
+                    if (beanMap.size() == 0) {
+                        throw new ResourceConfigException("autowired fail, bean not found : " + method.toString());
+                    }
+                    if (beanMap.size() > 1) {
+                        throw new ResourceConfigException("autowired fail, multi instance : " + method.toString());
+                    }
 
-                Object bean = beanMap.values().iterator().next();
+                    bean = beanMap.values().iterator().next();
+                }
 
                 parameter = new AutowiredParameter(bean);
             }
