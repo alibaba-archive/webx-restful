@@ -12,13 +12,9 @@ import java.util.regex.PatternSyntaxException;
 public class UriTemplate {
 
     public static final Comparator<UriTemplate> COMPARATOR             = new UriTemplateComparator();
-    /**
-     * The regular expression for matching URI templates and names.
-     */
+
     private static final Pattern                TEMPLATE_NAMES_PATTERN = Pattern.compile("\\{(\\w[-\\w\\.]*)\\}");
-    /**
-     * The empty URI template that matches the null or empty URI path
-     */
+
     public static final UriTemplate             EMPTY                  = new UriTemplate();
     /**
      * The URI template.

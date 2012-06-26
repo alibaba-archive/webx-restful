@@ -1,36 +1,18 @@
 package com.alibaba.webx.restful.model.uri;
 
-import java.util.Comparator;
 
 public final class PathPattern extends PatternWithGroups {
 
-    public static final PathPattern             EMPTY_PATTERN          = new PathPattern();
+    public static final PathPattern END_OF_PATH_PATTERN    = new PathPattern(
+                                                                             "",
+                                                                             PathPattern.RightHandPath.capturingZeroSegments);
 
-    public static final PathPattern             END_OF_PATH_PATTERN    = new PathPattern(
-                                                                                         "",
-                                                                                         PathPattern.RightHandPath.capturingZeroSegments);
+    public static final PathPattern OPEN_ROOT_PATH_PATTERN = new PathPattern("",
+                                                                             RightHandPath.capturingZeroOrMoreSegments);
 
-    public static final PathPattern             OPEN_ROOT_PATH_PATTERN = new PathPattern(
-                                                                                         "",
-                                                                                         RightHandPath.capturingZeroOrMoreSegments);
-    /**
-     * Path pattern comparator that defers to {@link UriTemplate#COMPARATOR comparing the templates} associated with the
-     * patterns.
-     */
-    public static final Comparator<PathPattern> COMPARATOR             = new PathPatternComparator();
-
-    /**
-     * The set of right hand path patterns that may be appended to a path pattern.
-     */
     public static enum RightHandPath {
-
-        /**
-         * A capturing group that matches zero or more path segments and keeps the matching path template open.
-         */
         capturingZeroOrMoreSegments("(/.*)?"),
-        /**
-         * A capturing group that matches zero segments and effectively closes the matching path template.
-         */
+
         capturingZeroSegments("(/)?");
 
         //
@@ -45,24 +27,8 @@ public final class PathPattern extends PatternWithGroups {
         }
     }
 
-    /**
-     * Return a new path pattern with a same path template but a {@link RightHandPath#capturingZeroSegments closed}
-     * right hand path.
-     * 
-     * @param pattern an (open) path pattern to convert to a closed pattern.
-     * @return closed path pattern for the same path template.
-     */
-    public static PathPattern asClosed(PathPattern pattern) {
-        return new PathPattern(pattern.getTemplate().getTemplate(), RightHandPath.capturingZeroSegments);
-    }
-
     //
     final UriTemplate template;
-
-    private PathPattern(){
-        super();
-        this.template = UriTemplate.EMPTY;
-    }
 
     /**
      * Create a path pattern and post fix with {@link RightHandPath#capturingZeroOrMoreSegments}.

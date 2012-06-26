@@ -22,9 +22,11 @@ public final class Resource {
         this.path = path;
         this.isRoot = isRoot;
 
-        this.pathPattern = (!isRoot || path == null || path.isEmpty()) ? PathPattern.OPEN_ROOT_PATH_PATTERN : new PathPattern(
-                                                                                                                              path,
-                                                                                                                              PathPattern.RightHandPath.capturingZeroOrMoreSegments);
+        if (!isRoot || path == null || path.isEmpty()) {
+            this.pathPattern = PathPattern.OPEN_ROOT_PATH_PATTERN;
+        } else {
+            this.pathPattern = new PathPattern(path, PathPattern.RightHandPath.capturingZeroOrMoreSegments);
+        }
 
         this.resourceMethods = resourceMethods;
         this.subResourceMethods = subResourceMethods;
