@@ -5,7 +5,7 @@ import javax.ws.rs.core.MediaType;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.alibaba.webx.restful.spi.impl.MediaTypeProvider;
+import com.alibaba.webx.restful.process.providers.MediaTypeProvider;
 
 
 public class MediaTypeProviderTest extends TestCase {

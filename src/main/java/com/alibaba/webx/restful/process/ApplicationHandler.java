@@ -18,8 +18,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.ApplicationConfig;
@@ -31,8 +29,6 @@ import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
-
-    private final static Log                     LOG     = LogFactory.getLog(ApplicationHandler.class);
 
     private final ApplicationConfig              config;
 
@@ -59,26 +55,15 @@ public class ApplicationHandler {
 
     }
 
-    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
         WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse,
                                                                                  this.workers);
 
         match(requestContext);
 
-        WebxRestfulResponse response = null;
-        try {
-            response = process(requestContext);
-        } catch (WebxRestfulProcessException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        WebxRestfulResponse response = process(requestContext);
 
-        try {
-            writeResponse(requestContext, response);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        writeResponse(requestContext, response);
     }
 
     private WebxRestfulResponse process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
