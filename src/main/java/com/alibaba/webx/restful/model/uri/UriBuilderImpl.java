@@ -115,54 +115,58 @@ public class UriBuilderImpl extends UriBuilder {
 
     // TODO: add override once the method is added to UriBuilder
     public UriBuilder uri(String uriTemplate) {
-        UriParser parser = new UriParser(uriTemplate);
-        parser.parse();
-
-        if (parser.getFragment() != null) {
-            this.fragment = parser.getFragment();
+        URI uri;
+        try {
+            uri = new URI(uriTemplate);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
 
-        if (parser.isOpaque()) {
-            this.ssp = parser.getSsp();
-            this.scheme = parser.getScheme();
+        if (uri.getFragment() != null) {
+            this.fragment = uri.getFragment();
+        }
+
+        if (uri.isOpaque()) {
+            this.ssp = uri.getSchemeSpecificPart();
+            this.scheme = uri.getScheme();
             return this;
         }
 
-        if (parser.getScheme() == null && this.ssp != null && parser.getSsp() != null) {
+        if (uri.getScheme() == null && this.ssp != null && uri.getSchemeSpecificPart() != null) {
             // relative uri with ssp
-            this.ssp = parser.getSsp();
+            this.ssp = uri.getSchemeSpecificPart();
         } else {
-            this.scheme = parser.getScheme();
+            this.scheme = uri.getScheme();
         }
 
-        if (parser.getAuthority() != null) {
-            if (parser.getAuthority() == null && parser.getHost() == null && parser.getPort() == null) {
-                this.authority = parser.getAuthority();
+        if (uri.getAuthority() != null) {
+            if (uri.getAuthority() == null && uri.getHost() == null && uri.getPort() == -1) {
+                this.authority = uri.getAuthority();
                 this.userInfo = null;
                 this.host = null;
                 this.port = null;
             } else {
                 this.authority = null;
-                if (parser.getUserInfo() != null) {
-                    this.userInfo = parser.getUserInfo();
+                if (uri.getUserInfo() != null) {
+                    this.userInfo = uri.getUserInfo();
                 }
-                if (parser.getHost() != null) {
-                    this.host = parser.getHost();
+                if (uri.getHost() != null) {
+                    this.host = uri.getHost();
                 }
-                if (parser.getPort() != null) {
-                    this.port = parser.getPort();
+                if (uri.getPort() != -1) {
+                    this.port = Integer.toString(uri.getPort());
                 }
             }
 
         }
 
-        if (parser.getPath() != null) {
+        if (uri.getPath() != null) {
             this.path.setLength(0);
-            this.path.append(parser.getPath());
+            this.path.append(uri.getPath());
         }
-        if (parser.getQuery() != null) {
+        if (uri.getQuery() != null) {
             this.query.setLength(0);
-            this.query.append(parser.getQuery());
+            this.query.append(uri.getQuery());
         }
 
         return this;
