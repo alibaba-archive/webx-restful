@@ -8,12 +8,6 @@ import java.io.InputStream;
 import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.ServerProperties;
 
-/**
- * A scanner that recursively scans directories and jar files. Files or jar entries are reported to a
- * {@link ResourceProcessor}.
- * 
- * @author Paul Sandoz
- */
 public class FilesScanner implements ResourceFinder {
 
     private ResourceFinderStack resourceFinderStack = new ResourceFinderStack();

@@ -10,16 +10,14 @@ import java.util.Stack;
 final class FilesScannerResourceFinder implements ResourceFinder {
 
     private final FilesScanner filesScanner;
-    private final File         f;
     Stack<File>                files;
     private File               current;
     private File               next;
 
+    @SuppressWarnings("serial")
     FilesScannerResourceFinder(FilesScanner filesScanner, final File f){
         this.filesScanner = filesScanner;
-        this.f = f;
         files = new Stack<File>() {
-
             {
                 if (f.isDirectory()) {
                     for (File file : f.listFiles()) {

@@ -1,42 +1,3 @@
-/*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
- *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common Development
- * and Distribution License("CDDL") (collectively, the "License").  You
- * may not use this file except in compliance with the License.  You can
- * obtain a copy of the License at
- * http://glassfish.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
- * language governing permissions and limitations under the License.
- *
- * When distributing the software, include this License Header Notice in each
- * file and include the License file at packager/legal/LICENSE.txt.
- *
- * GPL Classpath Exception:
- * Oracle designates this particular file as subject to the "Classpath"
- * exception as provided by Oracle in the GPL Version 2 section of the License
- * file that accompanied this code.
- *
- * Modifications:
- * If applicable, add the following below the License Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyright [year] [name of copyright owner]"
- *
- * Contributor(s):
- * If you wish your version of this file to be governed by only the CDDL or
- * only the GPL Version 2, indicate your decision by adding "[Contributor]
- * elects to include this software in this distribution under the [CDDL or GPL
- * Version 2] license."  If you don't indicate a single choice of license, a
- * recipient has the option to distribute your version of this file under
- * either the CDDL, the GPL Version 2 or to extend the choice of license to
- * its licensees as provided above.  However, if you add GPL Version 2 code
- * and therefore, elected the GPL Version 2 license, then the option applies
- * only if the new code is made subject to such option by the copyright
- * holder.
- */
 package com.alibaba.webx.restful.model.finder;
 
 import java.io.IOException;
@@ -54,58 +15,31 @@ import com.alibaba.webx.restful.model.ServerProperties;
 import com.alibaba.webx.restful.model.uri.UriComponent;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 
-/**
- * A scanner that recursively scans URI-based resources present in a set of
- * package names, and sub-package names of that set.
- * <p>
- * The URIs for a package name are obtained, by default, by invoking
- * {@link ClassLoader#getResources(java.lang.String) } with the parameter that
- * is the package name with "." replaced by "/".
- * <p>
- * Each URI is then scanned using a registered {@link UriSchemeResourceFinderFactory} that
- * supports the URI scheme.
- * <p>
- * The following are registered by default.
- * The {@link FileSchemeResourceFinderFactory} for "file" URI schemes.
- * The {@link JarZipSchemeResourceFinderFactory} for "jar" or "zip" URI schemes to jar
- * resources.
- * The {@link VfsSchemeResourceFinderFactory} for the JBoss-based "vfsfile" and "vfszip"
- * URI schemes.
- * <p>
- * Further schemes may be registered by registering an implementation of
- * {@link UriSchemeResourceFinderFactory} in the META-INF/services file whose name is the
- * the fully qualified class name of {@link UriSchemeResourceFinderFactory}.
- * <p>
- * If a URI scheme is not supported a {@link ResourceFinderException} will be thrown
- * and package scanning deployment will fail.
- *
- * @author Paul Sandoz
- * @author Jakub Podlesak (jakub.podlesak at oracle.com)
- */
 public class PackageNamesScanner implements ResourceFinder {
 
-    private final String[] packages;
-    private final ClassLoader classloader;
+    private final String[]                                    packages;
+    private final ClassLoader                                 classloader;
     private final Map<String, UriSchemeResourceFinderFactory> finderFactories;
 
-    private ResourceFinderStack resourceFinderStack;
+    private ResourceFinderStack                               resourceFinderStack;
 
     /**
      * Scan from a set of packages using the context {@link ClassLoader}.
-     *
+     * 
      * @param packages an array of package names.
      */
-    public PackageNamesScanner(final String[] packages) {
-        this(ReflectionUtils.getContextClassLoader(), ApplicationConfig.getElements(packages, ServerProperties.COMMON_DELIMITERS));
+    public PackageNamesScanner(final String[] packages){
+        this(ReflectionUtils.getContextClassLoader(), ApplicationConfig.getElements(packages,
+                                                                                    ServerProperties.COMMON_DELIMITERS));
     }
 
     /**
      * Scan from a set of packages using provided {@link ClassLoader}.
-     *
+     * 
      * @param classloader the {@link ClassLoader} to load classes from.
      * @param packages an array of package names.
      */
-    public PackageNamesScanner(final ClassLoader classloader, final String[] packages) {
+    public PackageNamesScanner(final ClassLoader classloader, final String[] packages){
         this.packages = packages;
         this.classloader = classloader;
 
@@ -114,10 +48,10 @@ public class PackageNamesScanner implements ResourceFinder {
         add(new FileSchemeResourceFinderFactory());
         add(new VfsSchemeResourceFinderFactory());
 
-//        TODO - Services?
-//        for (UriSchemeResourceFinderFactory s : ServiceFinder.find(UriSchemeResourceFinderFactory.class)) {
-//            add(s);
-//        }
+        // TODO - Services?
+        // for (UriSchemeResourceFinderFactory s : ServiceFinder.find(UriSchemeResourceFinderFactory.class)) {
+        // add(s);
+        // }
 
         init();
     }
@@ -127,7 +61,6 @@ public class PackageNamesScanner implements ResourceFinder {
             finderFactories.put(s.toLowerCase(), uriSchemeResourceFinderFactory);
         }
     }
-
 
     @Override
     public boolean hasNext() {
@@ -159,8 +92,8 @@ public class PackageNamesScanner implements ResourceFinder {
 
         for (final String p : packages) {
             try {
-                final Enumeration<URL> urls = ResourcesProvider.getInstance().
-                        getResources(p.replace('.', '/'), classloader);
+                final Enumeration<URL> urls = ResourcesProvider.getInstance().getResources(p.replace('.', '/'),
+                                                                                           classloader);
                 while (urls.hasMoreElements()) {
                     try {
                         addResourceFinder(toURI(urls.nextElement()));
@@ -193,8 +126,7 @@ public class PackageNamesScanner implements ResourceFinder {
                         provider = result = new ResourcesProvider() {
 
                             @Override
-                            public Enumeration<URL> getResources(String name, ClassLoader cl)
-                                    throws IOException {
+                            public Enumeration<URL> getResources(String name, ClassLoader cl) throws IOException {
                                 return cl.getResources(name);
                             }
                         };
@@ -219,13 +151,11 @@ public class PackageNamesScanner implements ResourceFinder {
 
         /**
          * Find all resources with the given name using a class loader.
-         *
+         * 
          * @param cl the class loader use to find the resources
          * @param name the resource name
-         * @return An enumeration of URL objects for the resource.
-         *         If no resources could be found, the enumeration will be empty.
-         *         Resources that the class loader doesn't have access to will
-         *         not be in the enumeration.
+         * @return An enumeration of URL objects for the resource. If no resources could be found, the enumeration will
+         * be empty. Resources that the class loader doesn't have access to will not be in the enumeration.
          * @throws IOException if I/O errors occur
          */
         public abstract Enumeration<URL> getResources(String name, ClassLoader cl) throws IOException;
@@ -234,9 +164,9 @@ public class PackageNamesScanner implements ResourceFinder {
     /**
      * Set the {@link ResourcesProvider} implementation to find resources.
      * <p>
-     * This method should be invoked before any package scanning is performed
-     * otherwise the functionality method will be utilized.
-     *
+     * This method should be invoked before any package scanning is performed otherwise the functionality method will be
+     * utilized.
+     * 
      * @param provider the resources provider.
      * @throws SecurityException if the resources provider cannot be set.
      */
@@ -249,13 +179,12 @@ public class PackageNamesScanner implements ResourceFinder {
         if (finderFactory != null) {
             resourceFinderStack.push(finderFactory.create(u));
         } else {
-            throw new ResourceFinderException("The URI scheme " + u.getScheme()
-                    + " of the URI " + u
-                    + " is not supported. Package scanning deployment is not"
-                    + " supported for such URIs."
-                    + "\nTry using a different deployment mechanism such as"
-                    + " explicitly declaring root resource and provider classes"
-                    + " using an extension of javax.ws.rs.core.Application");
+            throw new ResourceFinderException("The URI scheme " + u.getScheme() + " of the URI " + u
+                                              + " is not supported. Package scanning deployment is not"
+                                              + " supported for such URIs."
+                                              + "\nTry using a different deployment mechanism such as"
+                                              + " explicitly declaring root resource and provider classes"
+                                              + " using an extension of javax.ws.rs.core.Application");
         }
     }
 
