@@ -2,22 +2,48 @@ package com.alibaba.webx.restful.support.webx3;
 
 import static com.alibaba.citrus.turbine.util.TurbineUtil.getTurbineRunData;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Path;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.objectweb.asm.ClassReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.citrus.service.pipeline.PipelineContext;
 import com.alibaba.citrus.service.pipeline.Valve;
 import com.alibaba.citrus.turbine.TurbineRunDataInternal;
 import com.alibaba.citrus.webx.WebxComponent;
+import com.alibaba.fastjson.util.IOUtils;
+import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.Resource;
+import com.alibaba.webx.restful.model.finder.AnnotatedClassVisitor;
+import com.alibaba.webx.restful.model.finder.ClassInfo;
+import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
+import com.alibaba.webx.restful.process.ApplicationHandler;
+import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.spi.ParameterProvider;
+import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class RestfulValve implements Valve {
 
-    @Autowired
-    private HttpServletRequest request;
+    private final static Log              LOG              = LogFactory.getLog(RestfulValve.class);
 
     @Autowired
-    private WebxComponent      component;
+    private HttpServletRequest            request;
+
+    @Autowired
+    private WebxComponent                 component;
+
+    private volatile WebxRestfulComponent restfulComponent = null;
+
+    public RestfulValve(){
+
+    }
 
     public HttpServletRequest getRequest() {
         return request;
@@ -35,11 +61,75 @@ public class RestfulValve implements Valve {
         this.component = component;
     }
 
+    private synchronized void init() {
+        if (restfulComponent != null) {
+            return;
+        }
+
+        WebApplicationContext applicationContext = component.getApplicationContext();
+        ApplicationConfig config = new ApplicationConfig();
+
+        String[] beanNames = applicationContext.getBeanDefinitionNames();
+        for (String beanName : beanNames) {
+            Class<?> beanClass = applicationContext.getType(beanName);
+            Object bean = applicationContext.getBean(beanName);
+            Path pathAnnotation = beanClass.getAnnotation(Path.class);
+            if (pathAnnotation == null) {
+                continue;
+            }
+
+            if (!ResourceUtils.isAcceptable(beanClass)) {
+                continue;
+            }
+
+            buildResource(config, beanClass, bean);
+        }
+
+        restfulComponent = new WebxRestfulComponent(config, applicationContext);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void buildResource(ApplicationConfig config, Class<?> beanClass, Object bean) {
+        String className = beanClass.getName();
+        String resourceName = className.replace('.', '/') + ".class";
+        InputStream in = null;
+
+        try {
+            in = beanClass.getClassLoader().getResourceAsStream(resourceName);
+
+            AnnotatedClassVisitor classVisitor = new AnnotatedClassVisitor();
+
+            ClassReader classReader = new ClassReader(in);
+            classReader.accept(classVisitor, 0);
+
+            ClassInfo classInfo = classVisitor.getClassInfo();
+
+            WebApplicationContext applicationContext = component.getApplicationContext();
+            ParameterProvider parameterProvider = new ParameterProviderImpl(applicationContext);
+            Resource resource = ResourceUtils.buildResource(applicationContext, parameterProvider, beanClass, classInfo, bean);
+            if (resource != null) {
+                config.addResource(resource);
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        } finally {
+            IOUtils.close(in);
+        }
+    }
+
     @Override
     public void invoke(PipelineContext pipelineContext) throws Exception {
+        if (restfulComponent == null) {
+            init();
+        }
+
         TurbineRunDataInternal rundata = (TurbineRunDataInternal) getTurbineRunData(request);
 
         rundata.getAction();
+        
+        ApplicationHandler handler = restfulComponent.getHandler();
+        
+//        handler.service(httpRequest, httpResponse)
 
         System.out.println();
     }

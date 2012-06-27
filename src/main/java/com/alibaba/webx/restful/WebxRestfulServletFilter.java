@@ -21,8 +21,8 @@ import org.springframework.context.ApplicationContext;
 import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.finder.ResourceFinder;
-import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
@@ -72,7 +72,7 @@ public class WebxRestfulServletFilter implements Filter {
 
         for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
             Resource resource = ResourceUtils.buildResource(applicationContxt, parameterProvider, entry.getKey(),
-                                                            entry.getValue());
+                                                            entry.getValue(), null);
 
             if (resource == null) {
                 continue;

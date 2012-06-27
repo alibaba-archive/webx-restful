@@ -32,17 +32,19 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.InstanceConstructor;
+import com.alibaba.webx.restful.model.InstanceConstructorImpl;
 import com.alibaba.webx.restful.model.InstanceSetter;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.model.SingletonInstanceConstructor;
+import com.alibaba.webx.restful.model.finder.ClassInfo;
+import com.alibaba.webx.restful.model.finder.MethodInfo;
 import com.alibaba.webx.restful.model.finder.PackageNamesScanner;
 import com.alibaba.webx.restful.model.finder.ResourceFinder;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl;
-import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
-import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.MethodInfo;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 
 public class ResourceUtils {
@@ -65,7 +67,7 @@ public class ResourceUtils {
     public static Map<Class<?>, ClassInfo> scanResources(String[] packageNames) {
         return scanResources(new ArrayList<ResourceFinder>(), packageNames);
     }
-    
+
     @SuppressWarnings("unchecked")
     public static Map<Class<?>, ClassInfo> scanResources(Collection<ResourceFinder> finders, String[] packageNames) {
         if (packageNames != null) {
@@ -98,7 +100,7 @@ public class ResourceUtils {
     }
 
     public static Resource buildResource(ApplicationContext applicationContxt, ParameterProvider parameterProvider,
-                                         Class<?> clazz, ClassInfo classInfo) {
+                                         Class<?> clazz, ClassInfo classInfo, Object resouceInstance) {
 
         if (!isAcceptable(clazz)) {
             return null;
@@ -107,16 +109,20 @@ public class ResourceUtils {
         Path pathAnnotation = clazz.getAnnotation(Path.class);
 
         InstanceConstructor handlerConstructor;
-        try {
-            handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz, classInfo);
-        } catch (Exception e) {
-            LOG.error("load resourceClass error. class '" + clazz.getName() + "'", e);
-            return null;
-        }
+        if (resouceInstance == null) {
+            try {
+                handlerConstructor = createHandlerConstructor(applicationContxt, parameterProvider, clazz, classInfo);
+            } catch (Exception e) {
+                LOG.error("load resourceClass error. class '" + clazz.getName() + "'", e);
+                return null;
+            }
 
-        if (handlerConstructor == null) {
-            LOG.error("load resourceClass error, constructor not found. class '" + clazz.getName() + "'");
-            return null;
+            if (handlerConstructor == null) {
+                LOG.error("load resourceClass error, constructor not found. class '" + clazz.getName() + "'");
+                return null;
+            }
+        } else {
+            handlerConstructor = new SingletonInstanceConstructor(clazz, resouceInstance);
         }
 
         String name = clazz.getName();
@@ -305,9 +311,10 @@ public class ResourceUtils {
         return true;
     }
 
-    private static InstanceConstructor createHandlerConstructor(ApplicationContext applicationContxt,
-                                                                ParameterProvider parameterProvider, Class<?> clazz,
-                                                                ClassInfo classInfo) throws Exception {
+    private static InstanceConstructorImpl createHandlerConstructor(ApplicationContext applicationContxt,
+                                                                    ParameterProvider parameterProvider,
+                                                                    Class<?> clazz, ClassInfo classInfo)
+                                                                                                        throws Exception {
 
         Constructor<?> constructor = null;
         for (Constructor<?> item : clazz.getConstructors()) {
@@ -325,7 +332,7 @@ public class ResourceUtils {
 
         List<InstanceSetter> autowireSetters = createSetters(applicationContxt, parameterProvider, clazz);
 
-        return new InstanceConstructor(constructor, parameters, autowireSetters);
+        return new InstanceConstructorImpl(constructor, parameters, autowireSetters);
     }
 
     static List<InstanceSetter> createSetters(ApplicationContext applicationContext,

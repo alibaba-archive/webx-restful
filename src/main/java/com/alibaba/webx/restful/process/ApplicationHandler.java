@@ -52,6 +52,10 @@ public class ApplicationHandler {
         WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse,
                                                                                  this.workers);
 
+        service(requestContext);
+    }
+
+    public void service(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException, IOException {
         match(requestContext);
 
         WebxRestfulResponse response = process(requestContext);
