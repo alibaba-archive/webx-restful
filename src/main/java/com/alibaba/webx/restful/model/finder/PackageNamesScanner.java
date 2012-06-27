@@ -10,10 +10,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.ServerProperties;
 import com.alibaba.webx.restful.model.uri.UriComponent;
 import com.alibaba.webx.restful.util.ReflectionUtils;
+import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class PackageNamesScanner implements ResourceFinder {
 
@@ -23,22 +23,11 @@ public class PackageNamesScanner implements ResourceFinder {
 
     private ResourceFinderStack                               resourceFinderStack;
 
-    /**
-     * Scan from a set of packages using the context {@link ClassLoader}.
-     * 
-     * @param packages an array of package names.
-     */
     public PackageNamesScanner(final String[] packages){
-        this(ReflectionUtils.getContextClassLoader(), ApplicationConfig.getElements(packages,
+        this(ReflectionUtils.getContextClassLoader(), ResourceUtils.getElements(packages,
                                                                                     ServerProperties.COMMON_DELIMITERS));
     }
 
-    /**
-     * Scan from a set of packages using provided {@link ClassLoader}.
-     * 
-     * @param classloader the {@link ClassLoader} to load classes from.
-     * @param packages an array of package names.
-     */
     public PackageNamesScanner(final ClassLoader classloader, final String[] packages){
         this.packages = packages;
         this.classloader = classloader;
@@ -47,11 +36,6 @@ public class PackageNamesScanner implements ResourceFinder {
         add(new JarZipSchemeResourceFinderFactory());
         add(new FileSchemeResourceFinderFactory());
         add(new VfsSchemeResourceFinderFactory());
-
-        // TODO - Services?
-        // for (UriSchemeResourceFinderFactory s : ServiceFinder.find(UriSchemeResourceFinderFactory.class)) {
-        // add(s);
-        // }
 
         init();
     }

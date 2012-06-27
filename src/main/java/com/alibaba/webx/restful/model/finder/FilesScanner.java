@@ -5,8 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.alibaba.webx.restful.model.ApplicationConfig;
 import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class FilesScanner implements ResourceFinder {
 
@@ -29,7 +29,7 @@ public class FilesScanner implements ResourceFinder {
      * @param fileNames an array of package names.
      */
     public FilesScanner(final String[] fileNames){
-        files = new File[ApplicationConfig.getElements(fileNames, ServerProperties.COMMON_DELIMITERS).length];
+        files = new File[ResourceUtils.getElements(fileNames, ServerProperties.COMMON_DELIMITERS).length];
         for (int i = 0; i < files.length; i++) {
             files[i] = new File(fileNames[i]);
         }

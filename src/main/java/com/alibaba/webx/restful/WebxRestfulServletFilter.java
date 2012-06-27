@@ -1,8 +1,10 @@
 package com.alibaba.webx.restful;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.Filter;
@@ -17,10 +19,17 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.Resource;
+import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.model.finder.ResourceFinder;
+import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
+import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
+import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class WebxRestfulServletFilter implements Filter {
 
@@ -44,21 +53,42 @@ public class WebxRestfulServletFilter implements Filter {
 
     private ApplicationConfig createResourceConfig(FilterConfig filterConfig, ApplicationContext applicationContxt)
                                                                                                                    throws ServletException {
-        final Map<String, Object> initParams = getInitParams(filterConfig);
 
         final ApplicationConfig applicationConfig = new ApplicationConfig();
-        applicationConfig.addProperties(initParams);
 
-        final String webapp = (String) applicationConfig.getProperty(PROVIDER_WEB_APP);
-        if (webapp != null && !"false".equals(webapp)) {
-            applicationConfig.addFinder(new WebAppResourcesScanner(filterConfig.getServletContext()));
-        }
+        List<ResourceFinder> resourceFinders = new ArrayList<ResourceFinder>();
+        resourceFinders.add(new WebAppResourcesScanner(filterConfig.getServletContext()));
 
         ApplicationContextUtils.setApplicationContext(applicationContxt);
 
-        applicationConfig.init(applicationContxt);
+        ParameterProvider parameterProvider = new ParameterProviderImpl(applicationContxt);
+
+        String[] packageNames = getConfigPackageNames(filterConfig);
+        if (packageNames != null && packageNames.length != 0) {
+
+        }
+
+        Map<Class<?>, ClassInfo> scanResult = ResourceUtils.scanResources(resourceFinders, packageNames);
+
+        for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
+            Resource resource = ResourceUtils.buildResource(applicationContxt, parameterProvider, entry.getKey(),
+                                                            entry.getValue());
+
+            if (resource == null) {
+                continue;
+            }
+
+            applicationConfig.addResource(resource);
+        }
 
         return applicationConfig;
+    }
+
+    private String[] getConfigPackageNames(FilterConfig filterConfig) {
+        final Map<String, Object> initParams = getInitParams(filterConfig);
+        String packageProperty = (String) initParams.get(ServerProperties.PROVIDER_PACKAGES);
+        String[] packageNames = ResourceUtils.parsePropertyValue(packageProperty);
+        return packageNames;
     }
 
     private Map<String, Object> getInitParams(FilterConfig webConfig) {
