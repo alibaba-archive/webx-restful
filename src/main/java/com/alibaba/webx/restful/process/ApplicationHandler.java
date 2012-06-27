@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.springframework.context.ApplicationContext;
 
@@ -48,9 +49,10 @@ public class ApplicationHandler {
 
     }
 
-    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws IOException {
+    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
+                                                                                                          throws IOException {
         WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse,
-                                                                                 this.workers);
+                                                                                 this.workers, uriInfo);
 
         service(requestContext);
     }
@@ -106,8 +108,7 @@ public class ApplicationHandler {
         return response;
     }
 
-    public void writeResponse(RestfulRequestContext requestContext, WebxRestfulResponse response)
-                                                                                                     throws IOException {
+    public void writeResponse(RestfulRequestContext requestContext, WebxRestfulResponse response) throws IOException {
         MessageBodyWorkerProvider workers = requestContext.getWorkers();
         WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
                                                                                                          response);

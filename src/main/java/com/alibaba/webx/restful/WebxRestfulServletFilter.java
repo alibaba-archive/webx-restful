@@ -15,6 +15,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.UriInfo;
 
 import org.springframework.context.ApplicationContext;
 
@@ -27,6 +28,7 @@ import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.process.WebxRestfulUriInfo;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 import com.alibaba.webx.restful.util.ResourceUtils;
@@ -109,7 +111,9 @@ public class WebxRestfulServletFilter implements Filter {
 
         ApplicationHandler handler = component.getHandler();
 
-        handler.service(httpRequest, httpResponse);
+        UriInfo uriInfo = new WebxRestfulUriInfo(httpRequest);
+
+        handler.service(httpRequest, httpResponse, uriInfo);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.process.WebxRestfulUriInfo;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ResourceUtils;
 
@@ -138,13 +139,11 @@ public class RestfulValve implements Valve {
 
         TurbineRunDataInternal rundata = (TurbineRunDataInternal) getTurbineRunData(request);
 
-        rundata.getAction();
-
         ApplicationHandler handler = restfulComponent.getHandler();
 
-        // handler.service(httpRequest, httpResponse)
+        WebxRestfulUriInfo uriInfo = new WebxRestfulUriInfo(rundata.getTarget());
 
-        System.out.println();
+        handler.service(request, response, uriInfo);
     }
 
 }

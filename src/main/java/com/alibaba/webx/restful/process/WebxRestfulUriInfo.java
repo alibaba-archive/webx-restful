@@ -11,27 +11,33 @@ import javax.ws.rs.core.UriInfo;
 
 public class WebxRestfulUriInfo implements UriInfo {
 
-    private final HttpServletRequest httpRequest;
-
-    private transient String         path;
+    private String path;
 
     public WebxRestfulUriInfo(HttpServletRequest httpRequest){
-        this.httpRequest = httpRequest;
+        this(getPath(httpRequest));
+    }
+
+    public WebxRestfulUriInfo(String path){
+        if (path.endsWith(".json")) {
+            this.path = path.substring(0, path.length() - 5);
+        } else {
+            this.path = path;
+        }
+    }
+
+    static String getPath(HttpServletRequest httpRequest) {
+        String servletPath = httpRequest.getServletPath();
+        if (servletPath.length() == 0) {
+            servletPath = "/";
+        }
+        String contextPath = httpRequest.getContextPath();
+        String requestURI = httpRequest.getRequestURI();
+
+        return requestURI.substring(servletPath.length() + contextPath.length());
     }
 
     @Override
     public String getPath() {
-        if (path == null) {
-            String servletPath = httpRequest.getServletPath();
-            if (servletPath.length() == 0) {
-                servletPath = "/";
-            }
-            String contextPath = httpRequest.getContextPath();
-            String requestURI = httpRequest.getRequestURI();
-
-            path = requestURI.substring(servletPath.length() + contextPath.length());
-        }
-
         return path;
     }
 
