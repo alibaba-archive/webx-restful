@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.core.GenericType;
 
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public final class Invocable {
 
@@ -48,7 +48,7 @@ public final class Invocable {
         return parameters;
     }
 
-    public Object[] getArguments(WebxRestfulRequestContext requestContext) throws Exception {
+    public Object[] getArguments(RestfulRequestContext requestContext) throws Exception {
         Object[] args = new Object[parameters.size()];
         for (int i = 0; i < args.length; ++i) {
             Parameter parameter = parameters.get(i);

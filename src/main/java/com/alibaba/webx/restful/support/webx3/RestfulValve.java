@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Path;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +38,9 @@ public class RestfulValve implements Valve {
     private HttpServletRequest            request;
 
     @Autowired
+    private HttpServletResponse           response;
+
+    @Autowired
     private WebxComponent                 component;
 
     private volatile WebxRestfulComponent restfulComponent = null;
@@ -51,6 +55,14 @@ public class RestfulValve implements Valve {
 
     public void setRequest(HttpServletRequest request) {
         this.request = request;
+    }
+
+    public HttpServletResponse getResponse() {
+        return response;
+    }
+
+    public void setResponse(HttpServletResponse response) {
+        this.response = response;
     }
 
     public WebxComponent getComponent() {
@@ -106,7 +118,8 @@ public class RestfulValve implements Valve {
 
             WebApplicationContext applicationContext = component.getApplicationContext();
             ParameterProvider parameterProvider = new ParameterProviderImpl(applicationContext);
-            Resource resource = ResourceUtils.buildResource(applicationContext, parameterProvider, beanClass, classInfo, bean);
+            Resource resource = ResourceUtils.buildResource(applicationContext, parameterProvider, beanClass,
+                                                            classInfo, bean);
             if (resource != null) {
                 config.addResource(resource);
             }
@@ -126,10 +139,10 @@ public class RestfulValve implements Valve {
         TurbineRunDataInternal rundata = (TurbineRunDataInternal) getTurbineRunData(request);
 
         rundata.getAction();
-        
+
         ApplicationHandler handler = restfulComponent.getHandler();
-        
-//        handler.service(httpRequest, httpResponse)
+
+        // handler.service(httpRequest, httpResponse)
 
         System.out.println();
     }

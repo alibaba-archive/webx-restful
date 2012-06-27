@@ -2,7 +2,7 @@ package com.alibaba.webx.restful.model.param;
 
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConvertException;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public class AutowiredParameter implements Parameter {
 
@@ -18,7 +18,7 @@ public class AutowiredParameter implements Parameter {
     }
 
     @Override
-    public Object getParameterValue(WebxRestfulRequestContext requestContext) throws TypeConvertException {
+    public Object getParameterValue(RestfulRequestContext requestContext) throws TypeConvertException {
         return object;
     }
 

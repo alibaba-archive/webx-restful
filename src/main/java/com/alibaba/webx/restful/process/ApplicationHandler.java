@@ -55,7 +55,7 @@ public class ApplicationHandler {
         service(requestContext);
     }
 
-    public void service(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException, IOException {
+    public void service(RestfulRequestContext requestContext) throws WebxRestfulProcessException, IOException {
         match(requestContext);
 
         WebxRestfulResponse response = process(requestContext);
@@ -63,7 +63,7 @@ public class ApplicationHandler {
         writeResponse(requestContext, response);
     }
 
-    private WebxRestfulResponse process(WebxRestfulRequestContext requestContext) throws WebxRestfulProcessException {
+    private WebxRestfulResponse process(RestfulRequestContext requestContext) throws WebxRestfulProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         if (resourceMethod == null) {
@@ -106,7 +106,7 @@ public class ApplicationHandler {
         return response;
     }
 
-    public void writeResponse(WebxRestfulRequestContext requestContext, WebxRestfulResponse response)
+    public void writeResponse(RestfulRequestContext requestContext, WebxRestfulResponse response)
                                                                                                      throws IOException {
         MessageBodyWorkerProvider workers = requestContext.getWorkers();
         WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
@@ -119,7 +119,7 @@ public class ApplicationHandler {
         }
     }
 
-    private void match(WebxRestfulRequestContext requestContext) {
+    private void match(RestfulRequestContext requestContext) {
         String path = requestContext.getUriInfo().getPath();
 
         List<Resource> matchedResources = new ArrayList<Resource>();

@@ -1,7 +1,7 @@
 package com.alibaba.webx.restful.model;
 
 import com.alibaba.webx.restful.model.converter.TypeConvertException;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 /**
  * Abstraction for a method parameter
@@ -14,6 +14,6 @@ public interface Parameter {
 
     Source getSource();
 
-    Object getParameterValue(WebxRestfulRequestContext requestContext) throws TypeConvertException;
+    Object getParameterValue(RestfulRequestContext requestContext) throws TypeConvertException;
 
 }

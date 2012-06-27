@@ -2,7 +2,7 @@ package com.alibaba.webx.restful.model.param;
 
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public class PathParameter extends LiteralParameter implements Parameter {
 
@@ -11,7 +11,7 @@ public class PathParameter extends LiteralParameter implements Parameter {
     }
 
     @Override
-    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
+    public String getLiteralValue(RestfulRequestContext requestContext) {
         String varName = this.getName();
         String value = requestContext.getPathVariables().get(varName);
         return value;

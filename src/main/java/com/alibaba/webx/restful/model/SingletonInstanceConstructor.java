@@ -1,6 +1,6 @@
 package com.alibaba.webx.restful.model;
 
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public class SingletonInstanceConstructor implements InstanceConstructor {
 
@@ -14,7 +14,7 @@ public class SingletonInstanceConstructor implements InstanceConstructor {
     }
 
     @Override
-    public Object createInstance(WebxRestfulRequestContext requestContext) throws Exception {
+    public Object createInstance(RestfulRequestContext requestContext) throws Exception {
         return object;
     }
 

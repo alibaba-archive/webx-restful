@@ -3,7 +3,7 @@ package com.alibaba.webx.restful.model.param;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConvertException;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public abstract class LiteralParameter implements Parameter {
 
@@ -19,7 +19,7 @@ public abstract class LiteralParameter implements Parameter {
     }
 
     @Override
-    public Object getParameterValue(WebxRestfulRequestContext requestContext) throws TypeConvertException {
+    public Object getParameterValue(RestfulRequestContext requestContext) throws TypeConvertException {
         String literalValue = getLiteralValue(requestContext);
 
         if (literalValue == null || literalValue.length() == 0) {
@@ -29,7 +29,7 @@ public abstract class LiteralParameter implements Parameter {
         return typeConverter.convert(literalValue);
     }
 
-    public abstract String getLiteralValue(WebxRestfulRequestContext requestContext);
+    public abstract String getLiteralValue(RestfulRequestContext requestContext);
 
     public String getName() {
         return name;

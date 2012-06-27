@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.converter.TypeConverter;
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public class CookieParameter extends LiteralParameter implements Parameter {
 
@@ -14,7 +14,7 @@ public class CookieParameter extends LiteralParameter implements Parameter {
     }
 
     @Override
-    public String getLiteralValue(WebxRestfulRequestContext requestContext) {
+    public String getLiteralValue(RestfulRequestContext requestContext) {
         HttpServletRequest httpRequest = requestContext.getHttpRequest();
 
         String cookieName = getName();

@@ -1,10 +1,10 @@
 package com.alibaba.webx.restful.model;
 
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public interface InstanceConstructor {
 
-    Object createInstance(WebxRestfulRequestContext requestContext) throws Exception;
+    Object createInstance(RestfulRequestContext requestContext) throws Exception;
 
     Class<?> getHandlerClass();
 }

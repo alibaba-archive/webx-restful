@@ -11,7 +11,6 @@ import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -27,7 +26,7 @@ import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.model.uri.UriTemplate;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
-public class WebxRestfulRequestContext implements ContainerRequestContext {
+public class WebxRestfulRequestContext implements RestfulRequestContext {
 
     private final HttpServletRequest  httpRequest;
     private final HttpServletResponse httpResponse;
@@ -272,12 +271,12 @@ public class WebxRestfulRequestContext implements ContainerRequestContext {
                     pathVariables.put(name, value);
                 }
             }
-            
+
             {
                 PathPattern pathPattern = this.resourceMethod.getPathPattern();
-                
+
                 UriTemplate template = pathPattern.getTemplate();
-                
+
                 List<String> templateVariables = template.getTemplateVariables();
                 for (int i = 0; i < templateVariables.size(); ++i) {
                     String name = templateVariables.get(0);

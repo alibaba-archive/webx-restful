@@ -3,7 +3,7 @@ package com.alibaba.webx.restful.model;
 import java.lang.reflect.Constructor;
 import java.util.List;
 
-import com.alibaba.webx.restful.process.WebxRestfulRequestContext;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 
 public final class InstanceConstructorImpl implements InstanceConstructor {
 
@@ -50,7 +50,7 @@ public final class InstanceConstructorImpl implements InstanceConstructor {
         return false;
     }
 
-    public Object createInstance(WebxRestfulRequestContext requestContext) throws Exception {
+    public Object createInstance(RestfulRequestContext requestContext) throws Exception {
         Object[] constructArgs = new Object[parameters.size()];
         for (int i = 0; i < constructArgs.length; ++i) {
             Parameter parameter = parameters.get(i);
