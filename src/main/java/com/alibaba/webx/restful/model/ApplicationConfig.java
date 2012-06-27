@@ -1,6 +1,5 @@
 package com.alibaba.webx.restful.model;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -11,7 +10,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,64 +26,36 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.Provider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.model.finder.FilesScanner;
-import com.alibaba.webx.restful.model.finder.PackageNamesScanner;
 import com.alibaba.webx.restful.model.finder.ResourceFinder;
-import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.ClassInfo;
 import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.MethodInfo;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ClassUtils;
 import com.alibaba.webx.restful.util.Maps;
-import com.alibaba.webx.restful.util.ReflectionUtils;
+import com.alibaba.webx.restful.util.ResourceUtils;
 import com.alibaba.webx.restful.util.Sets;
 
 public class ApplicationConfig extends Application {
 
-    private static final Log          LOG           = LogFactory.getLog(ApplicationConfig.class);
-    //
-    private transient Set<Class<?>>   cachedClasses = null;
-    //
+    private static final Log          LOG = LogFactory.getLog(ApplicationConfig.class);
     private final Set<Class<?>>       classes;
     private final Set<ResourceFinder> resourceFinders;
-    //
     private final Set<Resource>       resources;
     private final Map<String, Object> properties;
 
-    //
-    //
-    private ClassLoader               classLoader   = null;
-
-    //
-
     public ApplicationConfig(){
-        this.classLoader = ReflectionUtils.getContextClassLoader();
-
         this.classes = Sets.newHashSet();
         this.resources = Sets.newHashSet();
 
         this.properties = Maps.newHashMap();
 
         this.resourceFinders = Sets.newHashSet();
-    }
-
-    void lock() {
-
-    }
-
-    public ClassLoader getClassLoader() {
-        return classLoader;
-    }
-
-    public Set<Class<?>> getClasses() {
-        return cachedClasses;
     }
 
     public final Set<Resource> getResources() {
@@ -153,26 +123,8 @@ public class ApplicationConfig extends Application {
     public void init(ApplicationContext applicationContxt) {
         ParameterProvider parameterProvider = new ParameterProviderImpl(applicationContxt);
 
-        Set<Class<?>> result = new HashSet<Class<?>>();
-
-        // classes registered via configuration property
-        String[] classNames = parsePropertyValue(ServerProperties.PROVIDER_CLASSNAMES);
-        if (classNames != null) {
-            for (String className : classNames) {
-                try {
-                    result.add(classLoader.loadClass(className));
-                } catch (ClassNotFoundException e) {
-                    LOG.error(e.getMessage(), e);
-                }
-            }
-        }
-
-        Map<Class<?>, ClassInfo> scanResult = scanResources();
-
-        result.addAll(scanResult.keySet());
-        result.addAll(classes);
-
-        cachedClasses = result;
+        String[] packageNames = parsePropertyValue(ServerProperties.PROVIDER_PACKAGES);
+        Map<Class<?>, ClassInfo> scanResult = ResourceUtils.scanResources(packageNames);
 
         for (Map.Entry<Class<?>, ClassInfo> entry : scanResult.entrySet()) {
             Resource resource = buildResource(applicationContxt, parameterProvider, entry.getKey(), entry.getValue());
@@ -470,41 +422,6 @@ public class ApplicationConfig extends Application {
             c = c.getSuperclass();
         }
         return l;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<Class<?>, ClassInfo> scanResources() {
-        Set<ResourceFinder> finders = new HashSet<ResourceFinder>(resourceFinders);
-        String[] packageNames = parsePropertyValue(ServerProperties.PROVIDER_PACKAGES);
-        if (packageNames != null) {
-            finders.add(new PackageNamesScanner(packageNames));
-        }
-
-        String[] classPathElements = parsePropertyValue(ServerProperties.PROVIDER_CLASSPATH);
-        if (classPathElements != null) {
-            finders.add(new FilesScanner(classPathElements));
-        }
-
-        Class<? extends Annotation>[] annotations = (Class<? extends Annotation>[]) new Class<?>[] { Path.class,
-                Provider.class };
-        ResourceProcessorImpl resourceProcessor = new ResourceProcessorImpl(classLoader, annotations);
-        for (ResourceFinder resourceFinder : finders) {
-            while (resourceFinder.hasNext()) {
-                final String next = resourceFinder.next();
-
-                if (resourceProcessor.accept(next)) {
-                    try {
-                        resourceProcessor.process(next, resourceFinder.open());
-                    } catch (IOException e) {
-                        // TODO L10N
-                        LOG.warn("Unable to process {" + next + "}", e);
-                    }
-                }
-            }
-        }
-
-        Map<Class<?>, ClassInfo> processResult = resourceProcessor.getAnnotatedClasses();
-        return processResult;
     }
 
     private String[] parsePropertyValue(String propertyName) {

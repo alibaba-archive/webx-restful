@@ -41,23 +41,25 @@ package com.alibaba.webx.restful.model;
 
 /**
  * Jersey server-side configuration properties.
- *
+ * 
  * @author Marek Potociar (marek.potociar at oracle.com)
  */
 public final class ServerProperties {
 
     /**
-     * Defines one or more packages that contain application-specific resources and
-     * providers. If the property is set, the specified packages will be scanned for
-     * JAX-RS root resources (annotated with {@link javax.ws.rs.Path @Path}) and
-     * providers (annotated with {@link javax.ws.rs.ext.Provider @Provider}).
-     * <p></p>
-     * The property value MUST be an instance of {@link String} or {@code String[]}
-     * array. Each {@code String} instance represents one or more package names
-     * that MUST be separated only by characters declared in {@link #COMMON_DELIMITERS}.
-     * <p></p>
+     * Defines one or more packages that contain application-specific resources and providers. If the property is set,
+     * the specified packages will be scanned for JAX-RS root resources (annotated with {@link javax.ws.rs.Path @Path})
+     * and providers (annotated with {@link javax.ws.rs.ext.Provider @Provider}).
+     * <p>
+     * </p>
+     * The property value MUST be an instance of {@link String} or {@code String[]} array. Each {@code String} instance
+     * represents one or more package names that MUST be separated only by characters declared in
+     * {@link #COMMON_DELIMITERS}.
+     * <p>
+     * </p>
      * A default value is not set.
-     * <p></p>
+     * <p>
+     * </p>
      * The name of the configuration property is <code>{@value}</code>.
      */
     // TODO add support for ':' and any (number of consecutive) whitespace(s).
@@ -65,50 +67,11 @@ public final class ServerProperties {
     public static final String PROVIDER_PACKAGES = "webx.restful.provider.packages";
 
     /**
-     * Defines class-path that contains application-specific resources and
-     * providers. If the property is set, the specified class-path will be scanned
-     * for JAX-RS root resources (annotated with {@link javax.ws.rs.Path @Path})
-     * and providers (annotated with {@link javax.ws.rs.ext.Provider @Provider}).
-     * Each path element MUST be an absolute or relative directory, or a Jar file.
-     * The contents of a directory, including Java class files, jars files
-     * and sub-directories are scanned (recursively).
-     * <p></p>
-     * The property value MUST be an instance of {@link String} or {@code String[]}
-     * array. Each {@code String} instance represents one or more paths
-     * that MUST be separated only by characters declared in {@link #COMMON_DELIMITERS}.
-     * <p></p>
-     * A default value is not set.
-     * <p></p>
-     * The name of the configuration property is <code>{@value}</code>.
-     */
-    // TODO add support for ':' and any (number of consecutive) whitespace(s).
-    // TODO implement generic support
-    public static final String PROVIDER_CLASSPATH = "jersey.config.server.provider.classpath";
-
-    /**
-     * Defines one or more class names that implement application-specific resources
-     * and providers. If the property is set, the specified classes will be instantiated
-     * and registered as either application JAX-RS root resources (annotated with
-     * {@link javax.ws.rs.Path @Path}) or providers (annotated with
-     * {@link javax.ws.rs.ext.Provider @Provider}).
-     * <p></p>
-     * The property value MUST be an instance of {@link String} or {@code String[]}
-     * array. Each {@code String} instance represents one or more class names
-     * that MUST be separated only by characters declared in {@link #COMMON_DELIMITERS}.
-     * <p></p>
-     * A default value is not set.
-     * <p></p>
-     * The name of the configuration property is <code>{@value}</code>.
-     */
-    // TODO implement generic support
-    public static final String PROVIDER_CLASSNAMES = "jersey.config.server.provider.classnames";
-
-    /**
      * Common delimiters used by various properties.
      */
     public static final String COMMON_DELIMITERS = " ,;\n";
 
-    private ServerProperties() {
+    private ServerProperties(){
         // prevents instantiation
     }
 }

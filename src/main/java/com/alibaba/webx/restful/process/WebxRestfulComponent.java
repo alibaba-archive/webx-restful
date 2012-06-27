@@ -13,7 +13,7 @@ public class WebxRestfulComponent {
 
     public WebxRestfulComponent(ApplicationConfig config, ApplicationContext applicationContext){
         Assert.assertNotNull(applicationContext);
-        
+
         this.config = config;
         handler = new ApplicationHandler(config, applicationContext);
     }
@@ -25,4 +25,5 @@ public class WebxRestfulComponent {
     public ApplicationHandler getHandler() {
         return handler;
     }
+
 }
