@@ -43,9 +43,9 @@ import com.alibaba.webx.restful.model.finder.ResourceProcessorImpl.MethodInfo;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ClassUtils;
+import com.alibaba.webx.restful.util.Maps;
 import com.alibaba.webx.restful.util.ReflectionUtils;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.alibaba.webx.restful.util.Sets;
 
 public class ApplicationConfig extends Application {
 
@@ -474,21 +474,21 @@ public class ApplicationConfig extends Application {
 
     @SuppressWarnings("unchecked")
     private Map<Class<?>, ClassInfo> scanResources() {
-        Set<ResourceFinder> rfs = new HashSet<ResourceFinder>(resourceFinders);
+        Set<ResourceFinder> finders = new HashSet<ResourceFinder>(resourceFinders);
         String[] packageNames = parsePropertyValue(ServerProperties.PROVIDER_PACKAGES);
         if (packageNames != null) {
-            rfs.add(new PackageNamesScanner(packageNames));
+            finders.add(new PackageNamesScanner(packageNames));
         }
 
         String[] classPathElements = parsePropertyValue(ServerProperties.PROVIDER_CLASSPATH);
         if (classPathElements != null) {
-            rfs.add(new FilesScanner(classPathElements));
+            finders.add(new FilesScanner(classPathElements));
         }
 
         Class<? extends Annotation>[] annotations = (Class<? extends Annotation>[]) new Class<?>[] { Path.class,
                 Provider.class };
         ResourceProcessorImpl resourceProcessor = new ResourceProcessorImpl(classLoader, annotations);
-        for (ResourceFinder resourceFinder : rfs) {
+        for (ResourceFinder resourceFinder : finders) {
             while (resourceFinder.hasNext()) {
                 final String next = resourceFinder.next();
 

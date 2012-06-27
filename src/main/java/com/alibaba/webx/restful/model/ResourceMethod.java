@@ -9,7 +9,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.MediaType;
 
 import com.alibaba.webx.restful.model.uri.PathPattern;
-import com.google.common.collect.Lists;
+import com.alibaba.webx.restful.util.Lists;
 
 public class ResourceMethod implements ResourceInfo {
 

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.MessageProcessingException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Link.Builder;
 import javax.ws.rs.core.MediaType;
@@ -18,8 +19,6 @@ import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
-
-import com.google.common.net.HttpHeaders;
 
 public class WebxRestfulResponse extends Response {
 

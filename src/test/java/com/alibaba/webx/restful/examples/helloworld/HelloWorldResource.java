@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Path("helloworld")
 public class HelloWorldResource {
 
+    @Autowired
     private HttpServletRequest request;
 
     @Autowired(required = true)
