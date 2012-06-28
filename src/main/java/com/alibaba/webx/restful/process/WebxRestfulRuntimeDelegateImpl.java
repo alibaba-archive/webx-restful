@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.webx.restful.model.uri.UriBuilderImpl;
+import com.alibaba.webx.restful.process.impl.VariantListBuilderImpl;
 import com.alibaba.webx.restful.process.providers.CacheControlProvider;
 import com.alibaba.webx.restful.process.providers.CookieEntityTagProvider;
 import com.alibaba.webx.restful.process.providers.EntityTagProvider;
@@ -53,8 +54,8 @@ public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDeleg
     }
 
     @Override
-    public VariantListBuilder createVariantListBuilder() {
-        return new VariantListBuilder();
+    public VariantListBuilderImpl createVariantListBuilder() {
+        return new VariantListBuilderImpl();
     }
 
     @Override

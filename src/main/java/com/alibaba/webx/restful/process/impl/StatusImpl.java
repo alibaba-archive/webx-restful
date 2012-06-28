@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import javax.ws.rs.core.Response.Status.Family;
 import javax.ws.rs.core.Response.StatusType;

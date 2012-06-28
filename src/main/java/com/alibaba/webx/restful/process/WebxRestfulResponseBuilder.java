@@ -23,6 +23,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Variant;
 
+import com.alibaba.webx.restful.process.impl.StatusImpl;
+
 
 public class WebxRestfulResponseBuilder extends ResponseBuilder {
 

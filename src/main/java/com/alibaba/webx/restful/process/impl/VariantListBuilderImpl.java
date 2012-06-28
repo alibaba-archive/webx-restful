@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ import java.util.Locale;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Variant;
 
-public class VariantListBuilder extends Variant.VariantListBuilder {
+public class VariantListBuilderImpl extends Variant.VariantListBuilder {
 
     private List<Variant>         variants;
     private final List<MediaType> mediaTypes = new ArrayList<MediaType>();
@@ -26,7 +26,7 @@ public class VariantListBuilder extends Variant.VariantListBuilder {
     }
 
     @Override
-    public VariantListBuilder add() {
+    public VariantListBuilderImpl add() {
         if (variants == null) {
             variants = new ArrayList<Variant>();
         }
@@ -76,19 +76,19 @@ public class VariantListBuilder extends Variant.VariantListBuilder {
     }
 
     @Override
-    public VariantListBuilder languages(Locale... languages) {
+    public VariantListBuilderImpl languages(Locale... languages) {
         this.languages.addAll(Arrays.asList(languages));
         return this;
     }
 
     @Override
-    public VariantListBuilder encodings(String... encodings) {
+    public VariantListBuilderImpl encodings(String... encodings) {
         this.encodings.addAll(Arrays.asList(encodings));
         return this;
     }
 
     @Override
-    public VariantListBuilder mediaTypes(MediaType... mediaTypes) {
+    public VariantListBuilderImpl mediaTypes(MediaType... mediaTypes) {
         this.mediaTypes.addAll(Arrays.asList(mediaTypes));
         return this;
     }

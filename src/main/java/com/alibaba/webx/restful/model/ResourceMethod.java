@@ -17,11 +17,6 @@ public class ResourceMethod implements ResourceInfo {
      * Resource method classification based on the recognized JAX-RS resource method types.
      */
     public static enum JaxrsType {
-        /**
-         * JAX-RS resource method.
-         * <p/>
-         * Does not have a path template assigned. Is assigned to a particular HTTP method.
-         */
         RESOURCE_METHOD {
 
             @Override
@@ -30,11 +25,7 @@ public class ResourceMethod implements ResourceInfo {
                 return PathPattern.END_OF_PATH_PATTERN;
             }
         },
-        /**
-         * JAX-RS sub-resource method.
-         * <p/>
-         * Has a sub-path template assigned and is assigned to a particular HTTP method.
-         */
+
         SUB_RESOURCE_METHOD {
 
             @Override
@@ -42,12 +33,7 @@ public class ResourceMethod implements ResourceInfo {
                 return new PathPattern(pathTemplate, PathPattern.RightHandPath.capturingZeroSegments);
             }
         },
-        /**
-         * JAX-RS sub-resource locator.
-         * <p/>
-         * Has a sub-path template assigned but is not assigned to any particular HTTP method. Instead it produces a
-         * sub-resource instance that should be further used in the request URI matching.
-         */
+
         SUB_RESOURCE_LOCATOR {
 
             @Override
@@ -113,31 +99,14 @@ public class ResourceMethod implements ResourceInfo {
         this.invocable = invocable;
     }
 
-    /**
-     * Get the JAX-RS method type.
-     * 
-     * @return the JAX-RS method type.
-     */
     public JaxrsType getType() {
         return type;
     }
 
-    /**
-     * Get the associated HTTP method.
-     * <p/>
-     * May return {@code null} in case the method represents a sub-resource locator.
-     * 
-     * @return the associated HTTP method, or {@code null} in case this method represents a sub-resource locator.
-     */
     public String getHttpMethod() {
         return httpMethod;
     }
 
-    /**
-     * Get the invocable method model.
-     * 
-     * @return invocable method model.
-     */
     public Invocable getInvocable() {
         return invocable;
     }

@@ -1,6 +1,7 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,20 +10,23 @@ import javax.ws.rs.core.PathSegment;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-public class WebxRestfulUriInfo implements UriInfo {
+public class UriInfoImpl implements UriInfo {
 
-    private String path;
+    private final String             path;
+    private final HttpServletRequest httpRequest;
+    private transient URI            requestURI = null;
 
-    public WebxRestfulUriInfo(HttpServletRequest httpRequest){
-        this(getPath(httpRequest));
+    public UriInfoImpl(HttpServletRequest httpRequest){
+        this(httpRequest, getPath(httpRequest));
     }
 
-    public WebxRestfulUriInfo(String path){
+    public UriInfoImpl(HttpServletRequest httpRequest, String path){
         if (path.endsWith(".json")) {
             this.path = path.substring(0, path.length() - 5);
         } else {
             this.path = path;
         }
+        this.httpRequest = httpRequest;
     }
 
     static String getPath(HttpServletRequest httpRequest) {
@@ -43,8 +47,7 @@ public class WebxRestfulUriInfo implements UriInfo {
 
     @Override
     public String getPath(boolean decode) {
-        // TODO Auto-generated method stub
-        return null;
+        return path;
     }
 
     @Override
@@ -61,8 +64,15 @@ public class WebxRestfulUriInfo implements UriInfo {
 
     @Override
     public URI getRequestUri() {
-        // TODO Auto-generated method stub
-        return null;
+        if (requestURI == null) {
+            try {
+                requestURI = new URI(httpRequest.getRequestURI());
+            } catch (URISyntaxException e) {
+                throw new IllegalStateException(e.getMessage(), e);
+            }
+        }
+
+        return requestURI;
     }
 
     @Override
@@ -73,26 +83,22 @@ public class WebxRestfulUriInfo implements UriInfo {
 
     @Override
     public URI getAbsolutePath() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public UriBuilder getAbsolutePathBuilder() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public URI getBaseUri() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public UriBuilder getBaseUriBuilder() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
