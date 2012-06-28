@@ -1,6 +1,7 @@
 package com.alibaba.webx.restful.model;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +10,6 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.MediaType;
 
 import com.alibaba.webx.restful.model.uri.PathPattern;
-import com.alibaba.webx.restful.util.Lists;
 
 public class ResourceMethod implements ResourceInfo {
 
@@ -108,8 +108,8 @@ public class ResourceMethod implements ResourceInfo {
         this.path = path;
         this.pathPattern = type.createPatternFor(path);
 
-        this.consumedTypes = Collections.unmodifiableList(Lists.newArrayList(consumedTypes));
-        this.producedTypes = Collections.unmodifiableList(Lists.newArrayList(producedTypes));
+        this.consumedTypes = Collections.unmodifiableList(new ArrayList<MediaType>(consumedTypes));
+        this.producedTypes = Collections.unmodifiableList(new ArrayList<MediaType>(producedTypes));
         this.invocable = invocable;
     }
 
