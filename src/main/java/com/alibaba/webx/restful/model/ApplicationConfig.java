@@ -5,26 +5,38 @@ import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import com.alibaba.webx.restful.util.Sets;
+import com.alibaba.webx.restful.util.ConcurrentIdentityHashMap;
 
 public class ApplicationConfig extends Application {
 
-    private final Set<Resource> resources;
+    private static final Object                               PRESENT   = new Object();
+
+    private final ConcurrentIdentityHashMap<Resource, Object> resources = new ConcurrentIdentityHashMap<Resource, Object>();
+
+    private final ConcurrentIdentityHashMap<Object, Object>   instances = new ConcurrentIdentityHashMap<Object, Object>();
 
     public ApplicationConfig(){
-        this.resources = Sets.newHashSet();
     }
 
     public final Set<Resource> getResources() {
-        return resources;
+        return resources.keySet();
     }
 
     public void addResources(List<Resource> resources) {
-        this.resources.addAll(resources);
+        for (Resource item : resources) {
+            this.resources.put(item, PRESENT);
+        }
     }
 
     public void addResource(Resource resource) {
-        this.resources.add(resource);
+        this.resources.put(resource, PRESENT);
     }
 
+    public Set<Object> getSingletons() {
+        return instances.keySet();
+    }
+
+    public Object addSingleton(Object instance) {
+        return this.instances.put(instance, PRESENT);
+    }
 }
