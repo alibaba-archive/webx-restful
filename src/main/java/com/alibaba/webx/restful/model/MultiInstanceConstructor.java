@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.alibaba.webx.restful.process.RestfulRequestContext;
 
-public final class InstanceConstructorImpl implements InstanceConstructor {
+public final class MultiInstanceConstructor implements InstanceConstructor {
 
     private final Class<?>             handlerClass;
     private final Constructor<?>       constructor;
@@ -13,7 +13,7 @@ public final class InstanceConstructorImpl implements InstanceConstructor {
 
     private final List<InstanceSetter> setters;
 
-    public InstanceConstructorImpl(Constructor<?> constructor, List<Parameter> parameters, List<InstanceSetter> setters){
+    public MultiInstanceConstructor(Constructor<?> constructor, List<Parameter> parameters, List<InstanceSetter> setters){
         this.handlerClass = constructor.getDeclaringClass();
         this.constructor = constructor;
         this.parameters = parameters;

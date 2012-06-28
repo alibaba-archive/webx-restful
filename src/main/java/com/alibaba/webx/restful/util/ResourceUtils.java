@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
 import com.alibaba.webx.restful.model.InstanceConstructor;
-import com.alibaba.webx.restful.model.InstanceConstructorImpl;
+import com.alibaba.webx.restful.model.MultiInstanceConstructor;
 import com.alibaba.webx.restful.model.InstanceSetter;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Parameter;
@@ -311,7 +311,7 @@ public class ResourceUtils {
         return true;
     }
 
-    private static InstanceConstructorImpl createHandlerConstructor(ApplicationContext applicationContxt,
+    private static MultiInstanceConstructor createHandlerConstructor(ApplicationContext applicationContxt,
                                                                     ParameterProvider parameterProvider,
                                                                     Class<?> clazz, ClassInfo classInfo)
                                                                                                         throws Exception {
@@ -332,7 +332,7 @@ public class ResourceUtils {
 
         List<InstanceSetter> autowireSetters = createSetters(applicationContxt, parameterProvider, clazz);
 
-        return new InstanceConstructorImpl(constructor, parameters, autowireSetters);
+        return new MultiInstanceConstructor(constructor, parameters, autowireSetters);
     }
 
     static List<InstanceSetter> createSetters(ApplicationContext applicationContext,
