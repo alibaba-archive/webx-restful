@@ -24,6 +24,7 @@ import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.model.uri.UriTemplate;
+import com.alibaba.webx.restful.process.impl.RequestImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WebxRestfulRequestContext implements RestfulRequestContext {
@@ -42,7 +43,7 @@ public class WebxRestfulRequestContext implements RestfulRequestContext {
 
     private HttpHeaders               httpHeaders     = null;
 
-    private WebxRestfulRequest        request         = null;
+    private RequestImpl        request         = null;
     private SecurityContext           securityContext = null;
 
     private Date                      date;
@@ -248,7 +249,7 @@ public class WebxRestfulRequestContext implements RestfulRequestContext {
     @Override
     public Request getRequest() {
         if (request == null) {
-            request = new WebxRestfulRequest(httpRequest);
+            request = new RequestImpl(httpRequest);
         }
         return request;
     }

@@ -18,17 +18,18 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
+import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WebxRestfulWriterInterceptorContext implements WriterInterceptorContext {
 
     private final MessageBodyWorkerProvider   workers;
 
-    private final WebxRestfulResponse         response;
+    private final ResponseImpl         response;
 
     private final Iterator<WriterInterceptor> iterator;
 
-    public WebxRestfulWriterInterceptorContext(MessageBodyWorkerProvider workers, WebxRestfulResponse response){
+    public WebxRestfulWriterInterceptorContext(MessageBodyWorkerProvider workers, ResponseImpl response){
         this.workers = workers;
         this.response = response;
 

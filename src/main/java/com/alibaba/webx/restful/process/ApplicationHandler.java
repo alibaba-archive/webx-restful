@@ -19,6 +19,7 @@ import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
+import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
@@ -60,12 +61,12 @@ public class ApplicationHandler {
     public void service(RestfulRequestContext requestContext) throws WebxRestfulProcessException, IOException {
         match(requestContext);
 
-        WebxRestfulResponse response = process(requestContext);
+        ResponseImpl response = process(requestContext);
 
         writeResponse(requestContext, response);
     }
 
-    private WebxRestfulResponse process(RestfulRequestContext requestContext) throws WebxRestfulProcessException {
+    private ResponseImpl process(RestfulRequestContext requestContext) throws WebxRestfulProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         if (resourceMethod == null) {
@@ -103,12 +104,12 @@ public class ApplicationHandler {
             responseBuilder = Response.ok(returnObject);
         }
 
-        WebxRestfulResponse response = (WebxRestfulResponse) responseBuilder.build();
+        ResponseImpl response = (ResponseImpl) responseBuilder.build();
         response.setHttpResponse(requestContext.getHttpResponse());
         return response;
     }
 
-    public void writeResponse(RestfulRequestContext requestContext, WebxRestfulResponse response) throws IOException {
+    public void writeResponse(RestfulRequestContext requestContext, ResponseImpl response) throws IOException {
         MessageBodyWorkerProvider workers = requestContext.getWorkers();
         WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
                                                                                                          response);

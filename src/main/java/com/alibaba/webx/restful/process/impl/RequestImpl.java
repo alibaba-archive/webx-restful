@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.util.Date;
 import java.util.List;
@@ -8,11 +8,11 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Variant;
 
-public class WebxRestfulRequest implements javax.ws.rs.core.Request {
+public class RequestImpl implements javax.ws.rs.core.Request {
 
     private final HttpServletRequest httpRequest;
 
-    public WebxRestfulRequest(HttpServletRequest httpRequest){
+    public RequestImpl(HttpServletRequest httpRequest){
         this.httpRequest = httpRequest;
     }
 

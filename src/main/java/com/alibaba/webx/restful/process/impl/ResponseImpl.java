@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;
@@ -20,7 +20,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 
-public class WebxRestfulResponse extends Response {
+public class ResponseImpl extends Response {
 
     private StatusType                         status;
     private Object                             entity;
@@ -31,7 +31,7 @@ public class WebxRestfulResponse extends Response {
 
     private HttpServletResponse                httpResponse;
 
-    public WebxRestfulResponse(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
+    public ResponseImpl(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
                                Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
         super();
         this.status = status;

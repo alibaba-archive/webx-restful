@@ -23,6 +23,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Variant;
 
+import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.process.impl.StatusImpl;
 
 
@@ -45,7 +46,7 @@ public class WebxRestfulResponseBuilder extends ResponseBuilder {
 
     @Override
     public Response build() {
-        WebxRestfulResponse response = new WebxRestfulResponse(status, entity, annotations, declaredType, allowMethods,
+        ResponseImpl response = new ResponseImpl(status, entity, annotations, declaredType, allowMethods,
                                                                headers);
         return response;
     }
