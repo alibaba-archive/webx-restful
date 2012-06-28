@@ -23,32 +23,27 @@ public class RequestImpl implements javax.ws.rs.core.Request {
 
     @Override
     public Variant selectVariant(List<Variant> variants) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ResponseBuilder evaluatePreconditions(EntityTag eTag) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ResponseBuilder evaluatePreconditions(Date lastModified) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ResponseBuilder evaluatePreconditions(Date lastModified, EntityTag eTag) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public ResponseBuilder evaluatePreconditions() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

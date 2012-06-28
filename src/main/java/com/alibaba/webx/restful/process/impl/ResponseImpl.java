@@ -32,7 +32,7 @@ public class ResponseImpl extends Response {
     private HttpServletResponse                httpResponse;
 
     public ResponseImpl(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
-                               Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
+                        Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
         super();
         this.status = status;
         this.entity = entity;
@@ -178,8 +178,7 @@ public class ResponseImpl extends Response {
 
     @Override
     public Date getDate() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -194,32 +193,27 @@ public class ResponseImpl extends Response {
 
     @Override
     public Set<Link> getLinks() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean hasLink(String relation) {
-        // TODO Auto-generated method stub
         return false;
     }
 
     @Override
     public Link getLink(String relation) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Builder getLinkBuilder(String relation) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public MultivaluedMap<String, Object> getMetadata() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }

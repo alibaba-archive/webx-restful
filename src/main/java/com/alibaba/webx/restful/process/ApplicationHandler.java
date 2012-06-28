@@ -3,6 +3,7 @@ package com.alibaba.webx.restful.process;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +12,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.springframework.context.ApplicationContext;
 
@@ -25,11 +27,11 @@ import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
 
-    private final ApplicationConfig              config;
+    private final ApplicationConfig    config;
 
-    private ApplicationContext                   applicationContext;
+    private ApplicationContext         applicationContext;
 
-    private WebxRestfulMessageBodyWorkerProvider workers = new WebxRestfulMessageBodyWorkerProvider();
+    private MessageBodyWorkerProviders workers = new MessageBodyWorkerProviders();
 
     public ApplicationHandler(Application application, ApplicationContext applicationContext){
         ApplicationContextUtils.setApplicationContext(applicationContext);
@@ -48,6 +50,12 @@ public class ApplicationHandler {
     private void initialize() {
         workers.addMessageBodyWriter(new JSONMessageBodyWriter());
 
+        Map map = applicationContext.getBeansOfType(MessageBodyWriter.class);
+
+        for (Object item : map.values()) {
+            MessageBodyWriter writer = (MessageBodyWriter) item;
+            workers.addMessageBodyWriter(writer);
+        }
     }
 
     public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
@@ -58,8 +66,12 @@ public class ApplicationHandler {
         service(requestContext);
     }
 
-    public void service(RestfulRequestContext requestContext) throws WebxRestfulProcessException, IOException {
+    public void service(RestfulRequestContext requestContext) throws IOException {
         match(requestContext);
+
+        if (requestContext.getResourceMethod() == null) {
+            throw new WebxRestfulProcessException("no resource matched");
+        }
 
         ResponseImpl response = process(requestContext);
 
@@ -77,7 +89,7 @@ public class ApplicationHandler {
 
         Object resourceInstance = null;
         try {
-            resourceInstance = invocable.getConstructor().createInstance(requestContext);
+            resourceInstance = invocable.createInstance(requestContext);
         } catch (Exception e) {
             throw new WebxRestfulProcessException("createResourceInstance error", e);
         }

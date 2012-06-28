@@ -62,4 +62,8 @@ public final class Invocable {
         Object returnObject = method.invoke(instance, args);
         return returnObject;
     }
+    
+    public Object createInstance(RestfulRequestContext requestContext) throws Exception {
+        return this.constructor.createInstance(requestContext);
+    }
 }

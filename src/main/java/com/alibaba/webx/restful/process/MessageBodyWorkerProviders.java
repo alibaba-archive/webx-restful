@@ -13,7 +13,7 @@ import javax.ws.rs.ext.WriterInterceptor;
 
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
-public class WebxRestfulMessageBodyWorkerProvider implements MessageBodyWorkerProvider {
+public class MessageBodyWorkerProviders implements MessageBodyWorkerProvider {
 
     private List<MessageBodyWriter<?>> messageBodyWriters = new ArrayList<MessageBodyWriter<?>>();
     private Set<WriterInterceptor>     writeInterceptors  = new LinkedHashSet<WriterInterceptor>();

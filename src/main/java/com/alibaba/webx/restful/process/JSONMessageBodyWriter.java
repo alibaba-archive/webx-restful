@@ -20,16 +20,13 @@ public class JSONMessageBodyWriter<T> implements MessageBodyWriter<T> {
         if (mediaType == null) {
             return true;
         }
-
-        if (MediaType.APPLICATION_XML.equals(mediaType)) {
-            return false;
-        }
-
-        if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
+        
+        if (mediaType == MediaType.APPLICATION_JSON_TYPE) {
             return true;
         }
 
-        return false;
+        String subtype = mediaType.getSubtype();
+        return "json".equalsIgnoreCase(subtype) || subtype.endsWith("+json");
     }
 
     @Override

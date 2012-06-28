@@ -59,7 +59,7 @@ public class WebxRestfulRequestContext implements RestfulRequestContext {
     private Map<String, String>       pathVariables;
 
     public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response,
-                                     WebxRestfulMessageBodyWorkerProvider workers, UriInfo uriInfo){
+                                     MessageBodyWorkerProviders workers, UriInfo uriInfo){
         super();
         this.httpRequest = request;
         this.httpResponse = response;
