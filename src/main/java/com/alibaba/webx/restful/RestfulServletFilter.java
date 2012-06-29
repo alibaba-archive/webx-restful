@@ -34,10 +34,7 @@ import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class RestfulServletFilter implements Filter {
 
-    public static final String   JAXRS_APPLICATION_CLASS = "javax.ws.rs.Application";
-    public static final String   PROVIDER_WEB_APP        = "jersey.config.servlet.provider.webapp";
-
-    private RestfulComponent component               = null;
+    private RestfulComponent component = null;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -48,12 +45,17 @@ public class RestfulServletFilter implements Filter {
         component = new RestfulComponent(applicationConfig, applicationContxt);
     }
 
+    @Override
+    public void destroy() {
+
+    }
+
     public RestfulComponent getComponent() {
         return component;
     }
 
     private ApplicationImpl createResourceConfig(FilterConfig filterConfig, ApplicationContext applicationContxt)
-                                                                                                                   throws ServletException {
+                                                                                                                 throws ServletException {
 
         final ApplicationImpl applicationConfig = new ApplicationImpl();
 
@@ -113,11 +115,6 @@ public class RestfulServletFilter implements Filter {
         UriInfo uriInfo = new UriInfoImpl(httpRequest);
 
         handler.service(httpRequest, httpResponse, uriInfo);
-    }
-
-    @Override
-    public void destroy() {
-
     }
 
 }
