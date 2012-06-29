@@ -19,9 +19,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.ApplicationImpl;
 import com.alibaba.webx.restful.model.Resource;
-import com.alibaba.webx.restful.model.ServerProperties;
 import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.finder.ResourceFinder;
 import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
@@ -44,7 +43,7 @@ public class WebxRestfulServletFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         ApplicationContext applicationContxt = ApplicationContextUtils.getApplicationContext(filterConfig.getServletContext());
 
-        ApplicationConfig applicationConfig = createResourceConfig(filterConfig, applicationContxt);
+        ApplicationImpl applicationConfig = createResourceConfig(filterConfig, applicationContxt);
 
         component = new WebxRestfulComponent(applicationConfig, applicationContxt);
     }
@@ -53,10 +52,10 @@ public class WebxRestfulServletFilter implements Filter {
         return component;
     }
 
-    private ApplicationConfig createResourceConfig(FilterConfig filterConfig, ApplicationContext applicationContxt)
+    private ApplicationImpl createResourceConfig(FilterConfig filterConfig, ApplicationContext applicationContxt)
                                                                                                                    throws ServletException {
 
-        final ApplicationConfig applicationConfig = new ApplicationConfig();
+        final ApplicationImpl applicationConfig = new ApplicationImpl();
 
         List<ResourceFinder> resourceFinders = new ArrayList<ResourceFinder>();
         resourceFinders.add(new WebAppResourcesScanner(filterConfig.getServletContext()));
@@ -88,7 +87,7 @@ public class WebxRestfulServletFilter implements Filter {
 
     private String[] getConfigPackageNames(FilterConfig filterConfig) {
         final Map<String, Object> initParams = getInitParams(filterConfig);
-        String packageProperty = (String) initParams.get(ServerProperties.PROVIDER_PACKAGES);
+        String packageProperty = (String) initParams.get(Constants.PROVIDER_PACKAGES);
         String[] packageNames = ResourceUtils.parsePropertyValue(packageProperty);
         return packageNames;
     }

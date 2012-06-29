@@ -6,8 +6,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.mock.web.MockFilterConfig;
 import org.springframework.mock.web.MockServletContext;
 
+import com.alibaba.webx.restful.Constants;
 import com.alibaba.webx.restful.WebxRestfulServletFilter;
-import com.alibaba.webx.restful.model.ServerProperties;
 import com.alibaba.webx.restful.process.WebxRestfulComponent;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
@@ -26,7 +26,7 @@ public class HelloworldTestBase extends TestCase {
 
         MockFilterConfig filterConfig = new MockFilterConfig(servletContext);
 
-        filterConfig.addInitParameter(ServerProperties.PROVIDER_PACKAGES,
+        filterConfig.addInitParameter(Constants.PROVIDER_PACKAGES,
                                       "com.alibaba.webx.restful.examples.helloworld");
 
         filter = new WebxRestfulServletFilter();

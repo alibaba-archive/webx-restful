@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 
+import com.alibaba.webx.restful.Constants;
 import com.alibaba.webx.restful.model.InstanceConstructor;
 import com.alibaba.webx.restful.model.MultiInstanceConstructor;
 import com.alibaba.webx.restful.model.InstanceSetter;
@@ -38,7 +39,6 @@ import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Parameter;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.model.ServerProperties;
 import com.alibaba.webx.restful.model.SingletonInstanceConstructor;
 import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.finder.MethodInfo;
@@ -56,9 +56,9 @@ public class ResourceUtils {
         final Object o = property;
         if (o != null) {
             if (o instanceof String) {
-                classNames = getElements((String) o, ServerProperties.COMMON_DELIMITERS);
+                classNames = getElements((String) o, Constants.COMMON_DELIMITERS);
             } else if (o instanceof String[]) {
-                classNames = getElements((String[]) o, ServerProperties.COMMON_DELIMITERS);
+                classNames = getElements((String[]) o, Constants.COMMON_DELIMITERS);
             }
         }
         return classNames;

@@ -7,7 +7,7 @@ import javax.ws.rs.core.Application;
 
 import com.alibaba.webx.restful.util.ConcurrentIdentityHashMap;
 
-public class ApplicationConfig extends Application {
+public class ApplicationImpl extends Application {
 
     private static final Object                               PRESENT   = new Object();
 
@@ -15,7 +15,7 @@ public class ApplicationConfig extends Application {
 
     private final ConcurrentIdentityHashMap<Object, Object>   instances = new ConcurrentIdentityHashMap<Object, Object>();
 
-    public ApplicationConfig(){
+    public ApplicationImpl(){
     }
 
     public final Set<Resource> getResources() {

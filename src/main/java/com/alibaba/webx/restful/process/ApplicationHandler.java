@@ -16,7 +16,7 @@ import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.springframework.context.ApplicationContext;
 
-import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.ApplicationImpl;
 import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
@@ -28,7 +28,7 @@ import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
 
-    private final ApplicationConfig    config;
+    private final ApplicationImpl    config;
 
     private ApplicationContext         applicationContext;
 
@@ -37,7 +37,7 @@ public class ApplicationHandler {
     public ApplicationHandler(Application application, ApplicationContext applicationContext){
         ApplicationContextUtils.setApplicationContext(applicationContext);
 
-        this.config = (ApplicationConfig) application;
+        this.config = (ApplicationImpl) application;
         this.applicationContext = applicationContext;
 
         initialize();

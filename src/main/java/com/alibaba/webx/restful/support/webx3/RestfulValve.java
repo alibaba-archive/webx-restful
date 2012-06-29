@@ -20,7 +20,7 @@ import com.alibaba.citrus.service.pipeline.Valve;
 import com.alibaba.citrus.turbine.TurbineRunDataInternal;
 import com.alibaba.citrus.webx.WebxComponent;
 import com.alibaba.fastjson.util.IOUtils;
-import com.alibaba.webx.restful.model.ApplicationConfig;
+import com.alibaba.webx.restful.model.ApplicationImpl;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.finder.AnnotatedClassVisitor;
 import com.alibaba.webx.restful.model.finder.ClassInfo;
@@ -80,7 +80,7 @@ public class RestfulValve implements Valve {
         }
 
         WebApplicationContext applicationContext = component.getApplicationContext();
-        ApplicationConfig config = new ApplicationConfig();
+        ApplicationImpl config = new ApplicationImpl();
 
         String[] beanNames = applicationContext.getBeanDefinitionNames();
         for (String beanName : beanNames) {
@@ -102,7 +102,7 @@ public class RestfulValve implements Valve {
     }
 
     @SuppressWarnings("unchecked")
-    private void buildResource(ApplicationConfig config, Class<?> beanClass, Object bean) {
+    private void buildResource(ApplicationImpl config, Class<?> beanClass, Object bean) {
         String className = beanClass.getName();
         String resourceName = className.replace('.', '/') + ".class";
         InputStream in = null;

@@ -10,7 +10,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.alibaba.webx.restful.model.ServerProperties;
+import com.alibaba.webx.restful.Constants;
 import com.alibaba.webx.restful.model.uri.UriComponent;
 import com.alibaba.webx.restful.util.ReflectionUtils;
 import com.alibaba.webx.restful.util.ResourceUtils;
@@ -25,7 +25,7 @@ public class PackageNamesScanner implements ResourceFinder {
 
     public PackageNamesScanner(final String[] packages){
         this(ReflectionUtils.getContextClassLoader(), ResourceUtils.getElements(packages,
-                                                                                    ServerProperties.COMMON_DELIMITERS));
+                                                                                    Constants.COMMON_DELIMITERS));
     }
 
     public PackageNamesScanner(final ClassLoader classloader, final String[] packages){
