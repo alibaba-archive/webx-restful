@@ -8,7 +8,7 @@ import org.springframework.mock.web.MockServletContext;
 
 import com.alibaba.webx.restful.Constants;
 import com.alibaba.webx.restful.WebxRestfulServletFilter;
-import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.process.RestfulComponent;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class HelloworldTestBase extends TestCase {
@@ -16,7 +16,7 @@ public class HelloworldTestBase extends TestCase {
     protected ClassPathXmlApplicationContext applicationContext;
     protected MockServletContext             servletContext;
     protected WebxRestfulServletFilter       filter;
-    protected WebxRestfulComponent           component;
+    protected RestfulComponent           component;
 
     protected void setUp() throws Exception {
         applicationContext = new ClassPathXmlApplicationContext("hello-spring.xml");

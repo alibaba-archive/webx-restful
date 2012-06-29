@@ -5,12 +5,12 @@ import org.springframework.util.Assert;
 
 import com.alibaba.webx.restful.model.ApplicationImpl;
 
-public class WebxRestfulComponent {
+public class RestfulComponent {
 
     private final ApplicationImpl  config;
     private final ApplicationHandler handler;
 
-    public WebxRestfulComponent(ApplicationImpl config, ApplicationContext applicationContext){
+    public RestfulComponent(ApplicationImpl config, ApplicationContext applicationContext){
         Assert.notNull(applicationContext);
 
         this.config = config;

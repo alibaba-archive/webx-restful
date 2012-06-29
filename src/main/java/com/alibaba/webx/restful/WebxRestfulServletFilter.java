@@ -26,7 +26,7 @@ import com.alibaba.webx.restful.model.finder.ResourceFinder;
 import com.alibaba.webx.restful.model.finder.WebAppResourcesScanner;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
-import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.process.RestfulComponent;
 import com.alibaba.webx.restful.process.impl.UriInfoImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
@@ -37,7 +37,7 @@ public class WebxRestfulServletFilter implements Filter {
     public static final String   JAXRS_APPLICATION_CLASS = "javax.ws.rs.Application";
     public static final String   PROVIDER_WEB_APP        = "jersey.config.servlet.provider.webapp";
 
-    private WebxRestfulComponent component               = null;
+    private RestfulComponent component               = null;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -45,10 +45,10 @@ public class WebxRestfulServletFilter implements Filter {
 
         ApplicationImpl applicationConfig = createResourceConfig(filterConfig, applicationContxt);
 
-        component = new WebxRestfulComponent(applicationConfig, applicationContxt);
+        component = new RestfulComponent(applicationConfig, applicationContxt);
     }
 
-    public WebxRestfulComponent getComponent() {
+    public RestfulComponent getComponent() {
         return component;
     }
 

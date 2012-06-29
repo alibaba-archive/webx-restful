@@ -26,7 +26,7 @@ import com.alibaba.webx.restful.model.finder.AnnotatedClassVisitor;
 import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
-import com.alibaba.webx.restful.process.WebxRestfulComponent;
+import com.alibaba.webx.restful.process.RestfulComponent;
 import com.alibaba.webx.restful.process.impl.UriInfoImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ResourceUtils;
@@ -44,7 +44,7 @@ public class RestfulValve implements Valve {
     @Autowired
     private WebxComponent                 component;
 
-    private volatile WebxRestfulComponent restfulComponent = null;
+    private volatile RestfulComponent restfulComponent = null;
 
     public RestfulValve(){
 
@@ -98,7 +98,7 @@ public class RestfulValve implements Valve {
             buildResource(config, beanClass, bean);
         }
 
-        restfulComponent = new WebxRestfulComponent(config, applicationContext);
+        restfulComponent = new RestfulComponent(config, applicationContext);
     }
 
     @SuppressWarnings("unchecked")
