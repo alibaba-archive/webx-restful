@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.MessageProcessingException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
@@ -134,7 +135,7 @@ public class ApplicationHandler {
         Set<WriterInterceptor> interceptorSet = getWriterInterceptors();
 
         if (interceptorSet.size() == 0) {
-            aroundWriteTo(null);
+            aroundWrite(response);
             return;
         }
 
@@ -152,6 +153,8 @@ public class ApplicationHandler {
 
         try {
             writeContext.proceed();
+        } catch (IOException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new MessageProcessingException(ex.getMessage(), ex);
         }
@@ -210,6 +213,29 @@ public class ApplicationHandler {
 
     public Set<WriterInterceptor> getWriterInterceptors() {
         return this.workers.getWriterInterceptors();
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void aroundWrite(ResponseImpl response) throws IOException {
+        GenericType<?> declaredType = response.getDeclaredType();
+        Class<?> type = declaredType.getRawType();
+        Type genericType = declaredType.getType();
+        Annotation[] annotations = response.getAnnotations();
+        MediaType mediaTye = response.getMediaType();
+
+        Object entity = response.getEntity();
+        MultivaluedMap<String, Object> headers = response.getHeaders();
+        OutputStream outputStream = response.getHttpResponse().getOutputStream();
+
+        final MessageBodyWriter writer = workers.getMessageBodyWriter(type, genericType, annotations, mediaTye);
+
+        if (writer == null) {
+            String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type + ", genericType "
+                             + genericType;
+            throw new MessageProcessingException(message);
+        }
+
+        writer.writeTo(entity, type, genericType, annotations, mediaTye, headers, outputStream);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
