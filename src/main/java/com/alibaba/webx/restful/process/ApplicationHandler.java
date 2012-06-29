@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +44,8 @@ public class ApplicationHandler {
 
     private final ApplicationContext   applicationContext;
 
-    private MessageBodyWorkerProviders workers = new MessageBodyWorkerProviders();
+    private List<MessageBodyWriter<?>> messageBodyWriters = new ArrayList<MessageBodyWriter<?>>();
+    private Set<WriterInterceptor>     writeInterceptors  = new LinkedHashSet<WriterInterceptor>();
 
     public ApplicationHandler(Application application, ApplicationContext applicationContext){
         ApplicationContextUtils.setApplicationContext(applicationContext);
@@ -60,13 +62,13 @@ public class ApplicationHandler {
 
     @SuppressWarnings("rawtypes")
     private void initialize() {
-        workers.addMessageBodyWriter(new JSONMessageBodyWriter());
+        messageBodyWriters.add(new JSONMessageBodyWriter());
 
         Map map = applicationContext.getBeansOfType(MessageBodyWriter.class);
 
         for (Object item : map.values()) {
             MessageBodyWriter writer = (MessageBodyWriter) item;
-            workers.addMessageBodyWriter(writer);
+            messageBodyWriters.add(writer);
         }
     }
 
@@ -211,7 +213,7 @@ public class ApplicationHandler {
     }
 
     public Set<WriterInterceptor> getWriterInterceptors() {
-        return this.workers.getWriterInterceptors();
+        return this.writeInterceptors;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -226,7 +228,7 @@ public class ApplicationHandler {
         MultivaluedMap<String, Object> headers = response.getHeaders();
         OutputStream outputStream = response.getHttpResponse().getOutputStream();
 
-        final MessageBodyWriter writer = workers.getMessageBodyWriter(type, genericType, annotations, mediaTye);
+        final MessageBodyWriter writer = this.getMessageBodyWriter(type, genericType, annotations, mediaTye);
 
         if (writer == null) {
             String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type + ", genericType "
@@ -248,7 +250,7 @@ public class ApplicationHandler {
         MultivaluedMap<String, Object> headers = context.getHeaders();
         OutputStream outputStream = context.getOutputStream();
 
-        final MessageBodyWriter writer = workers.getMessageBodyWriter(type, genericType, annotations, mediaTye);
+        final MessageBodyWriter writer = this.getMessageBodyWriter(type, genericType, annotations, mediaTye);
 
         if (writer == null) {
             String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type + ", genericType "
@@ -257,6 +259,17 @@ public class ApplicationHandler {
         }
 
         writer.writeTo(entity, type, genericType, annotations, mediaTye, headers, outputStream);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> MessageBodyWriter<T> getMessageBodyWriter(Class<?> type, Type genericType, Annotation[] annotations,
+                                                         MediaType mediaType) {
+        for (MessageBodyWriter<?> item : this.messageBodyWriters) {
+            if (item.isWriteable(type, genericType, annotations, mediaType)) {
+                return (MessageBodyWriter<T>) item;
+            }
+        }
+        return null;
     }
 
     public class TerminalWriterInterceptor implements WriterInterceptor {
