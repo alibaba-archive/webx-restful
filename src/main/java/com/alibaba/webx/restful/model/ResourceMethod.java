@@ -1,5 +1,6 @@
 package com.alibaba.webx.restful.model;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.container.ResourceInfo;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 
 import com.alibaba.webx.restful.model.uri.PathPattern;
@@ -63,10 +65,9 @@ public class ResourceMethod implements ResourceInfo {
                 return SUB_RESOURCE_LOCATOR;
             }
 
-            // TODO L10N
-            throw new IllegalStateException(
-                                            String.format("Unknown resource method model type: HTTP method = '%s', method path = '%s'.",
-                                                          httpMethod, methodPath));
+            String message = String.format("Unknown resource method model type: HTTP method = '%s', method path = '%s'.",
+                                           httpMethod, methodPath);
+            throw new IllegalStateException(message);
         }
     }
 
@@ -137,4 +138,11 @@ public class ResourceMethod implements ResourceInfo {
         return this.getInvocable().getConstructor().getHandlerClass();
     }
 
+    public GenericType<?> getResponseType() {
+        return this.getInvocable().getResponseType();
+    }
+    
+    public Annotation[] getAnnotations() {
+        return this.getInvocable().getAnnotations();
+    }
 }

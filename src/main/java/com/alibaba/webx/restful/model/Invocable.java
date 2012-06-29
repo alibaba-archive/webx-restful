@@ -1,5 +1,6 @@
 package com.alibaba.webx.restful.model;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -13,10 +14,12 @@ public final class Invocable {
     private final Method              method;
     private final List<Parameter>     parameters;
     private final GenericType<?>      responseType;
+    private final Annotation[]        annotations;
 
     public Invocable(InstanceConstructor instanceConstructor, Method method, List<Parameter> parameters){
         this.constructor = instanceConstructor;
         this.method = method;
+        this.annotations = method.getAnnotations();
 
         this.responseType = GenericType.of(method.getReturnType(), method.getGenericReturnType());
 
@@ -48,6 +51,10 @@ public final class Invocable {
         return parameters;
     }
 
+    public Annotation[] getAnnotations() {
+        return annotations;
+    }
+
     public Object[] getArguments(RestfulRequestContext requestContext) throws Exception {
         Object[] args = new Object[parameters.size()];
         for (int i = 0; i < args.length; ++i) {
@@ -62,7 +69,7 @@ public final class Invocable {
         Object returnObject = method.invoke(instance, args);
         return returnObject;
     }
-    
+
     public Object createInstance(RestfulRequestContext requestContext) throws Exception {
         return this.constructor.createInstance(requestContext);
     }

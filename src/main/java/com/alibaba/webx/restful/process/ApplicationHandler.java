@@ -76,6 +76,7 @@ public class ApplicationHandler {
         service(requestContext);
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void service(RestfulRequestContext requestContext) throws IOException {
         match(requestContext);
 
@@ -91,13 +92,11 @@ public class ApplicationHandler {
 
         Object returnObject = invoke(requestContext, resourceMethod);
 
-        ResponseBuilder responseBuilder;
+        ResponseBuilder responseBuilder = Response.ok();
 
-        if (returnObject == null) {
-            responseBuilder = Response.noContent();
-        } else {
-            responseBuilder = Response.ok(returnObject);
-        }
+        Annotation[] annotations = resourceMethod.getAnnotations();
+        GenericType responseType = resourceMethod.getResponseType();
+        responseBuilder.entity(returnObject, responseType, annotations);
 
         ResponseImpl response = (ResponseImpl) responseBuilder.build();
         response.setHttpResponse(requestContext.getHttpResponse());
