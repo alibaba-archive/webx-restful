@@ -2,15 +2,15 @@ package com.alibaba.webx.restful.process;
 
 import java.io.IOException;
 
-public class WebxRestfulProcessException extends IOException {
+public class ProcessException extends IOException {
 
     private static final long serialVersionUID = 1L;
 
-    public WebxRestfulProcessException(String message){
+    public ProcessException(String message){
         super(message);
     }
 
-    public WebxRestfulProcessException(String message, Throwable cause){
+    public ProcessException(String message, Throwable cause){
         super(message, cause);
     }
 }

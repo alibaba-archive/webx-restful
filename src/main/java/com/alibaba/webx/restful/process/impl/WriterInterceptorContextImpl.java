@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,10 +18,10 @@ import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
-import com.alibaba.webx.restful.process.impl.ResponseImpl;
+import com.alibaba.webx.restful.process.ProcessException;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
-public class WebxRestfulWriterInterceptorContext implements WriterInterceptorContext {
+public class WriterInterceptorContextImpl implements WriterInterceptorContext {
 
     private final MessageBodyWorkerProvider   workers;
 
@@ -29,7 +29,7 @@ public class WebxRestfulWriterInterceptorContext implements WriterInterceptorCon
 
     private final Iterator<WriterInterceptor> iterator;
 
-    public WebxRestfulWriterInterceptorContext(MessageBodyWorkerProvider workers, ResponseImpl response){
+    public WriterInterceptorContextImpl(MessageBodyWorkerProvider workers, ResponseImpl response){
         this.workers = workers;
         this.response = response;
 
@@ -95,7 +95,7 @@ public class WebxRestfulWriterInterceptorContext implements WriterInterceptorCon
     public void proceed() throws IOException {
         WriterInterceptor nextInterceptor = getNextInterceptor();
         if (nextInterceptor == null) {
-            throw new WebxRestfulProcessException("nextInterceptor is null");
+            throw new ProcessException("nextInterceptor is null");
         }
         nextInterceptor.aroundWriteTo(this);
     }

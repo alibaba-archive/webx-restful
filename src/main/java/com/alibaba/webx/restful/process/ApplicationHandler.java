@@ -23,6 +23,7 @@ import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.process.impl.RestfulRequestContextImpl;
+import com.alibaba.webx.restful.process.impl.WriterInterceptorContextImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
@@ -71,7 +72,7 @@ public class ApplicationHandler {
         match(requestContext);
 
         if (requestContext.getResourceMethod() == null) {
-            throw new WebxRestfulProcessException("no resource matched");
+            throw new ProcessException("no resource matched");
         }
 
         ResponseImpl response = process(requestContext);
@@ -79,11 +80,11 @@ public class ApplicationHandler {
         writeResponse(requestContext, response);
     }
 
-    private ResponseImpl process(RestfulRequestContext requestContext) throws WebxRestfulProcessException {
+    private ResponseImpl process(RestfulRequestContext requestContext) throws ProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         if (resourceMethod == null) {
-            throw new WebxRestfulProcessException("resourceMethod not match : " + requestContext.getUriInfo().getPath());
+            throw new ProcessException("resourceMethod not match : " + requestContext.getUriInfo().getPath());
         }
 
         Invocable invocable = resourceMethod.getInvocable();
@@ -92,21 +93,21 @@ public class ApplicationHandler {
         try {
             resourceInstance = invocable.createInstance(requestContext);
         } catch (Exception e) {
-            throw new WebxRestfulProcessException("createResourceInstance error", e);
+            throw new ProcessException("createResourceInstance error", e);
         }
 
         Object[] args = null;
         try {
             args = invocable.getArguments(requestContext);
         } catch (Exception e) {
-            throw new WebxRestfulProcessException("get resourceMethod's arguemnts error", e);
+            throw new ProcessException("get resourceMethod's arguemnts error", e);
         }
 
         Object returnObject = null;
         try {
             returnObject = invocable.invoke(resourceInstance, args);
         } catch (Exception e) {
-            throw new WebxRestfulProcessException("invoke resourceMethod error", e);
+            throw new ProcessException("invoke resourceMethod error", e);
         }
 
         ResponseBuilder responseBuilder;
@@ -124,7 +125,7 @@ public class ApplicationHandler {
 
     public void writeResponse(RestfulRequestContext requestContext, ResponseImpl response) throws IOException {
         MessageBodyWorkerProvider workers = requestContext.getWorkers();
-        WebxRestfulWriterInterceptorContext interceptorContext = new WebxRestfulWriterInterceptorContext(workers,
+        WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(workers,
                                                                                                          response);
 
         try {
