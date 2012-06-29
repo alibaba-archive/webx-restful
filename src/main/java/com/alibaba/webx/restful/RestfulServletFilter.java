@@ -32,7 +32,7 @@ import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 import com.alibaba.webx.restful.util.ResourceUtils;
 
-public class WebxRestfulServletFilter implements Filter {
+public class RestfulServletFilter implements Filter {
 
     public static final String   JAXRS_APPLICATION_CLASS = "javax.ws.rs.Application";
     public static final String   PROVIDER_WEB_APP        = "jersey.config.servlet.provider.webapp";
