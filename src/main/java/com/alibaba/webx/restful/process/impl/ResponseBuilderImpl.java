@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.lang.annotation.Annotation;
 import java.net.URI;
@@ -23,11 +23,9 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Variant;
 
-import com.alibaba.webx.restful.process.impl.ResponseImpl;
-import com.alibaba.webx.restful.process.impl.StatusImpl;
 
 
-public class WebxRestfulResponseBuilder extends ResponseBuilder {
+public class ResponseBuilderImpl extends ResponseBuilder {
 
     private StatusType                         status;
     private Object                             entity;
@@ -36,11 +34,11 @@ public class WebxRestfulResponseBuilder extends ResponseBuilder {
     private Set<String>                        allowMethods = new HashSet<String>(1);
     private MultivaluedHashMap<String, Object> headers      = new MultivaluedHashMap<String, Object>();
 
-    public WebxRestfulResponseBuilder(){
+    public ResponseBuilderImpl(){
         this(javax.ws.rs.core.Response.Status.NO_CONTENT);
     }
 
-    public WebxRestfulResponseBuilder(StatusType status){
+    public ResponseBuilderImpl(StatusType status){
         this.status = status;
     }
 

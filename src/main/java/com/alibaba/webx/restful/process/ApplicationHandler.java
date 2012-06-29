@@ -22,6 +22,7 @@ import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.process.impl.ResponseImpl;
+import com.alibaba.webx.restful.process.impl.RestfulRequestContextImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
@@ -60,7 +61,7 @@ public class ApplicationHandler {
 
     public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
                                                                                                           throws IOException {
-        WebxRestfulRequestContext requestContext = new WebxRestfulRequestContext(httpRequest, httpResponse,
+        RestfulRequestContextImpl requestContext = new RestfulRequestContextImpl(httpRequest, httpResponse,
                                                                                  this.workers, uriInfo);
 
         service(requestContext);

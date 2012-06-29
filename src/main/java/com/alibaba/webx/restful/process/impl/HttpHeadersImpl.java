@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +15,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 
-public class WebxRestfulHttpHeaders implements HttpHeaders {
+public class HttpHeadersImpl implements HttpHeaders {
 
     private final HttpServletRequest httpRequest;
 
@@ -26,7 +26,7 @@ public class WebxRestfulHttpHeaders implements HttpHeaders {
     private Map<String, Cookie>      cookies              = null;
     private Date                     date;
 
-    public WebxRestfulHttpHeaders(HttpServletRequest httpRequest){
+    public HttpHeadersImpl(HttpServletRequest httpRequest){
         this.httpRequest = httpRequest;
     }
 

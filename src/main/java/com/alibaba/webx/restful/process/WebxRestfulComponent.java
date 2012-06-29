@@ -7,8 +7,8 @@ import com.alibaba.webx.restful.model.ApplicationConfig;
 
 public class WebxRestfulComponent {
 
-    private ApplicationConfig  config;
-    private ApplicationHandler handler;
+    private final ApplicationConfig  config;
+    private final ApplicationHandler handler;
 
     public WebxRestfulComponent(ApplicationConfig config, ApplicationContext applicationContext){
         Assert.notNull(applicationContext);

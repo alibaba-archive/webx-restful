@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.webx.restful.model.uri.UriBuilderImpl;
-import com.alibaba.webx.restful.process.impl.VariantListBuilderImpl;
 import com.alibaba.webx.restful.process.providers.CacheControlProvider;
 import com.alibaba.webx.restful.process.providers.CookieEntityTagProvider;
 import com.alibaba.webx.restful.process.providers.EntityTagProvider;
@@ -22,15 +21,15 @@ import com.alibaba.webx.restful.process.providers.MediaTypeProvider;
 import com.alibaba.webx.restful.process.providers.NewCookieProvider;
 import com.alibaba.webx.restful.spi.HeaderDelegateProvider;
 
-public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDelegate {
+public class RuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDelegate {
 
-    private final static Log                           LOG = LogFactory.getLog(WebxRestfulRuntimeDelegateImpl.class);
+    private final static Log                           LOG = LogFactory.getLog(RuntimeDelegateImpl.class);
 
     private ConcurrentMap<Class<?>, HeaderDelegate<?>> map = new ConcurrentHashMap<Class<?>, HeaderDelegate<?>>();
 
     private volatile Set<HeaderDelegateProvider<?>>    hps = new HashSet<HeaderDelegateProvider<?>>();
 
-    public WebxRestfulRuntimeDelegateImpl(){
+    public RuntimeDelegateImpl(){
         try {
             hps.add(MediaTypeProvider.getInstance());
             hps.add(EntityTagProvider.getInstance());
@@ -50,7 +49,7 @@ public class WebxRestfulRuntimeDelegateImpl extends javax.ws.rs.ext.RuntimeDeleg
 
     @Override
     public ResponseBuilder createResponseBuilder() {
-        return new WebxRestfulResponseBuilder();
+        return new ResponseBuilderImpl();
     }
 
     @Override

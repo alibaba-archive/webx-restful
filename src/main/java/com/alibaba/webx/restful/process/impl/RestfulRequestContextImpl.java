@@ -1,4 +1,4 @@
-package com.alibaba.webx.restful.process;
+package com.alibaba.webx.restful.process.impl;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -24,10 +24,11 @@ import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.model.uri.UriTemplate;
-import com.alibaba.webx.restful.process.impl.RequestImpl;
+import com.alibaba.webx.restful.process.MessageBodyWorkerProviders;
+import com.alibaba.webx.restful.process.RestfulRequestContext;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
-public class WebxRestfulRequestContext implements RestfulRequestContext {
+public class RestfulRequestContextImpl implements RestfulRequestContext {
 
     private final HttpServletRequest  httpRequest;
     private final HttpServletResponse httpResponse;
@@ -58,7 +59,7 @@ public class WebxRestfulRequestContext implements RestfulRequestContext {
 
     private Map<String, String>       pathVariables;
 
-    public WebxRestfulRequestContext(HttpServletRequest request, HttpServletResponse response,
+    public RestfulRequestContextImpl(HttpServletRequest request, HttpServletResponse response,
                                      MessageBodyWorkerProviders workers, UriInfo uriInfo){
         super();
         this.httpRequest = request;
@@ -74,7 +75,7 @@ public class WebxRestfulRequestContext implements RestfulRequestContext {
 
     public HttpHeaders getHttpHeaders() {
         if (httpHeaders == null) {
-            httpHeaders = new WebxRestfulHttpHeaders(httpRequest);
+            httpHeaders = new HttpHeadersImpl(httpRequest);
         }
         return httpHeaders;
     }
