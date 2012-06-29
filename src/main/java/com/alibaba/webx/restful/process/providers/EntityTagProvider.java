@@ -26,8 +26,7 @@ public class EntityTagProvider implements HeaderDelegateProvider<EntityTag> {
 
     @Override
     public boolean supports(Class<?> type) {
-        // TODO Auto-generated method stub
-        return false;
+        return type == EntityTag.class;
     }
 
 }
