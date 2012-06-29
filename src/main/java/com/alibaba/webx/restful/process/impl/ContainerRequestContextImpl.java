@@ -28,7 +28,7 @@ import com.alibaba.webx.restful.process.MessageBodyWorkerProviders;
 import com.alibaba.webx.restful.process.RestfulRequestContext;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
-public class RestfulRequestContextImpl implements RestfulRequestContext {
+public class ContainerRequestContextImpl implements RestfulRequestContext {
 
     private final HttpServletRequest  httpRequest;
     private final HttpServletResponse httpResponse;
@@ -59,7 +59,7 @@ public class RestfulRequestContextImpl implements RestfulRequestContext {
 
     private Map<String, String>       pathVariables;
 
-    public RestfulRequestContextImpl(HttpServletRequest request, HttpServletResponse response,
+    public ContainerRequestContextImpl(HttpServletRequest request, HttpServletResponse response,
                                      MessageBodyWorkerProviders workers, UriInfo uriInfo){
         super();
         this.httpRequest = request;

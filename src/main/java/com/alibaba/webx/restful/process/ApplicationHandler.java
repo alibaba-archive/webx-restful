@@ -8,6 +8,7 @@ import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.MessageProcessingException;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -22,14 +23,14 @@ import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.process.impl.ResponseImpl;
-import com.alibaba.webx.restful.process.impl.RestfulRequestContextImpl;
+import com.alibaba.webx.restful.process.impl.ContainerRequestContextImpl;
 import com.alibaba.webx.restful.process.impl.WriterInterceptorContextImpl;
 import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
 
-    private final ApplicationImpl    config;
+    private final ApplicationImpl      config;
 
     private ApplicationContext         applicationContext;
 
@@ -62,7 +63,7 @@ public class ApplicationHandler {
 
     public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
                                                                                                           throws IOException {
-        RestfulRequestContextImpl requestContext = new RestfulRequestContextImpl(httpRequest, httpResponse,
+        ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(httpRequest, httpResponse,
                                                                                  this.workers, uriInfo);
 
         service(requestContext);
@@ -125,13 +126,12 @@ public class ApplicationHandler {
 
     public void writeResponse(RestfulRequestContext requestContext, ResponseImpl response) throws IOException {
         MessageBodyWorkerProvider workers = requestContext.getWorkers();
-        WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(workers,
-                                                                                                         response);
+        WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(workers, response);
 
         try {
             interceptorContext.proceed();
         } catch (Exception ex) {
-            throw new MessageBodyProcessingException(ex.getMessage(), ex);
+            throw new MessageProcessingException(ex.getMessage(), ex);
         }
     }
 
