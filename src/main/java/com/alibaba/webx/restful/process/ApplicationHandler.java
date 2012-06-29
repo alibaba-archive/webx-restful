@@ -40,7 +40,7 @@ public class ApplicationHandler {
 
     private final ApplicationImpl      config;
 
-    private ApplicationContext         applicationContext;
+    private final ApplicationContext   applicationContext;
 
     private MessageBodyWorkerProviders workers = new MessageBodyWorkerProviders();
 
@@ -69,10 +69,8 @@ public class ApplicationHandler {
         }
     }
 
-    public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
-                                                                                                          throws IOException {
-        ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(httpRequest, httpResponse,
-                                                                                     this.workers, uriInfo);
+    public void service(HttpServletRequest request, HttpServletResponse response, UriInfo uri) throws IOException {
+        ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(request, response, uri);
 
         service(requestContext);
     }

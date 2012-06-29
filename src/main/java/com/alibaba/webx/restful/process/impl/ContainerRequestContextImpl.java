@@ -24,9 +24,7 @@ import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
 import com.alibaba.webx.restful.model.uri.UriTemplate;
-import com.alibaba.webx.restful.process.MessageBodyWorkerProviders;
 import com.alibaba.webx.restful.process.RestfulRequestContext;
-import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class ContainerRequestContextImpl implements RestfulRequestContext {
 
@@ -44,7 +42,7 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
 
     private HttpHeaders               httpHeaders     = null;
 
-    private RequestImpl        request         = null;
+    private RequestImpl               request         = null;
     private SecurityContext           securityContext = null;
 
     private Date                      date;
@@ -55,22 +53,14 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
 
     private Map<String, Object>       properties      = null;
 
-    private MessageBodyWorkerProvider workers;
-
     private Map<String, String>       pathVariables;
 
-    public ContainerRequestContextImpl(HttpServletRequest request, HttpServletResponse response,
-                                     MessageBodyWorkerProviders workers, UriInfo uriInfo){
+    public ContainerRequestContextImpl(HttpServletRequest request, HttpServletResponse response, UriInfo uriInfo){
         super();
         this.httpRequest = request;
         this.httpResponse = response;
         this.date = new Date();
         this.uriInfo = uriInfo;
-        this.workers = workers;
-    }
-
-    public MessageBodyWorkerProvider getWorkers() {
-        return workers;
     }
 
     public HttpHeaders getHttpHeaders() {

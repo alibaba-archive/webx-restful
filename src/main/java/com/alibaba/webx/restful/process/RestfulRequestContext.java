@@ -9,7 +9,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
-import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public interface RestfulRequestContext extends ContainerRequestContext {
 
@@ -18,8 +17,6 @@ public interface RestfulRequestContext extends ContainerRequestContext {
     HttpServletResponse getHttpResponse();
 
     Map<String, String> getPathVariables();
-
-    MessageBodyWorkerProvider getWorkers();
 
     Resource getResource();
 
@@ -30,10 +27,10 @@ public interface RestfulRequestContext extends ContainerRequestContext {
     void setResourceMethod(ResourceMethod resourceMethod);
 
     MatchResult getResourceMatchResult();
-    
+
     void setResourceMatchResult(MatchResult resourceMatchResult);
-    
+
     MatchResult getResourceMethodMatchResult();
-    
+
     void setResourceMethodMatchResult(MatchResult resourceMethodMatchResult);
 }
