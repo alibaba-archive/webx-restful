@@ -1,19 +1,28 @@
 package com.alibaba.webx.restful.process;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.MatchResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.MessageProcessingException;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.WriterInterceptor;
+import javax.ws.rs.ext.WriterInterceptorContext;
 
 import org.springframework.context.ApplicationContext;
 
@@ -22,10 +31,9 @@ import com.alibaba.webx.restful.model.Invocable;
 import com.alibaba.webx.restful.model.Resource;
 import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.uri.PathPattern;
-import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.process.impl.ContainerRequestContextImpl;
+import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.process.impl.WriterInterceptorContextImpl;
-import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
 
 public class ApplicationHandler {
@@ -64,7 +72,7 @@ public class ApplicationHandler {
     public void service(HttpServletRequest httpRequest, HttpServletResponse httpResponse, UriInfo uriInfo)
                                                                                                           throws IOException {
         ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(httpRequest, httpResponse,
-                                                                                 this.workers, uriInfo);
+                                                                                     this.workers, uriInfo);
 
         service(requestContext);
     }
@@ -125,13 +133,23 @@ public class ApplicationHandler {
     }
 
     public void writeResponse(RestfulRequestContext requestContext, ResponseImpl response) throws IOException {
-        MessageBodyWorkerProvider workers = requestContext.getWorkers();
-        WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(workers, response);
+        Set<WriterInterceptor> interceptorSet = getWriterInterceptors();
 
-        try {
-            interceptorContext.proceed();
-        } catch (Exception ex) {
-            throw new MessageProcessingException(ex.getMessage(), ex);
+        if (interceptorSet.size() > 0) {
+            List<WriterInterceptor> interceptors = new ArrayList<WriterInterceptor>(interceptorSet.size() + 1);
+            interceptors.addAll(interceptorSet);
+            interceptors.add(new TerminalWriterInterceptor());
+
+            WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(this, interceptors,
+                                                                                               response);
+
+            try {
+                interceptorContext.proceed();
+            } catch (Exception ex) {
+                throw new MessageProcessingException(ex.getMessage(), ex);
+            }
+        } else {
+            aroundWriteTo(null);
         }
     }
 
@@ -183,6 +201,42 @@ public class ApplicationHandler {
                 requestContext.setResourceMethodMatchResult(resourceMethodResult);
                 break;
             }
+        }
+    }
+
+    public Set<WriterInterceptor> getWriterInterceptors() {
+        return this.workers.getWriterInterceptors();
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
+        Class<?> type = context.getType();
+        Type genericType = context.getGenericType();
+        Annotation[] annotations = context.getAnnotations();
+        MediaType mediaTye = context.getMediaType();
+
+        Object entity = context.getEntity();
+        MultivaluedMap<String, Object> headers = context.getHeaders();
+        OutputStream outputStream = context.getOutputStream();
+
+        final MessageBodyWriter writer = workers.getMessageBodyWriter(type, genericType, annotations, mediaTye);
+
+        if (writer == null) {
+            throw new MessageProcessingException("messageBodyWriter not found, mediaType " + mediaTye + ", type "
+                                                 + type + ", genericType" + genericType);
+        }
+
+        writer.writeTo(entity, type, genericType, annotations, mediaTye, headers, outputStream);
+    }
+
+    public class TerminalWriterInterceptor implements WriterInterceptor {
+
+        public TerminalWriterInterceptor(){
+        }
+
+        @Override
+        public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
+            aroundWriteTo(context);
         }
     }
 }

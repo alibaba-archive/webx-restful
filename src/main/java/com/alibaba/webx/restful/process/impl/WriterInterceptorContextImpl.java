@@ -4,81 +4,85 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.ws.rs.MessageProcessingException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
+import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.ProcessException;
-import com.alibaba.webx.restful.spi.MessageBodyWorkerProvider;
 
 public class WriterInterceptorContextImpl implements WriterInterceptorContext {
 
-    private final MessageBodyWorkerProvider   workers;
+    private final ApplicationHandler          handler;
 
-    private final ResponseImpl         response;
+    private final ResponseImpl                response;
 
     private final Iterator<WriterInterceptor> iterator;
 
-    public WriterInterceptorContextImpl(MessageBodyWorkerProvider workers, ResponseImpl response){
-        this.workers = workers;
+    private Class<?>                          type;
+    private Type                              genericType;
+
+    private Map<String, Object>               properties = null;
+
+    private Annotation[]                      annotations;
+    private Object                            entity;
+    private OutputStream                      outputStream;
+
+    public WriterInterceptorContextImpl(ApplicationHandler handler, List<WriterInterceptor> interceptors,
+                                        ResponseImpl response) throws IOException{
+        this.handler = handler;
         this.response = response;
 
-        Set<WriterInterceptor> interceptorSet = workers.getWriterInterceptors();
-        List<WriterInterceptor> interceptors = new ArrayList<WriterInterceptor>(interceptorSet.size() + 1);
-        interceptors.addAll(interceptorSet);
-        interceptors.add(new TerminalWriterInterceptor(workers));
+        this.annotations = response.getAnnotations();
+        this.entity = response.getEntity();
+        this.outputStream = response.getHttpResponse().getOutputStream();
 
         this.iterator = interceptors.iterator();
     }
 
     @Override
     public Map<String, Object> getProperties() {
-        // TODO Auto-generated method stub
-        return null;
+        if (properties == null) {
+            properties = new HashMap<String, Object>();
+        }
+
+        return properties;
     }
 
     @Override
     public Annotation[] getAnnotations() {
-        return response.getAnnotations();
+        return annotations;
     }
 
     @Override
     public void setAnnotations(Annotation[] annotations) {
-        response.setAnnotations(annotations);
+        this.annotations = annotations;
     }
 
     @Override
     public Class<?> getType() {
-        // TODO Auto-generated method stub
-        return null;
+        return type;
     }
 
     @Override
     public void setType(Class<?> type) {
-        // TODO Auto-generated method stub
-
+        this.type = type;
     }
 
     @Override
     public Type getGenericType() {
-        // TODO Auto-generated method stub
-        return null;
+        return genericType;
     }
 
     @Override
     public void setGenericType(Type genericType) {
-        // TODO Auto-generated method stub
-
+        this.genericType = genericType;
     }
 
     @Override
@@ -102,26 +106,22 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
 
     @Override
     public Object getEntity() {
-        return response.getEntity();
+        return entity;
     }
 
     @Override
     public void setEntity(Object entity) {
-        response.setEntity(entity);
+        this.entity = entity;
     }
 
     @Override
     public OutputStream getOutputStream() {
-        try {
-            return response.getHttpResponse().getOutputStream();
-        } catch (IOException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        return outputStream;
     }
 
     @Override
     public void setOutputStream(OutputStream os) {
-        throw new UnsupportedOperationException();
+        this.outputStream = os;
     }
 
     @Override
@@ -136,29 +136,4 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
         return iterator.next();
     }
 
-    public static class TerminalWriterInterceptor implements WriterInterceptor {
-
-        private final MessageBodyWorkerProvider workers;
-
-        public TerminalWriterInterceptor(MessageBodyWorkerProvider workers){
-            this.workers = workers;
-        }
-
-        @Override
-        @SuppressWarnings({ "rawtypes", "unchecked" })
-        public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
-            final MessageBodyWriter writer = workers.getMessageBodyWriter(context.getType(), context.getGenericType(),
-                                                                          context.getAnnotations(),
-                                                                          context.getMediaType());
-
-            if (writer == null) {
-                throw new MessageProcessingException("messageBodyWriter not found, mediaType " + context.getMediaType()
-                                                     + ", type " + context.getType() + ", genericType"
-                                                     + context.getGenericType());
-            }
-
-            writer.writeTo(context.getEntity(), context.getType(), context.getGenericType(), context.getAnnotations(),
-                           context.getMediaType(), context.getHeaders(), context.getOutputStream());
-        }
-    }
 }
