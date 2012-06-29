@@ -14,14 +14,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
 
-import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.ProcessException;
 
 public class WriterInterceptorContextImpl implements WriterInterceptorContext {
-
-    private final ApplicationHandler          handler;
-
-    private final ResponseImpl                response;
 
     private final Iterator<WriterInterceptor> iterator;
 
@@ -33,15 +28,10 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
     private Annotation[]                      annotations;
     private Object                            entity;
     private OutputStream                      outputStream;
+    private MediaType                         mediaType;
+    private MultivaluedMap<String, Object>    headers;
 
-    public WriterInterceptorContextImpl(ApplicationHandler handler, List<WriterInterceptor> interceptors,
-                                        ResponseImpl response) throws IOException{
-        this.handler = handler;
-        this.response = response;
-
-        this.annotations = response.getAnnotations();
-        this.entity = response.getEntity();
-        this.outputStream = response.getHttpResponse().getOutputStream();
+    public WriterInterceptorContextImpl(List<WriterInterceptor> interceptors) throws IOException{
 
         this.iterator = interceptors.iterator();
     }
@@ -87,12 +77,12 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
 
     @Override
     public MediaType getMediaType() {
-        return response.getMediaType();
+        return mediaType;
     }
 
     @Override
     public void setMediaType(MediaType mediaType) {
-        response.setMediaType(mediaType);
+        this.mediaType = mediaType;
     }
 
     @Override
@@ -126,7 +116,11 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
 
     @Override
     public MultivaluedMap<String, Object> getHeaders() {
-        return response.getHeaders();
+        return headers;
+    }
+
+    public void setHeaders(MultivaluedMap<String, Object> headers) {
+        this.headers = headers;
     }
 
     public WriterInterceptor getNextInterceptor() {

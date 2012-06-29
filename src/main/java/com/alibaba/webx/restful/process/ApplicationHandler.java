@@ -84,18 +84,29 @@ public class ApplicationHandler {
             throw new ProcessException("no resource matched");
         }
 
-        ResponseImpl response = process(requestContext);
-
-        writeResponse(requestContext, response);
-    }
-
-    private ResponseImpl process(RestfulRequestContext requestContext) throws ProcessException {
         ResourceMethod resourceMethod = requestContext.getResourceMethod();
 
         if (resourceMethod == null) {
             throw new ProcessException("resourceMethod not match : " + requestContext.getUriInfo().getPath());
         }
 
+        Object returnObject = invoke(requestContext, resourceMethod);
+
+        ResponseBuilder responseBuilder;
+
+        if (returnObject == null) {
+            responseBuilder = Response.noContent();
+        } else {
+            responseBuilder = Response.ok(returnObject);
+        }
+
+        ResponseImpl response = (ResponseImpl) responseBuilder.build();
+        response.setHttpResponse(requestContext.getHttpResponse());
+
+        writeResponse(requestContext, response);
+    }
+
+    private Object invoke(RestfulRequestContext requestContext, ResourceMethod resourceMethod) throws ProcessException {
         Invocable invocable = resourceMethod.getInvocable();
 
         Object resourceInstance = null;
@@ -118,38 +129,33 @@ public class ApplicationHandler {
         } catch (Exception e) {
             throw new ProcessException("invoke resourceMethod error", e);
         }
-
-        ResponseBuilder responseBuilder;
-
-        if (returnObject == null) {
-            responseBuilder = Response.noContent();
-        } else {
-            responseBuilder = Response.ok(returnObject);
-        }
-
-        ResponseImpl response = (ResponseImpl) responseBuilder.build();
-        response.setHttpResponse(requestContext.getHttpResponse());
-        return response;
+        return returnObject;
     }
 
     public void writeResponse(RestfulRequestContext requestContext, ResponseImpl response) throws IOException {
         Set<WriterInterceptor> interceptorSet = getWriterInterceptors();
 
-        if (interceptorSet.size() > 0) {
-            List<WriterInterceptor> interceptors = new ArrayList<WriterInterceptor>(interceptorSet.size() + 1);
-            interceptors.addAll(interceptorSet);
-            interceptors.add(new TerminalWriterInterceptor());
-
-            WriterInterceptorContextImpl interceptorContext = new WriterInterceptorContextImpl(this, interceptors,
-                                                                                               response);
-
-            try {
-                interceptorContext.proceed();
-            } catch (Exception ex) {
-                throw new MessageProcessingException(ex.getMessage(), ex);
-            }
-        } else {
+        if (interceptorSet.size() == 0) {
             aroundWriteTo(null);
+            return;
+        }
+
+        List<WriterInterceptor> interceptors = new ArrayList<WriterInterceptor>(interceptorSet.size() + 1);
+        interceptors.addAll(interceptorSet);
+        interceptors.add(new TerminalWriterInterceptor());
+
+        WriterInterceptorContextImpl writeContext = new WriterInterceptorContextImpl(interceptors);
+
+        writeContext.setAnnotations(response.getAnnotations());
+        writeContext.setEntity(response.getEntity());
+        writeContext.setOutputStream(response.getHttpResponse().getOutputStream());
+        writeContext.setMediaType(response.getMediaType());
+        writeContext.setHeaders(response.getHeaders());
+
+        try {
+            writeContext.proceed();
+        } catch (Exception ex) {
+            throw new MessageProcessingException(ex.getMessage(), ex);
         }
     }
 
@@ -222,8 +228,9 @@ public class ApplicationHandler {
         final MessageBodyWriter writer = workers.getMessageBodyWriter(type, genericType, annotations, mediaTye);
 
         if (writer == null) {
-            throw new MessageProcessingException("messageBodyWriter not found, mediaType " + mediaTye + ", type "
-                                                 + type + ", genericType" + genericType);
+            String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type + ", genericType "
+                             + genericType;
+            throw new MessageProcessingException(message);
         }
 
         writer.writeTo(entity, type, genericType, annotations, mediaTye, headers, outputStream);
