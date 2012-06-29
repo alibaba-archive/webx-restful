@@ -22,6 +22,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.WriterInterceptor;
 import javax.ws.rs.ext.WriterInterceptorContext;
@@ -262,7 +265,7 @@ public class ApplicationHandler {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> MessageBodyWriter<T> getMessageBodyWriter(Class<?> type, Type genericType, Annotation[] annotations,
+    public <T> MessageBodyWriter<T> getMessageBodyWriter(Class<T> type, Type genericType, Annotation[] annotations,
                                                          MediaType mediaType) {
         for (MessageBodyWriter<?> item : this.messageBodyWriters) {
             if (item.isWriteable(type, genericType, annotations, mediaType)) {
@@ -281,5 +284,21 @@ public class ApplicationHandler {
         public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
             aroundWriteTo(context);
         }
+    }
+
+    public <T> MessageBodyReader<T> getMessageBodyReader(Class<T> type, Type genericType, Annotation[] annotations,
+                                                         MediaType mediaType) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public <T extends Throwable> ExceptionMapper<T> getExceptionMapper(Class<T> type) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public <T> ContextResolver<T> getContextResolver(Class<T> contextType, MediaType mediaType) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

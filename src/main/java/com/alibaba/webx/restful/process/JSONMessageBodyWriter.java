@@ -8,19 +8,25 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
+import javax.ws.rs.ext.Provider;
 
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+@Provider
 public class JSONMessageBodyWriter<T> implements MessageBodyWriter<T> {
+
+    public JSONMessageBodyWriter(){
+
+    }
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         if (mediaType == null) {
             return true;
         }
-        
+
         if (mediaType == MediaType.APPLICATION_JSON_TYPE) {
             return true;
         }
