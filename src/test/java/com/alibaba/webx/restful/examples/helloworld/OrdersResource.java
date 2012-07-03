@@ -3,6 +3,7 @@ package com.alibaba.webx.restful.examples.helloworld;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,6 +33,7 @@ public class OrdersResource {
     }
 
     @GET
+    @Produces({"application/xml; qs=0.9", "application/json"})
     public Order getOrder() {
         return service.findOrder(id);
     }

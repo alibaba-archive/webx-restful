@@ -1,6 +1,7 @@
 package com.alibaba.webx.restful.process.providers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class MediaTypeProvider implements HeaderDelegateProvider<MediaType> {
     public synchronized List<MediaType> getMediaTypes() {
         if (mediaTypes == null) {
             mediaTypes = new ArrayList<MediaType>();
-            
+
             mediaTypes.add(MediaType.APPLICATION_ATOM_XML_TYPE);
             mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED_TYPE);
             mediaTypes.add(MediaType.APPLICATION_JSON_TYPE);
@@ -77,20 +78,34 @@ public class MediaTypeProvider implements HeaderDelegateProvider<MediaType> {
             rest = "*";
         }
 
+        String subType, paramName = null, paramValue = null;
         int semiIndex = rest.indexOf(';');
         if (semiIndex != -1) {
-            throw new IllegalArgumentException("support format : " + header);
-        }
+            subType = rest.substring(0, semiIndex);
+            rest = rest.substring(semiIndex + 1);
+            int eqIndex = rest.indexOf('=');
+            paramName = rest.substring(0, eqIndex).trim();
+            paramValue = rest.substring(eqIndex + 1).trim();
+        } else {
+            subType = rest;
 
-        String subType = rest;
-
-        for (MediaType item : this.getMediaTypes()) {
-            if (item.getType().equals(type) && item.getSubtype().equals(subType)) {
-                return item;
+            for (MediaType item : this.getMediaTypes()) {
+                if (item.getType().equals(type) && item.getSubtype().equals(subType)) {
+                    return item;
+                }
             }
         }
 
-        return new MediaType(type, subType);
+        Map<String, String> parameters;
+
+        if (paramName != null) {
+            parameters = Collections.singletonMap(paramName, paramValue);
+        } else {
+            parameters = Collections.emptyMap();
+        }
+
+        MediaType mediaType = new MediaType(type, subType, parameters);
+        return mediaType;
     }
 
 }
