@@ -111,4 +111,10 @@ public class HttpHeadersImpl implements HttpHeaders {
         return httpRequest.getContentLength();
     }
 
+    @Override
+    public String getHeaderString(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

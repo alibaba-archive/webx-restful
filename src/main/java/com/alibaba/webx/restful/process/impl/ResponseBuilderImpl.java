@@ -1,6 +1,7 @@
 package com.alibaba.webx.restful.process.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashSet;
@@ -10,7 +11,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
@@ -23,14 +23,12 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.Variant;
 
-
-
 public class ResponseBuilderImpl extends ResponseBuilder {
 
     private StatusType                         status;
     private Object                             entity;
     private Annotation[]                       annotations;
-    private GenericType<?>                     declaredType;
+    private Type                               declaredType;
     private Set<String>                        allowMethods = new HashSet<String>(1);
     private MultivaluedHashMap<String, Object> headers      = new MultivaluedHashMap<String, Object>();
 
@@ -44,8 +42,7 @@ public class ResponseBuilderImpl extends ResponseBuilder {
 
     @Override
     public Response build() {
-        ResponseImpl response = new ResponseImpl(status, entity, annotations, declaredType, allowMethods,
-                                                               headers);
+        ResponseImpl response = new ResponseImpl(status, entity, annotations, declaredType, allowMethods, headers);
         return response;
     }
 
@@ -79,9 +76,9 @@ public class ResponseBuilderImpl extends ResponseBuilder {
     }
 
     @Override
-    public <T> ResponseBuilder entity(T entity, GenericType<? super T> declaredType, Annotation[] annotations) {
+    public ResponseBuilder entity(Object entity, Type genericType, Annotation[] annotations) {
         this.entity = entity;
-        this.declaredType = declaredType;
+        this.declaredType = genericType;
         this.annotations = annotations;
         return this;
     }

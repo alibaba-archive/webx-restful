@@ -40,6 +40,7 @@ import com.alibaba.webx.restful.process.impl.ContainerRequestContextImpl;
 import com.alibaba.webx.restful.process.impl.ResponseImpl;
 import com.alibaba.webx.restful.process.impl.WriterInterceptorContextImpl;
 import com.alibaba.webx.restful.util.ApplicationContextUtils;
+import com.alibaba.webx.restful.util.ClassUtils;
 
 public class ApplicationHandler {
 
@@ -81,7 +82,7 @@ public class ApplicationHandler {
         service(requestContext);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes" })
     public void service(RestfulRequestContext requestContext) throws IOException {
         match(requestContext);
 
@@ -101,7 +102,7 @@ public class ApplicationHandler {
 
         Annotation[] annotations = resourceMethod.getAnnotations();
         GenericType responseType = resourceMethod.getResponseType();
-        responseBuilder.entity(returnObject, responseType, annotations);
+        responseBuilder.entity(returnObject, responseType.getType(), annotations);
 
         ResponseImpl response = (ResponseImpl) responseBuilder.build();
         response.setHttpResponse(requestContext.getHttpResponse());
@@ -221,9 +222,8 @@ public class ApplicationHandler {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void aroundWrite(ResponseImpl response) throws IOException {
-        GenericType<?> declaredType = response.getDeclaredType();
-        Class<?> type = declaredType.getRawType();
-        Type genericType = declaredType.getType();
+        Type genericType = response.getDeclaredType();
+        Class<?> type = ClassUtils.getClass(genericType);
         Annotation[] annotations = response.getAnnotations();
         MediaType mediaTye = response.getMediaType();
 
@@ -234,8 +234,7 @@ public class ApplicationHandler {
         final MessageBodyWriter writer = this.getMessageBodyWriter(type, genericType, annotations, mediaTye);
 
         if (writer == null) {
-            String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type + ", genericType "
-                             + genericType;
+            String message = "messageBodyWriter not found, mediaType " + mediaTye + ", type " + type;
             throw new MessageProcessingException(message);
         }
 

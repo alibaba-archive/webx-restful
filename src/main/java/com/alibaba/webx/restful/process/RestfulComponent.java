@@ -1,13 +1,15 @@
 package com.alibaba.webx.restful.process;
 
+import java.io.Closeable;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 
 import com.alibaba.webx.restful.model.ApplicationImpl;
 
-public class RestfulComponent {
+public class RestfulComponent implements Closeable {
 
-    private final ApplicationImpl  config;
+    private final ApplicationImpl    config;
     private final ApplicationHandler handler;
 
     public RestfulComponent(ApplicationImpl config, ApplicationContext applicationContext){
@@ -25,4 +27,7 @@ public class RestfulComponent {
         return handler;
     }
 
+    public void close() {
+        config.close();
+    }
 }

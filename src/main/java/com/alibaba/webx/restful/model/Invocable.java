@@ -16,12 +16,13 @@ public final class Invocable {
     private final GenericType<?>      responseType;
     private final Annotation[]        annotations;
 
+    @SuppressWarnings("rawtypes")
     public Invocable(InstanceConstructor instanceConstructor, Method method, List<Parameter> parameters){
         this.constructor = instanceConstructor;
         this.method = method;
         this.annotations = method.getAnnotations();
 
-        this.responseType = GenericType.of(method.getReturnType(), method.getGenericReturnType());
+        this.responseType = new GenericType(method.getGenericReturnType());
 
         this.parameters = parameters;
     }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +37,6 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
         this.iterator = interceptors.iterator();
     }
 
-    @Override
     public Map<String, Object> getProperties() {
         if (properties == null) {
             properties = new HashMap<String, Object>();
@@ -128,6 +128,30 @@ public class WriterInterceptorContextImpl implements WriterInterceptorContext {
             return null;
         }
         return iterator.next();
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Enumeration<String> getPropertyNames() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setProperty(String name, Object object) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeProperty(String name) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

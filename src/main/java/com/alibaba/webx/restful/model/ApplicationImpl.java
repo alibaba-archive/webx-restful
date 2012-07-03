@@ -1,5 +1,6 @@
 package com.alibaba.webx.restful.model;
 
+import java.io.Closeable;
 import java.util.List;
 import java.util.Set;
 
@@ -7,7 +8,7 @@ import javax.ws.rs.core.Application;
 
 import com.alibaba.webx.restful.util.ConcurrentIdentityHashMap;
 
-public class ApplicationImpl extends Application {
+public class ApplicationImpl extends Application implements Closeable {
 
     private static final Object                               PRESENT   = new Object();
 
@@ -38,5 +39,10 @@ public class ApplicationImpl extends Application {
 
     public Object addSingleton(Object instance) {
         return this.instances.put(instance, PRESENT);
+    }
+
+    public void close() {
+        this.resources.clear();
+        this.instances.clear();
     }
 }

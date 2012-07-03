@@ -1,21 +1,26 @@
 package com.alibaba.webx.restful.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class ClassUtils {
+
     public static Field getField(Class<?> clazz, String fieldName) {
         for (Field field : clazz.getDeclaredFields()) {
             if (field.getName().equals(fieldName)) {
                 return field;
             }
         }
-        
+
         if (clazz.getSuperclass() != Object.class) {
             return getField(clazz.getSuperclass(), fieldName);
         }
-        
+
         return null;
     }
 
@@ -87,5 +92,30 @@ public class ClassUtils {
         }
 
         throw new IllegalStateException("Type: " + type.getCanonicalName() + " is not a primitive type");
+    }
+
+    public static Class getClass(Type type) {
+        if (type instanceof Class) {
+            return (Class) type;
+        } else if (type instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            if (parameterizedType.getRawType() instanceof Class) {
+                return (Class) parameterizedType.getRawType();
+            }
+        } else if (type instanceof GenericArrayType) {
+            GenericArrayType array = (GenericArrayType) type;
+            return getArrayClass((Class) ((ParameterizedType) array.getGenericComponentType()).getRawType());
+        }
+        throw new IllegalArgumentException("Type parameter " + type.toString() + " not a class or "
+                                           + "parameterized type whose raw type is a class");
+    }
+
+    private static Class getArrayClass(Class c) {
+        try {
+            Object o = Array.newInstance(c, 0);
+            return o.getClass();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

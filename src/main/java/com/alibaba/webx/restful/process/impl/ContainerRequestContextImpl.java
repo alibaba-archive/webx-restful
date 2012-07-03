@@ -3,6 +3,7 @@ package com.alibaba.webx.restful.process.impl;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -126,7 +127,6 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
         this.resourceMethodMatchResult = resourceMethodMatchResult;
     }
 
-    @Override
     public Map<String, Object> getProperties() {
         if (properties == null) {
             properties = new HashMap<String, Object>();
@@ -277,6 +277,31 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
 
         }
         return pathVariables;
+    }
+
+    @Override
+    public Object getProperty(String name) {
+        if (properties == null) {
+            return null;
+        }
+        
+        return properties.get(name);
+    }
+
+    @Override
+    public Enumeration<String> getPropertyNames() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setProperty(String name, Object object) {
+        getProperties().put(name, object);
+    }
+
+    @Override
+    public void removeProperty(String name) {
+        getProperties().remove(name);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.alibaba.webx.restful.process.impl;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.Date;
 import java.util.Locale;
@@ -25,13 +26,13 @@ public class ResponseImpl extends Response {
     private StatusType                         status;
     private Object                             entity;
     private Annotation[]                       annotations;
-    private GenericType<?>                     declaredType;
+    private Type                               declaredType;
     private Set<String>                        allowMethods;
     private MultivaluedHashMap<String, Object> headers;
 
     private HttpServletResponse                httpResponse;
 
-    public ResponseImpl(StatusType status, Object entity, Annotation[] annotations, GenericType<?> declaredType,
+    public ResponseImpl(StatusType status, Object entity, Annotation[] annotations, Type declaredType,
                         Set<String> allowMethods, MultivaluedHashMap<String, Object> headers){
         super();
         this.status = status;
@@ -42,7 +43,7 @@ public class ResponseImpl extends Response {
         this.headers = headers;
     }
 
-    public GenericType<?> getDeclaredType() {
+    public Type getDeclaredType() {
         return declaredType;
     }
 
@@ -214,6 +215,11 @@ public class ResponseImpl extends Response {
     @Override
     public MultivaluedMap<String, Object> getMetadata() {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<String> getAllowedMethods() {
+        return null;
     }
 
 }
