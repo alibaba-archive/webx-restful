@@ -94,23 +94,23 @@ public class ClassUtils {
         throw new IllegalStateException("Type: " + type.getCanonicalName() + " is not a primitive type");
     }
 
-    public static Class getClass(Type type) {
+    public static Class<?> getClass(Type type) {
         if (type instanceof Class) {
-            return (Class) type;
+            return (Class<?>) type;
         } else if (type instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             if (parameterizedType.getRawType() instanceof Class) {
-                return (Class) parameterizedType.getRawType();
+                return (Class<?>) parameterizedType.getRawType();
             }
         } else if (type instanceof GenericArrayType) {
             GenericArrayType array = (GenericArrayType) type;
-            return getArrayClass((Class) ((ParameterizedType) array.getGenericComponentType()).getRawType());
+            return getArrayClass((Class<?>) ((ParameterizedType) array.getGenericComponentType()).getRawType());
         }
         throw new IllegalArgumentException("Type parameter " + type.toString() + " not a class or "
                                            + "parameterized type whose raw type is a class");
     }
 
-    private static Class getArrayClass(Class c) {
+    private static Class<?> getArrayClass(Class<?> c) {
         try {
             Object o = Array.newInstance(c, 0);
             return o.getClass();
