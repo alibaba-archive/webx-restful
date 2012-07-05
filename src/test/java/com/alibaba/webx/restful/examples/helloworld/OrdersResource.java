@@ -33,7 +33,6 @@ public class OrdersResource {
     }
 
     @GET
-    @Produces({"application/xml; qs=0.9", "application/json"})
     public Order getOrder() {
         return service.findOrder(id);
     }

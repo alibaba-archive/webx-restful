@@ -57,7 +57,6 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
     private Map<String, String>       pathVariables;
 
     public ContainerRequestContextImpl(HttpServletRequest request, HttpServletResponse response, UriInfo uriInfo){
-        super();
         this.httpRequest = request;
         this.httpResponse = response;
         this.date = new Date();
@@ -284,7 +283,7 @@ public class ContainerRequestContextImpl implements RestfulRequestContext {
         if (properties == null) {
             return null;
         }
-        
+
         return properties.get(name);
     }
 

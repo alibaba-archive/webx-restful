@@ -77,14 +77,20 @@ public class ApplicationHandler {
     }
 
     public void service(HttpServletRequest request, HttpServletResponse response, UriInfo uri) throws IOException {
-        ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(request, response, uri);
+        ContainerRequestContextImpl requestContext = createRequestContext(request, response, uri);
 
         service(requestContext);
     }
 
+    public ContainerRequestContextImpl createRequestContext(HttpServletRequest request, HttpServletResponse response,
+                                                            UriInfo uri) {
+        ContainerRequestContextImpl requestContext = new ContainerRequestContextImpl(request, response, uri);
+        match(requestContext);
+        return requestContext;
+    }
+
     @SuppressWarnings({ "rawtypes" })
     public void service(RestfulRequestContext requestContext) throws IOException {
-        match(requestContext);
 
         if (requestContext.getResourceMethod() == null) {
             throw new ProcessException("no resource matched");

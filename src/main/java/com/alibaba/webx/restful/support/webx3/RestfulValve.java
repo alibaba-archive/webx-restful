@@ -17,32 +17,34 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.citrus.service.pipeline.PipelineContext;
 import com.alibaba.citrus.service.pipeline.Valve;
-import com.alibaba.citrus.turbine.TurbineRunDataInternal;
+import com.alibaba.citrus.turbine.TurbineRunData;
 import com.alibaba.citrus.webx.WebxComponent;
 import com.alibaba.fastjson.util.IOUtils;
 import com.alibaba.webx.restful.model.ApplicationImpl;
 import com.alibaba.webx.restful.model.Resource;
+import com.alibaba.webx.restful.model.ResourceMethod;
 import com.alibaba.webx.restful.model.finder.AnnotatedClassVisitor;
 import com.alibaba.webx.restful.model.finder.ClassInfo;
 import com.alibaba.webx.restful.model.param.ParameterProviderImpl;
 import com.alibaba.webx.restful.process.ApplicationHandler;
 import com.alibaba.webx.restful.process.RestfulComponent;
+import com.alibaba.webx.restful.process.impl.ContainerRequestContextImpl;
 import com.alibaba.webx.restful.process.impl.UriInfoImpl;
 import com.alibaba.webx.restful.spi.ParameterProvider;
 import com.alibaba.webx.restful.util.ResourceUtils;
 
 public class RestfulValve implements Valve {
 
-    private final static Log              LOG              = LogFactory.getLog(RestfulValve.class);
+    private final static Log          LOG              = LogFactory.getLog(RestfulValve.class);
 
     @Autowired
-    private HttpServletRequest            request;
+    private HttpServletRequest        request;
 
     @Autowired
-    private HttpServletResponse           response;
+    private HttpServletResponse       response;
 
     @Autowired
-    private WebxComponent                 component;
+    private WebxComponent             component;
 
     private volatile RestfulComponent restfulComponent = null;
 
@@ -137,13 +139,21 @@ public class RestfulValve implements Valve {
             init();
         }
 
-        TurbineRunDataInternal rundata = (TurbineRunDataInternal) getTurbineRunData(request);
+        TurbineRunData rundata = (TurbineRunData) getTurbineRunData(request);
 
         ApplicationHandler handler = restfulComponent.getHandler();
 
         UriInfoImpl uriInfo = new UriInfoImpl(rundata.getRequest(), rundata.getTarget());
 
-        handler.service(request, response, uriInfo);
+        ContainerRequestContextImpl requestContext = handler.createRequestContext(request, response, uriInfo);
+
+        ResourceMethod resourceMethod = requestContext.getResourceMethod();
+
+        if (resourceMethod != null) {
+            handler.service(requestContext);
+        } else {
+            pipelineContext.invokeNext();
+        }
     }
 
 }

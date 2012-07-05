@@ -15,6 +15,9 @@
         </repository>
     </repositories>
 	
+	<properties>
+		<spring-version>2.5.6.SEC03</spring-version>
+	</properties>
 
 	<build>
 		<plugins>
@@ -44,6 +47,17 @@
 					<attach>true</attach>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/bvt/**/*.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+			
 		</plugins>
 	</build>
 
@@ -75,7 +89,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring</artifactId>
-			<version>2.5.6.SEC03</version>
+			<version>${spring-version}</version>
 		</dependency>
 
 		<dependency>
